@@ -8,6 +8,7 @@ buildscript {
 		maven { url 'https://maven.aliyun.com/repository/jcenter' }
 		maven { url 'https://maven.aliyun.com/repository/google' }
 		maven { url 'https://www.jitpack.io' }
+		maven { url 'https://central.sonatype.com/repository/maven-snapshots/' }
 		mavenCentral()
 		gradlePluginPortal()
 		google()
@@ -42,6 +43,8 @@ dependencies {
 	implementation("blank:JWS:1.0.0")
 	// https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
 	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
+	// https://mvnrepository.com/artifact/top.mrxiaom.mirai/overflow-core
+	implementation group: 'top.mrxiaom.mirai', name: 'overflow-core', version: '1.0.8'
 }
 
 tasks.withType(Jar).configureEach {

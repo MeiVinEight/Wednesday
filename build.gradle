@@ -28,7 +28,6 @@ repositories {
 	maven { url 'https://maven.aliyun.com/repository/jcenter' }
 	maven { url 'https://maven.aliyun.com/repository/google' }
 	maven { url 'https://www.jitpack.io' }
-	flatDir { dir 'libs' }
 	mavenCentral()
 	gradlePluginPortal()
 	google()
@@ -40,7 +39,6 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
-	implementation("blank:JWS:1.0.0")
 	// https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
 	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
 	// https://mvnrepository.com/artifact/top.mrxiaom.mirai/overflow-core

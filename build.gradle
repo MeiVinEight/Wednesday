@@ -1,35 +1,36 @@
 buildscript {
-    repositories {
-        maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
-        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        maven { url 'https://maven.aliyun.com/nexus/content/groups/public' }
-        maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
-        maven { url 'https://maven.aliyun.com/repository/jcenter' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://www.jitpack.io' }
-        mavenCentral()
-        gradlePluginPortal()
-        google()
-    }
+	repositories {
+		maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
+		maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+		maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+		maven { url 'https://maven.aliyun.com/nexus/content/groups/public' }
+		maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
+		maven { url 'https://maven.aliyun.com/repository/jcenter' }
+		maven { url 'https://maven.aliyun.com/repository/google' }
+		maven { url 'https://www.jitpack.io' }
+		mavenCentral()
+		gradlePluginPortal()
+		google()
+	}
 }
 
 plugins {
-    id 'java'
+	id 'java'
 }
 
 repositories {
-    maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
-    maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
-    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-    maven { url 'https://maven.aliyun.com/nexus/content/groups/public' }
-    maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
-    maven { url 'https://maven.aliyun.com/repository/jcenter' }
-    maven { url 'https://maven.aliyun.com/repository/google' }
-    maven { url 'https://www.jitpack.io' }
-    mavenCentral()
-    gradlePluginPortal()
-    google()
+	maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
+	maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+	maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+	maven { url 'https://maven.aliyun.com/nexus/content/groups/public' }
+	maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
+	maven { url 'https://maven.aliyun.com/repository/jcenter' }
+	maven { url 'https://maven.aliyun.com/repository/google' }
+	maven { url 'https://www.jitpack.io' }
+	flatDir { dir 'libs' }
+	mavenCentral()
+	gradlePluginPortal()
+	google()
 }
 
 group = "org.mve"
@@ -38,18 +39,19 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
-    implementation(files("libs/jansi-2.4.1.jar"))
-    implementation(files("libs/JWS-1.0.0.jar"))
+	implementation("blank:JWS:1.0.0")
+	// https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
+	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
 }
 
 tasks.withType(Jar).configureEach {
-    destinationDirectory = file("libs")
+	destinationDirectory = file("libs")
 }
 
 tasks.register('sourceJar', Jar) {
-    dependsOn classes
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
+	dependsOn classes
+	archiveClassifier = 'sources'
+	from sourceSets.main.allSource
 }
 
 tasks.build.finalizedBy(sourceJar)

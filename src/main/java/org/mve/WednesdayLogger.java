@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 public class WednesdayLogger extends LegacyAbstractLogger implements Function3<SimpleLogger.LogPriority, String, Throwable, Unit>, MiraiLogger
 {
 	private static final Map<SimpleLogger.LogPriority, Consumer<Ansi>> PRIORITY_COLOR;
+	private static final Map<SimpleLogger.LogPriority, String> PRIORITY_ALIGNED_NAME;
 	private final SimpleLogger.LogPriority priority;
 
 	public WednesdayLogger()
@@ -47,7 +48,7 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 			.a('[');
 		if (PRIORITY_COLOR.containsKey(logPriority))
 			PRIORITY_COLOR.get(logPriority).accept(ansi);
-		ansi.a(logPriority.toString())
+		ansi.a(PRIORITY_ALIGNED_NAME.get(logPriority))
 			.a(Ansi.Attribute.RESET)
 			.a("] ");
 		if (s != null)
@@ -212,5 +213,12 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 		PRIORITY_COLOR.put(SimpleLogger.LogPriority.INFO, ansi -> ansi.bold().fg(Ansi.Color.GREEN));
 		PRIORITY_COLOR.put(SimpleLogger.LogPriority.WARNING, ansi -> ansi.bold().fg(Ansi.Color.YELLOW));
 		PRIORITY_COLOR.put(SimpleLogger.LogPriority.ERROR, ansi -> ansi.bold().fg(Ansi.Color.RED));
+
+		PRIORITY_ALIGNED_NAME = new HashMap<>();
+		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.VERBOSE, "VERB");
+		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.DEBUG, "DBUG");
+		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.INFO, "INFO");
+		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.WARNING, "WARN");
+		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.ERROR, "ERRO");
 	}
 }

@@ -76,7 +76,18 @@ public class Configuration
 
 		ONEBOT_WS_FORWARD = onebotWsForward;
 		ONEBOT_TOKEN = onebotToken;
-		LOG_LEVEL = SimpleLogger.LogPriority.valueOf(logLevel);
+		SimpleLogger.LogPriority logPriority;
+		try
+		{
+			logPriority = SimpleLogger.LogPriority.valueOf(logLevel);
+		}
+		catch (IllegalArgumentException e)
+		{
+			LOGGER.error("未知的日志等级:{}, 使用默认配置", logLevel, e);
+			logPriority = SimpleLogger.LogPriority.INFO;
+		}
+		LOG_LEVEL = logPriority;
+
 		if (newFile)
 		{
 			LOGGER.info("创建默认配置");

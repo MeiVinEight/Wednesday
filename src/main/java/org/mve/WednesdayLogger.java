@@ -19,15 +19,26 @@ import java.util.function.Consumer;
 public class WednesdayLogger extends LegacyAbstractLogger implements Function3<SimpleLogger.LogPriority, String, Throwable, Unit>, MiraiLogger
 {
 	private static final Map<SimpleLogger.LogPriority, Consumer<Ansi>> PRIORITY_COLOR;
+	private final SimpleLogger.LogPriority priority;
 
 	public WednesdayLogger()
 	{
+		this(SimpleLogger.LogPriority.VERBOSE);
+	}
+
+	public WednesdayLogger(SimpleLogger.LogPriority priority)
+	{
 		this.name = Wednesday.SID;
+		this.priority = priority;
 	}
 
 	@Override
 	public Unit invoke(SimpleLogger.LogPriority logPriority, String s, Throwable throwable)
 	{
+		if (logPriority == null)
+			return null;
+		if (this.priority.compareTo(logPriority) > 0)
+			return null;
 		if (s == null && throwable == null)
 			return null;
 		Ansi ansi = new Ansi();

@@ -29,7 +29,12 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 
 	public WednesdayLogger(SimpleLogger.LogPriority priority)
 	{
-		this.name = Wednesday.SID;
+		this(null, priority);
+	}
+
+	public WednesdayLogger(String name, SimpleLogger.LogPriority priority)
+	{
+		this.name = name;
 		this.priority = priority;
 	}
 
@@ -42,20 +47,30 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 			return null;
 		if (s == null && throwable == null)
 			return null;
+
 		Ansi ansi = new Ansi();
 		ansi.a(Ansi.Attribute.RESET)
 			.a(timestamp())
 			.a('[');
+
 		if (PRIORITY_COLOR.containsKey(logPriority))
 			PRIORITY_COLOR.get(logPriority).accept(ansi);
 		ansi.a(PRIORITY_ALIGNED_NAME.get(logPriority))
 			.a(Ansi.Attribute.RESET)
 			.a("] ");
+
+		if(this.name != null)
+			ansi.a('[')
+				.a(this.name)
+				.a("] ");
+
 		if (s != null)
 			ansi.a(s)
 				.a('\n');
+
 		if (throwable != null)
 			ansi.a(ExceptionsKt.stackTraceToString(throwable));
+
 		System.out.print(ansi);
 		return null;
 	}

@@ -42,7 +42,7 @@ public class Configuration
 		}
 		catch (IOException e)
 		{
-			LOGGER.error("Error occurred while saving configuration", e);
+			LOGGER.error("保存配置文件失败", e);
 		}
 	}
 
@@ -70,7 +70,7 @@ public class Configuration
 			}
 			catch (IOException e)
 			{
-				LOGGER.error("Error occurred while loading configuration", e);
+				LOGGER.error("加载配置文件失败", e);
 			}
 		}
 
@@ -79,7 +79,7 @@ public class Configuration
 		LOG_LEVEL = SimpleLogger.LogPriority.valueOf(logLevel);
 		if (newFile)
 		{
-			LOGGER.info("Configuration file not exists, creating default configuration");
+			LOGGER.info("创建默认配置");
 			Configuration.save();
 		}
 	}

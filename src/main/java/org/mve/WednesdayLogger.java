@@ -88,12 +88,14 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 				{
 					if (useArg)
 					{
-						builder.append('}');
+						builder.append('{');
 						useArg = false;
 					}
 					builder.append(c);
 				}
 			}
+			if (useArg)
+				builder.append('{');
 			messagePattern = builder.toString();
 		}
 		SimpleLogger.LogPriority priority = switch (level)

@@ -29,7 +29,7 @@ public class Wednesday extends Synchronize
 		if (QQ == null)
 		{
 			this.close();
-			System.exit(0);
+			return;
 		}
 	}
 

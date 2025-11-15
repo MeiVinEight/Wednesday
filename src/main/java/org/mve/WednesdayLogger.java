@@ -22,14 +22,9 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	private static final Map<SimpleLogger.LogPriority, String> PRIORITY_ALIGNED_NAME;
 	private final SimpleLogger.LogPriority priority;
 
-	public WednesdayLogger()
+	public WednesdayLogger(String name)
 	{
-		this(SimpleLogger.LogPriority.VERBOSE);
-	}
-
-	public WednesdayLogger(SimpleLogger.LogPriority priority)
-	{
-		this(null, priority);
+		this(name, SimpleLogger.LogPriority.DEBUG);
 	}
 
 	public WednesdayLogger(String name, SimpleLogger.LogPriority priority)

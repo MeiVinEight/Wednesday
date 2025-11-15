@@ -10,6 +10,18 @@ import java.io.InputStreamReader;
 
 public class LoggerMessage
 {
+	public static final String KEY_LOG_WEDNESDAY_SHUTDOWN = "log.wednesday.shutdown";
+	public static final String KEY_LOG_WEDNESDAY_STARTUP = "log.wednesday.startup";
+	public static final String KEY_LOG_WEDNESDAY_STARTUP_PATCHING = "log.wednesday.startup.patching";
+	public static final String KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL = "log.wednesday.startup.patching.log.level.fail";
+	public static final String KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC = "log.wednesday.startup.patching.log.level.succ";
+
+	public static final String LOG_WEDNESDAY_SHUTDOWN;
+	public static final String LOG_WEDNESDAY_STARTUP;
+	public static final String LOG_WEDNESDAY_STARTUP_PATCHING;
+	public static final String LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL;
+	public static final String LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC;
+
 	private static final char ESCAPING = '§';
 	private static final WednesdayLogger LOGGER = new WednesdayLogger("Language");
 	private static final JsonObject LANGUAGE;
@@ -128,5 +140,11 @@ public class LoggerMessage
 			LOGGER.error("Language {} loading fail", Configuration.LANGUAGE, e);
 		}
 		LANGUAGE = lang;
+
+		LOG_WEDNESDAY_SHUTDOWN               = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_SHUTDOWN);
+		LOG_WEDNESDAY_STARTUP                = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_STARTUP);
+		LOG_WEDNESDAY_STARTUP_PATCHING       = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_STARTUP_PATCHING);
+		LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL);
+		LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC);
 	}
 }

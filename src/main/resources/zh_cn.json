@@ -1,0 +1,7 @@
+{
+	"log.wednesday.shutdown": "Wednesday 关闭",
+	"log.wednesday.startup": "Wednesday 启动",
+	"log.wednesday.startup.patching": "进行修补:",
+	"log.wednesday.startup.patching.log.level.fail": "日志等级:§4§l修补失败",
+	"log.wednesday.startup.patching.log.level.succ": "日志等级:§2§l修补完成"
+}

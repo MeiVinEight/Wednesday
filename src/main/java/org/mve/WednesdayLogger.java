@@ -223,8 +223,8 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	static
 	{
 		PRIORITY_COLOR = new HashMap<>();
-		PRIORITY_COLOR.put(SimpleLogger.LogPriority.VERBOSE, ansi -> ansi.bold().fg(Ansi.Color.MAGENTA));
-		PRIORITY_COLOR.put(SimpleLogger.LogPriority.DEBUG, ansi -> ansi.bold().fgBright(Ansi.Color.BLUE));
+		PRIORITY_COLOR.put(SimpleLogger.LogPriority.VERBOSE, ansi -> ansi.bold().fgBright(Ansi.Color.BLUE));
+		PRIORITY_COLOR.put(SimpleLogger.LogPriority.DEBUG, ansi -> ansi.bold().fg(Ansi.Color.MAGENTA));
 		PRIORITY_COLOR.put(SimpleLogger.LogPriority.INFO, ansi -> ansi.bold().fg(Ansi.Color.GREEN));
 		PRIORITY_COLOR.put(SimpleLogger.LogPriority.WARNING, ansi -> ansi.bold().fg(Ansi.Color.YELLOW));
 		PRIORITY_COLOR.put(SimpleLogger.LogPriority.ERROR, ansi -> ansi.bold().fg(Ansi.Color.RED));

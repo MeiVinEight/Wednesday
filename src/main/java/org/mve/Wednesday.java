@@ -1,6 +1,7 @@
 package org.mve;
 
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.event.events.BotOfflineEvent;
 import top.mrxiaom.overflow.BotBuilder;
 
 public class Wednesday extends Synchronize
@@ -31,6 +32,7 @@ public class Wednesday extends Synchronize
 			this.close();
 			return;
 		}
+		QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, event -> Wednesday.this.close());
 	}
 
 	public void close()

@@ -1,7 +1,6 @@
 package org.mve;
 
 import net.mamoe.mirai.utils.SimpleLogger;
-import org.fusesource.jansi.Ansi;
 
 import java.lang.invoke.MethodHandle;
 
@@ -9,8 +8,8 @@ public class Main
 {
 	public static void main(String[] args)
 	{
-		Wednesday.LOGGER.info("Wednesday 启动");
-		Wednesday.LOGGER.info("进行修补:");
+		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP);
+		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP_PATCHING);
 
 		// Patcher
 		// Make LogPriority.DEBUG.ordinal() < LogPriority.VERBOSE.ordinal()
@@ -23,11 +22,11 @@ public class Main
 				int dbugOrdinal = (int) getOrdinal.invokeExact((Enum<SimpleLogger.LogPriority>) SimpleLogger.LogPriority.DEBUG);
 				setOrdinal.invoke((Enum<SimpleLogger.LogPriority>) SimpleLogger.LogPriority.VERBOSE, dbugOrdinal);
 				setOrdinal.invoke((Enum<SimpleLogger.LogPriority>) SimpleLogger.LogPriority.DEBUG, verbOrdinal);
-				Wednesday.LOGGER.info("日志等级:{}", Ansi.ansi().bold().fg(Ansi.Color.GREEN).a("修补完成").reset());
+				Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC);
 			}
 			catch (Throwable e)
 			{
-				Wednesday.LOGGER.warn("日志等级:{}", Ansi.ansi().bold().fg(Ansi.Color.RED).a("修补失败").reset(), e);
+				Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL);
 			}
 		}
 

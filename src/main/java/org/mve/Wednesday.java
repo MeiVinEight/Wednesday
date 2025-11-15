@@ -35,7 +35,7 @@ public class Wednesday extends Synchronize
 
 	public void close()
 	{
-		LOGGER.info("Wednesday 关闭");
+		LOGGER.info(LoggerMessage.LOG_WEDNESDAY_SHUTDOWN);
 		this.cancel();
 		this.synchronize.close();
 		if (this.QQ != null)

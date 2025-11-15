@@ -83,7 +83,7 @@ public class Configuration
 		}
 		catch (IllegalArgumentException e)
 		{
-			LOGGER.error("未知的日志等级:{}, 可用的配置为:{TRACE, DEBUG, INFO, WARNING, ERROR}", logLevel, e);
+			LOGGER.error("未知的日志等级:{}, 可用的配置为:{DEBUG, VERBOSE, INFO, WARNING, ERROR}", logLevel, e);
 			logPriority = SimpleLogger.LogPriority.INFO;
 		}
 		LOG_LEVEL = logPriority;

@@ -21,13 +21,12 @@ public class Configuration
 	private static final String KEY_LOGLEVEL = "LogLevel";
 	private static final String KEY_LANGUAGE = "Language";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-	private static final WednesdayLogger LOGGER = new WednesdayLogger();
+	private static final WednesdayLogger LOGGER = new WednesdayLogger("Configuration");
 
 	public static final String ONEBOT_WS_FORWARD;
 	public static final String ONEBOT_TOKEN;
 	public static final SimpleLogger.LogPriority LOG_LEVEL;
 	public static final String LANGUAGE;
-
 
 	public static void save()
 	{
@@ -45,7 +44,7 @@ public class Configuration
 		}
 		catch (IOException e)
 		{
-			LOGGER.error("保存配置文件失败", e);
+			LOGGER.error("Configuration saving fail", e);
 		}
 	}
 
@@ -76,7 +75,7 @@ public class Configuration
 			}
 			catch (IOException e)
 			{
-				LOGGER.error("加载配置文件失败", e);
+				LOGGER.error("Configuration loading fail", e);
 			}
 		}
 
@@ -89,7 +88,7 @@ public class Configuration
 		}
 		catch (IllegalArgumentException e)
 		{
-			LOGGER.error("未知的日志等级:{}, 可用的配置为:{DEBUG, VERBOSE, INFO, WARNING, ERROR}", logLevel, e);
+			LOGGER.error("Wrong log level {}, alternative:{DEBUG, VERBOSE, INFO, WARNING, ERROR}", logLevel, e);
 			logPriority = SimpleLogger.LogPriority.INFO;
 		}
 		LOG_LEVEL = logPriority;
@@ -97,7 +96,7 @@ public class Configuration
 
 		if (newFile)
 		{
-			LOGGER.info("创建默认配置");
+			LOGGER.info("Configuration creating default");
 			Configuration.save();
 		}
 	}

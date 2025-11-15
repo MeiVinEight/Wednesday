@@ -19,12 +19,14 @@ public class Configuration
 	private static final String KEY_ONEBOT_WS_FORWARD = "WebSocket-Forward";
 	private static final String KEY_ONEBOT_TOKEN = "Token";
 	private static final String KEY_LOGLEVEL = "LogLevel";
+	private static final String KEY_LANGUAGE = "Language";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = new WednesdayLogger();
 
 	public static final String ONEBOT_WS_FORWARD;
 	public static final String ONEBOT_TOKEN;
 	public static final SimpleLogger.LogPriority LOG_LEVEL;
+	public static final String LANGUAGE;
 
 
 	public static void save()
@@ -37,6 +39,7 @@ public class Configuration
 			JsonObject config = new JsonObject();
 			config.add(KEY_ONEBOT, configOnebot);
 			config.addProperty(KEY_LOGLEVEL, LOG_LEVEL.toString());
+			config.addProperty(KEY_LANGUAGE, LANGUAGE);
 			fos.write(GSON.toJson(config).getBytes(StandardCharsets.UTF_8));
 			fos.flush();
 		}
@@ -55,6 +58,7 @@ public class Configuration
 		String onebotWsForward = "ws://127.0.0.1:3001";
 		String onebotToken = "";
 		String logLevel = "INFO";
+		String language = "zh_cn";
 
 		if (!newFile)
 		{
@@ -67,6 +71,8 @@ public class Configuration
 					onebotToken = configOnebot.get(KEY_ONEBOT_TOKEN).getAsString();
 				if (config.has(KEY_LOGLEVEL))
 					logLevel = config.get(KEY_LOGLEVEL).getAsString();
+				if (config.has(KEY_LANGUAGE))
+					language = config.get(KEY_LANGUAGE).getAsString();
 			}
 			catch (IOException e)
 			{
@@ -87,6 +93,7 @@ public class Configuration
 			logPriority = SimpleLogger.LogPriority.INFO;
 		}
 		LOG_LEVEL = logPriority;
+		LANGUAGE = language;
 
 		if (newFile)
 		{

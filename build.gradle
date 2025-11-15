@@ -43,6 +43,8 @@ dependencies {
 	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
 	// https://mvnrepository.com/artifact/top.mrxiaom.mirai/overflow-core
 	implementation group: 'top.mrxiaom.mirai', name: 'overflow-core', version: '1.0.8'
+	// https://mvnrepository.com/artifact/org.ow2.asm/asm
+	implementation group: 'org.ow2.asm', name: 'asm', version: '9.9'
 }
 
 tasks.withType(Jar).configureEach {

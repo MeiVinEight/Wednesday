@@ -250,7 +250,7 @@ public class Minecraft implements Function<MessageEvent, Boolean>
 
 	static
 	{
-		ObfuscationMap map = null;
+		ObfuscationMap map;
 		try
 		{
 			Wednesday.LOGGER.info(LoggerMessage.translate("log.mc.load.obf.map"), VERSION);

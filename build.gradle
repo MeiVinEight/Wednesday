@@ -47,21 +47,20 @@ dependencies {
 	implementation group: 'org.ow2.asm', name: 'asm', version: '9.9'
 }
 
-tasks.withType(Jar).configureEach {
-	destinationDirectory = file("libs")
-}
-
 tasks.register('sourceJar', Jar) {
 	dependsOn classes
 	archiveClassifier = 'sources'
 	from sourceSets.main.allSource
 }
 
-tasks.build.finalizedBy(sourceJar)
-
 tasks.register("run", JavaExec)
 {
 	group = "run"
 	classpath = sourceSets.main.runtimeClasspath
 	mainClass = "org.mve.Main"
+}
+
+tasks.jar.configure {
+	destinationDirectory = file("libs")
+	finalizedBy(sourceJar)
 }

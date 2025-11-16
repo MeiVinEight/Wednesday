@@ -38,7 +38,8 @@ public class Wednesday extends Synchronize
 			this.close();
 			return;
 		}
-		SubscribeMessage sub = new SubscribeMessage(this);
+		SubscribeMessage sub = new SubscribeMessage();
+		sub.register(new EchoingMessage(this));
 		QQ.getEventChannel().subscribe(MessageEvent.class, sub);
 		this.synchronize.offer(sub);
 		QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, event -> Wednesday.this.close());

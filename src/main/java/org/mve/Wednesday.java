@@ -2,7 +2,12 @@ package org.mve;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
+import net.mamoe.mirai.utils.MiraiLogger;
+import net.mamoe.mirai.utils.SimpleLogger;
 import top.mrxiaom.overflow.BotBuilder;
+import top.mrxiaom.overflow.OverflowAPI;
+
+import java.lang.invoke.MethodHandle;
 
 public class Wednesday extends Synchronize
 {
@@ -47,5 +52,18 @@ public class Wednesday extends Synchronize
 	@Override
 	public void run()
 	{
+	}
+
+	static
+	{
+		try
+		{
+			MethodHandle logger = ModuleAccess.LOOKUP.findStaticSetter(OverflowAPI.Companion.class, "logger", MiraiLogger.class);
+			logger.invokeExact((MiraiLogger) new WednesdayLogger("OverflowAPI", SimpleLogger.LogPriority.DEBUG));
+		}
+		catch (Throwable t)
+		{
+			LOGGER.error("", t);
+		}
 	}
 }

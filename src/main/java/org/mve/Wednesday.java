@@ -2,6 +2,7 @@ package org.mve;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.SimpleLogger;
 import top.mrxiaom.overflow.BotBuilder;
@@ -37,6 +38,9 @@ public class Wednesday extends Synchronize
 			this.close();
 			return;
 		}
+		SubscribeMessage sub = new SubscribeMessage(this);
+		QQ.getEventChannel().subscribe(MessageEvent.class, sub);
+		this.synchronize.offer(sub);
 		QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, event -> Wednesday.this.close());
 	}
 

@@ -31,6 +31,6 @@ public class Main
 		}
 
 		Wednesday wednesday = new Wednesday();
-		Runtime.getRuntime().addShutdownHook(new Thread(wednesday::close));
+		Runtime.getRuntime().addShutdownHook(wednesday.shutdown);
 	}
 }

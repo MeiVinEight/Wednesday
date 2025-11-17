@@ -17,6 +17,7 @@ public class Wednesday extends Synchronize
 	public final SynchronizeNET synchronize = new SynchronizeNET();
 	public static final WednesdayLogger LOGGER = new WednesdayLogger(SID, Configuration.LOG_LEVEL);
 	private final Bot QQ;
+	public final Thread shutdown = new Thread(this::close);
 
 	public Wednesday()
 	{
@@ -54,6 +55,8 @@ public class Wednesday extends Synchronize
 		this.synchronize.close();
 		if (this.QQ != null)
 			this.QQ.close();
+
+		Runtime.getRuntime().removeShutdownHook(this.shutdown);
 	}
 
 	@Override

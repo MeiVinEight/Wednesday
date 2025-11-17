@@ -1,0 +1,13 @@
+plugins {
+	id 'java'
+}
+
+group = "org.mve"
+version = "1.0.0"
+java.sourceCompatibility = JavaVersion.VERSION_17
+java.targetCompatibility = JavaVersion.VERSION_17
+
+
+tasks.jar.configure {
+	destinationDirectory = file("../libs")
+}

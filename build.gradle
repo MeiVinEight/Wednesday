@@ -39,6 +39,7 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
+	implementation project(":Kaybxg")
 	// https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
 	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
 	// https://mvnrepository.com/artifact/top.mrxiaom.mirai/overflow-core
@@ -53,8 +54,7 @@ tasks.register('sourceJar', Jar) {
 	from sourceSets.main.allSource
 }
 
-tasks.register("run", JavaExec)
-{
+tasks.register("run", JavaExec)  {
 	group = "run"
 	classpath = sourceSets.main.runtimeClasspath
 	mainClass = "org.mve.Main"

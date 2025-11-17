@@ -58,6 +58,22 @@ public class Wednesday extends Synchronize
 		Runtime.getRuntime().removeShutdownHook(this.shutdown);
 	}
 
+	public void join()
+	{
+		if (this.QQ != null)
+			this.QQ.join();
+		while (this.synchronize.thread.isAlive())
+		{
+			try
+			{
+				this.synchronize.thread.join();
+			}
+			catch (InterruptedException ignored)
+			{
+			}
+		}
+	}
+
 	@Override
 	public void run()
 	{

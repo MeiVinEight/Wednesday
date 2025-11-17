@@ -32,5 +32,6 @@ public class Main
 
 		Wednesday wednesday = new Wednesday();
 		Runtime.getRuntime().addShutdownHook(wednesday.shutdown);
+		wednesday.join();
 	}
 }

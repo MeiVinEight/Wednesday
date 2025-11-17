@@ -58,3 +58,10 @@ tasks.register('sourceJar', Jar) {
 }
 
 tasks.build.finalizedBy(sourceJar)
+
+tasks.register("run", JavaExec)
+{
+	group = "run"
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = "org.mve.Main"
+}

@@ -19,7 +19,7 @@
 > ✨积极欢迎贡献代码✨
 
 ## 丨使用
-> **Gradle**
+> **使用Gradle运行**
 
 1. 克隆项目到本地
 
@@ -31,6 +31,26 @@
 
    ```shell
    ./gradlew run
+   ```
+
+> **使用Kaybxg运行**
+
+1. 克隆项目到本地
+
+   ```shell
+   git clone https://github.com/MeiVinEight/Wednesday
+   ```
+
+2. 使用gradlew构建项目
+
+   ```shell
+   ./gradlew build
+   ```
+
+3. 使用Java运行Kaybxg
+
+   ```shell
+   java -cp libs/Kaybxg-1.0.0.jar org.mve.kaybxg.Kaybxg
    ```
 
 ## 丨配置

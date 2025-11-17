@@ -60,6 +60,12 @@ tasks.register("run", JavaExec)  {
 	mainClass = "org.mve.Main"
 }
 
+tasks.register("runKaybxg", JavaExec) {
+	group = "run"
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = "org.mve.kaybxg.Main"
+}
+
 tasks.jar.configure {
 	destinationDirectory = file("libs")
 	finalizedBy(sourceJar)

@@ -9,6 +9,13 @@ public class SynchronizeNET implements Runnable
 	public static final long PERIOD_MS = 50;
 	private final Queue<Synchronize> queue = new ConcurrentLinkedQueue<>();
 	private boolean running = true;
+	public final Thread thread;
+
+	public SynchronizeNET()
+	{
+		this.thread = new Thread(this);
+		this.thread.start();
+	}
 
 	@Override
 	public void run()

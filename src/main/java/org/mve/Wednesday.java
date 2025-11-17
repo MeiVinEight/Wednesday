@@ -22,7 +22,6 @@ public class Wednesday extends Synchronize
 	public Wednesday()
 	{
 		this.synchronize.offer(this);
-		new Thread(this.synchronize).start();
 		this.QQ = BotBuilder.positive(Configuration.ONEBOT_WS_FORWARD)
 			.token(Configuration.ONEBOT_TOKEN)
 			.modifyBotConfiguration(config ->

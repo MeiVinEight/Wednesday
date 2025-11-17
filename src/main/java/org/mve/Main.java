@@ -40,7 +40,8 @@ public class Main
 		}
 
 		Wednesday wednesday = new Wednesday();
-		Runtime.getRuntime().addShutdownHook(wednesday.shutdown);
+		Thread shutdownHook = new Thread(wednesday::close);
+		Runtime.getRuntime().addShutdownHook(shutdownHook);
 		wednesday.join();
 		Thread current = Thread.currentThread();
 		Thread[] threads = new Thread[64];
@@ -69,6 +70,7 @@ public class Main
 				}
 			}
 		}
+		Runtime.getRuntime().removeShutdownHook(shutdownHook);
 		DefaultExecutor.INSTANCE.shutdown();
 		for (int i = 0; i < count; i++)
 		{

@@ -53,6 +53,15 @@
    java -cp libs/Kaybxg-1.0.0.jar org.mve.kaybxg.Kaybxg
    ```
 
+> **运行方式对比**
+
+| 特性            | Gradle | Kaybxg |
+|----------------|--------|--------|
+| 更少的内存占用   | ❌     | ✅     |
+| 热重载Kaybxg    | ❌     | ❌     |
+| 热重载Wednesday | ❌     | ❌     |
+| 热重载其他依赖   | ❌     | ❌     |
+
 ## 丨配置
 第一次运行会在运行目录生成一个配置文件`config.json`,这里给出每项的介绍
 ```json5

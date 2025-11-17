@@ -1,4 +1,4 @@
-package org.mve.kaybxg;
+package org.mve.woden;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -7,7 +7,7 @@ import java.net.URLClassLoader;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class Kaybxg
+public class Woden
 {
 	public static boolean running = true;
 	public static final Object WAIT = new Object();
@@ -33,10 +33,10 @@ public class Kaybxg
 		File file = new File("libs");
 		URL[] urls = Stream
 			.of(Objects.requireNonNull(file.listFiles()))
-			.map(Kaybxg::toURL)
+			.map(Woden::toURL)
 			.filter(Objects::nonNull)
 			.toArray(URL[]::new);
-		URLClassLoader loader = new URLClassLoader("Kaybxg", urls, Kaybxg.class.getClassLoader());
+		URLClassLoader loader = new URLClassLoader("Kaybxg", urls, Woden.class.getClassLoader());
 		Class<?> clazz = loader.loadClass("org.mve.Main");
 		Method method = clazz.getDeclaredMethod("main", String[].class);
 		method.setAccessible(true);

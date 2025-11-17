@@ -33,7 +33,7 @@
    ./gradlew run
    ```
 
-> **使用Kaybxg运行**
+> **使用Woden运行**
 
 1. 克隆项目到本地
 
@@ -47,15 +47,15 @@
    ./gradlew build
    ```
 
-3. 使用Java运行Kaybxg
+3. 使用Java运行Woden
 
    ```shell
-   java -cp libs/Kaybxg-1.0.0.jar org.mve.kaybxg.Kaybxg
+   java -cp libs/Woden-1.0.0.jar org.mve.woden.Woden
    ```
 
 > **运行方式对比**
 
-| 特性            | Gradle | Kaybxg |
+| 特性            | Gradle | Woden |
 |----------------|--------|--------|
 | 更少的内存占用   | ❌     | ✅     |
 | 热重载Kaybxg    | ❌     | ❌     |

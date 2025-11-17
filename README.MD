@@ -18,11 +18,26 @@
 > 
 > ✨积极欢迎贡献代码✨
 
+## 丨使用
+> **Gradle**
+
+1. 克隆项目到本地
+
+   ```shell
+   git clone https://github.com/MeiVinEight/Wednesday
+   ```
+
+2. 使用gradlew运行
+
+   ```shell
+   ./gradlew run
+   ```
+
 ## 丨功能
 
 + 查询Forge混淆映射表(目前仅1.20.1)
 
-## 其他
+## 丨其他
 
 + 本项目仅供学习使用，请勿用于非法用途
 + **[MIT](https://github.com/MeiVinEight/Wednesday/blob/master/LICENSE)**

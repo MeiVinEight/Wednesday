@@ -1,11 +1,19 @@
 package org.mve;
 
+import kotlinx.coroutines.DefaultExecutor;
+import kotlinx.coroutines.scheduling.CoroutineScheduler;
+import kotlinx.coroutines.scheduling.CoroutineSchedulerKt;
 import net.mamoe.mirai.utils.SimpleLogger;
 
 import java.lang.invoke.MethodHandle;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class Main
 {
+	private static final Object WAITING = new Object();
+
 	public static void main(String[] args)
 	{
 		System.setProperty("kotlinx.coroutines.scheduler.keep.alive.sec", "1");
@@ -34,5 +42,44 @@ public class Main
 		Wednesday wednesday = new Wednesday();
 		Runtime.getRuntime().addShutdownHook(wednesday.shutdown);
 		wednesday.join();
+		Thread current = Thread.currentThread();
+		Thread[] threads = new Thread[64];
+		int count;
+		for (;;)
+		{
+			ThreadGroup group = Thread.currentThread().getThreadGroup();
+			count = group.enumerate(threads);
+			int nonDaemon = Stream.of(threads)
+				.filter(Objects::nonNull)
+				.filter(Predicate.not(Predicate.isEqual(current)))
+				.filter(Predicate.not(Thread::isDaemon))
+				.toArray()
+				.length;
+			if (nonDaemon == 0)
+				break;
+			synchronized (WAITING)
+			{
+				try
+				{
+					WAITING.wait(1000);
+				}
+				catch (InterruptedException e)
+				{
+					Wednesday.LOGGER.warn("", e);
+				}
+			}
+		}
+		DefaultExecutor.INSTANCE.shutdown();
+		for (int i = 0; i < count; i++)
+		{
+			Thread key =  threads[i];
+			Wednesday.LOGGER.trace("Interrupt {}", key.getName());
+			if (key.isDaemon())
+			{
+				if (CoroutineSchedulerKt.isSchedulerWorker(key))
+					((CoroutineScheduler.Worker) key).state = CoroutineScheduler.WorkerState.TERMINATED;
+				key.interrupt();
+			}
+		}
 	}
 }

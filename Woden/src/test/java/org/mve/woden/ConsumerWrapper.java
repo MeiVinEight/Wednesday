@@ -36,7 +36,9 @@ public class ConsumerWrapper implements Consumer<String[]>
 	@Override
 	public void accept(String[] args)
 	{
-		if (!GradleWrapperLoader.gradle(this.getClass().getClassLoader()))
+		if (this.getClass().getClassLoader() == null)
+			return;
+		if (!"org.mve.woden.GradleWrapperLoader".equals(this.getClass().getClassLoader().getClass().getName()))
 			return;
 
 		try

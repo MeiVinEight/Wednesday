@@ -1,6 +1,7 @@
 package org.mve.woden;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -55,6 +56,14 @@ public class Woden
 			exception(e);
 		}
 		return null;
+	}
+
+	private static Process git(String cmd) throws IOException
+	{
+		return new ProcessBuilder("git", cmd)
+			.directory(new File("."))
+			.inheritIO()
+			.start();
 	}
 
 	@SuppressWarnings("unchecked")

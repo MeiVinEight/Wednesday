@@ -24,22 +24,26 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 			return false;
 		if (!(msg.get(1) instanceof PlainText text))
 			return false;
-		if (text.getContent().startsWith("/echo"))
+		if (text.getContent().startsWith("/woden"))
 		{
-			MessageChainBuilder builder = new MessageChainBuilder();
-			builder.append(text.getContent().substring(5));
-			builder.addAll(msg.stream().skip(2).toList());
-			MessageChain chain = builder.build();
-			if (chain.contentToString().isEmpty())
-				event.getSubject().sendMessage(" ");
-			else
-				event.getSubject().sendMessage(chain);
-			return true;
-		}
-		if (text.getContent().startsWith("/stop"))
-		{
-			this.wednesday.close();
-			return true;
+			String command = text.getContent().substring(6).stripLeading();
+			if (command.startsWith("echo"))
+			{
+				MessageChainBuilder builder = new MessageChainBuilder();
+				builder.append(command.substring(4));
+				builder.addAll(msg.stream().skip(2).toList());
+				MessageChain chain = builder.build();
+				if (chain.contentToString().isEmpty())
+					event.getSubject().sendMessage(" ");
+				else
+					event.getSubject().sendMessage(chain);
+				return true;
+			}
+			if (command.equals("stop"))
+			{
+				this.wednesday.close();
+				return true;
+			}
 		}
 		return false;
 	}

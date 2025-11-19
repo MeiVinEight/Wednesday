@@ -75,14 +75,19 @@
     // 留空或不提供表示无Token
     "Token": ""
   },
+  // 可选字段
   // 日志记录等级，可选的配置项有 (DEBUG < VERBOSE < INFO < WARNING < ERROR)
   // 大小关系表示优先级
   // 只会记录优先级大于等于该配置项的日志
   "LogLevel": "INFO",
+  // 可选字段
   // 日志使用的语言
   // 目前仅支持中文(zh_cn)
   // 其他语言仍在开发中
-  "Language": "zh_cn"
+  "Language": "zh_cn",
+  // 可选字段
+  // 所有者，拥有所有控制权限
+  "Owner": 0
 }
 ```
 

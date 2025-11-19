@@ -34,7 +34,7 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 			if (command.startsWith("echo"))
 			{
 				MessageChainBuilder builder = new MessageChainBuilder();
-				builder.append(command.substring(4));
+				builder.append(command.substring(4).stripLeading());
 				builder.addAll(msg.stream().skip(2).toList());
 				MessageChain chain = builder.build();
 				if (chain.contentToString().isEmpty())

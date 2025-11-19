@@ -12,6 +12,8 @@ public class Woden
 {
 	public static boolean running = true;
 	public static final Object WAIT = new Object();
+	public static Runnable before;
+	public static Runnable after;
 
 	public static void main(String[] args)
 	{
@@ -20,7 +22,15 @@ public class Woden
 			running = false;
 			try
 			{
+				if (before != null)
+					before.run();
+
+
 				load();
+
+
+				if (after != null)
+					after.run();
 			}
 			catch (Throwable e)
 			{

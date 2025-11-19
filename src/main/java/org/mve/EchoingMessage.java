@@ -4,8 +4,10 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.PlainText;
+import org.mve.woden.GradleWrapper;
 import org.mve.woden.Woden;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class EchoingMessage implements Function<MessageEvent, Boolean>
@@ -54,6 +56,30 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 				this.wednesday.close();
 				Woden.running = true;
 				return true;
+			}
+			if (command.equals("update"))
+			{
+				this.wednesday.close();
+				Woden.after = () ->
+				{
+					try
+					{
+						Process proc = Woden.git("pull");
+						boolean exit = proc.waitFor(60, TimeUnit.SECONDS);
+						if (!exit)
+						{
+							Wednesday.LOGGER.error(LoggerMessage.LOG_WEDNESDAY_UPDATE_GIT_TIMEOUT);
+							return;
+						}
+
+						GradleWrapper.gradle("build");
+						Woden.running = true;
+					}
+					catch (Throwable t)
+					{
+						Wednesday.LOGGER.error(LoggerMessage.LOG_WEDNESDAY_UPDATE_ERROR, t);
+					}
+				};
 			}
 		}
 		return false;

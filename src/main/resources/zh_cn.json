@@ -4,6 +4,8 @@
 	"log.wednesday.startup.patching": "进行修补:",
 	"log.wednesday.startup.patching.log.level.fail": "日志等级:§4§l修补失败",
 	"log.wednesday.startup.patching.log.level.succ": "日志等级:§2§l修补完成",
+	"log.wednesday.update.error": "更新失败",
+	"log.wednesday.update.git.timeout": "拉取更新超时",
 	"log.mc.load.obf.map": "加载 {} 混淆映射表",
 	"log.mc.load.obf.map.succ": "{} 混淆映射表加载完成: {} 类, {} 成员({} 字段, {} 方法)",
 	"log.mc.load.obf.map.fail": "{} 混淆映射表加载失败"

@@ -15,12 +15,16 @@ public class LoggerMessage
 	public static final String KEY_LOG_WEDNESDAY_STARTUP_PATCHING = "log.wednesday.startup.patching";
 	public static final String KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL = "log.wednesday.startup.patching.log.level.fail";
 	public static final String KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC = "log.wednesday.startup.patching.log.level.succ";
+	public static final String KEY_LOG_WEDNESDAY_UPDATE_ERROR = "log.wednesday.update.error";
+	public static final String KEY_LOG_WEDNESDAY_UPDATE_GIT_TIMEOUT = "log.wednesday.update.git.timeout";
 
 	public static final String LOG_WEDNESDAY_SHUTDOWN;
 	public static final String LOG_WEDNESDAY_STARTUP;
 	public static final String LOG_WEDNESDAY_STARTUP_PATCHING;
 	public static final String LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL;
 	public static final String LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC;
+	public static final String LOG_WEDNESDAY_UPDATE_ERROR;
+	public static final String LOG_WEDNESDAY_UPDATE_GIT_TIMEOUT;
 
 	private static final char ESCAPING = '§';
 	private static final WednesdayLogger LOGGER = new WednesdayLogger("Language");
@@ -146,5 +150,7 @@ public class LoggerMessage
 		LOG_WEDNESDAY_STARTUP_PATCHING       = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_STARTUP_PATCHING);
 		LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL);
 		LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC);
+		LOG_WEDNESDAY_UPDATE_ERROR       = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_UPDATE_ERROR);
+		LOG_WEDNESDAY_UPDATE_GIT_TIMEOUT     = LoggerMessage.translate(LoggerMessage.KEY_LOG_WEDNESDAY_UPDATE_GIT_TIMEOUT);
 	}
 }

@@ -4,6 +4,7 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.PlainText;
+import org.mve.woden.Woden;
 
 import java.util.function.Function;
 
@@ -46,6 +47,12 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 			if (command.equals("stop"))
 			{
 				this.wednesday.close();
+				return true;
+			}
+			if (command.equals("reload"))
+			{
+				this.wednesday.close();
+				Woden.running = true;
 				return true;
 			}
 		}

@@ -43,15 +43,14 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 		if (s == null && throwable == null)
 			return null;
 
-		Ansi ansi = new Ansi();
-		ansi.a(Ansi.Attribute.RESET)
-			.a(timestamp())
+		Ansi ansi = new Ansi().reset();
+		ansi.a(timestamp())
 			.a('[');
 
 		if (PRIORITY_COLOR.containsKey(logPriority))
 			PRIORITY_COLOR.get(logPriority).accept(ansi);
 		ansi.a(PRIORITY_ALIGNED_NAME.get(logPriority))
-			.a(Ansi.Attribute.RESET)
+			.reset()
 			.a("] ");
 
 		if(this.name != null)

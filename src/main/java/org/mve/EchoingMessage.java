@@ -26,6 +26,10 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 			return false;
 		if (text.getContent().startsWith("/woden"))
 		{
+			// Whether sender is owner
+			if (event.getSender().getId() != Configuration.OWNER)
+				return false;
+
 			String command = text.getContent().substring(6).stripLeading();
 			if (command.startsWith("echo"))
 			{

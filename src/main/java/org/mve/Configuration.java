@@ -20,6 +20,7 @@ public class Configuration
 	private static final String KEY_ONEBOT_TOKEN = "Token";
 	private static final String KEY_LOGLEVEL = "LogLevel";
 	private static final String KEY_LANGUAGE = "Language";
+	private static final String KEY_OWNER = "Owner";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = new WednesdayLogger("Configuration");
 
@@ -27,6 +28,7 @@ public class Configuration
 	public static final String ONEBOT_TOKEN;
 	public static final SimpleLogger.LogPriority LOG_LEVEL;
 	public static final String LANGUAGE;
+	public static final long OWNER;
 
 	public static void save()
 	{
@@ -39,6 +41,7 @@ public class Configuration
 			config.add(KEY_ONEBOT, configOnebot);
 			config.addProperty(KEY_LOGLEVEL, LOG_LEVEL.toString());
 			config.addProperty(KEY_LANGUAGE, LANGUAGE);
+			config.addProperty(KEY_OWNER, OWNER);
 			fos.write(GSON.toJson(config).getBytes(StandardCharsets.UTF_8));
 			fos.flush();
 		}
@@ -58,6 +61,7 @@ public class Configuration
 		String onebotToken = "";
 		String logLevel = "INFO";
 		String language = "zh_cn";
+		long owner = 0;
 
 		if (!newFile)
 		{
@@ -72,6 +76,8 @@ public class Configuration
 					logLevel = config.get(KEY_LOGLEVEL).getAsString();
 				if (config.has(KEY_LANGUAGE))
 					language = config.get(KEY_LANGUAGE).getAsString();
+				if (config.has(KEY_OWNER))
+					owner = config.get(KEY_OWNER).getAsLong();
 			}
 			catch (IOException e)
 			{
@@ -93,6 +99,7 @@ public class Configuration
 		}
 		LOG_LEVEL = logPriority;
 		LANGUAGE = language;
+		OWNER = owner;
 
 		if (newFile)
 		{

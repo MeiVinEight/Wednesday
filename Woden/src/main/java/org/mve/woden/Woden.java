@@ -23,14 +23,20 @@ public class Woden
 			try
 			{
 				if (before != null)
+				{
 					before.run();
+					before = null;
+				}
 
 
 				load();
 
 
 				if (after != null)
+				{
 					after.run();
+					after = null;
+				}
 			}
 			catch (Throwable e)
 			{

@@ -68,7 +68,7 @@ public class Woden
 		return null;
 	}
 
-	private static Process git(String cmd) throws IOException
+	public static Process git(String cmd) throws IOException
 	{
 		return new ProcessBuilder("git", cmd)
 			.directory(new File("."))

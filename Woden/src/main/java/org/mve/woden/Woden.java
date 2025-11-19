@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 public class Woden
 {
+	public static final boolean NATIVE;
 	public static boolean running = true;
 	public static final Object WAIT = new Object();
 	public static Runnable before;
@@ -37,6 +38,7 @@ public class Woden
 					after.run();
 					after = null;
 				}
+				reset();
 			}
 			catch (Throwable e)
 			{
@@ -86,5 +88,27 @@ public class Woden
 	public static <T extends Throwable> void exception(Throwable t) throws T
 	{
 		throw (T) t;
+	}
+
+	public static void reset()
+	{
+		if (NATIVE)
+			reset0();
+	}
+
+	public static native void reset0();
+
+	static
+	{
+		boolean nativeLoaded = false;
+		try
+		{
+			System.loadLibrary("woden");
+			nativeLoaded = true;
+		}
+		catch (UnsatisfiedLinkError ignored)
+		{
+		}
+		NATIVE = nativeLoaded;
 	}
 }

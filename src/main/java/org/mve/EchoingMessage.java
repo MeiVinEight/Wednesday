@@ -44,22 +44,25 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 					event.getSubject().sendMessage(chain);
 				return true;
 			}
-			if (command.equals("stop"))
+			switch (command)
 			{
-				this.wednesday.close();
-				Woden.stats = Woden.STAT_TERMINATED;
-				return true;
-			}
-			if (command.equals("reload"))
-			{
-				this.wednesday.close();
-				return true;
-			}
-			if (command.equals("update"))
-			{
-				this.wednesday.close();
-				Woden.stats = Woden.STAT_UPDATE;
-				return true;
+				case "stop" ->
+				{
+					this.wednesday.close();
+					Woden.stats = Woden.STAT_TERMINATED;
+					return true;
+				}
+				case "reload" ->
+				{
+					this.wednesday.close();
+					return true;
+				}
+				case "update" ->
+				{
+					this.wednesday.close();
+					Woden.stats = Woden.STAT_UPDATE;
+					return true;
+				}
 			}
 		}
 		return false;

@@ -7,14 +7,6 @@ version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
-dependencies {
-	implementation fileTree(dir: "../gradle/wrapper", include: "gradle-wrapper.jar")
-	implementation fileTree(dir: "libs", include: "gradle-base-services-7.6.4.jar")
-	implementation fileTree(dir: "libs", include: "gradle-bootstrap-7.6.4.jar")
-	implementation fileTree(dir: "libs", include: "gradle-launcher-7.6.4.jar")
-	implementation fileTree(dir: "libs", include: "gradle-worker-services-7.6.4.jar")
-}
-
 tasks.jar.configure {
 	destinationDirectory = file("../libs")
 }

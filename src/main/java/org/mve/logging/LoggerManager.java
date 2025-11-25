@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.logging;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function4;

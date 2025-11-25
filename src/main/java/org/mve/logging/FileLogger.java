@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.logging;
 
 import kotlin.ExceptionsKt;
 import kotlin.Unit;

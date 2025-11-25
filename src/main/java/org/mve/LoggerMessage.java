@@ -3,6 +3,8 @@ package org.mve;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.fusesource.jansi.Ansi;
+import org.mve.logging.LoggerManager;
+import org.mve.logging.WednesdayLogger;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

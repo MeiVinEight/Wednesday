@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.mamoe.mirai.utils.SimpleLogger;
+import org.mve.logging.LoggerManager;
+import org.mve.logging.WednesdayLogger;
 
 import java.io.File;
 import java.io.FileOutputStream;

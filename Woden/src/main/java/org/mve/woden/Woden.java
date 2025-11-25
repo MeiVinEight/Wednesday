@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class Woden
@@ -13,7 +14,11 @@ public class Woden
 	public static final int STAT_RUNNING    = 1;
 	public static final int STAT_UPDATE     = 2;
 	public static final int STAT_TERMINATED = 3;
+	public static final int OS_WINDOWS = 0;
+	public static final int OS_LINUX   = 1;
+	public static final int OS_UNKNOWN = 3;
 
+	public static final int OS_TYPE;
 	public static int stats = 0;
 	public static final Object WAIT = new Object();
 
@@ -22,13 +27,33 @@ public class Woden
 		stats = STAT_RUNNING;
 		while (stats < STAT_TERMINATED)
 		{
-			try
+			switch (stats)
 			{
-				load();
-			}
-			catch (Throwable e)
-			{
-				e.printStackTrace(System.out);
+				case STAT_UPDATE:
+				{
+					try
+					{
+						pull();
+						build();
+					}
+					catch (Throwable e)
+					{
+						e.printStackTrace(System.out);
+						return;
+					}
+					stats = STAT_RUNNING;
+				}
+				case STAT_RUNNING:
+				{
+					try
+					{
+						load();
+					}
+					catch (Throwable e)
+					{
+						e.printStackTrace(System.out);
+					}
+				}
 			}
 		}
 	}
@@ -70,9 +95,37 @@ public class Woden
 			.start();
 	}
 
+	public static void pull() throws Exception
+	{
+		Process proc = exec("git", "pull");
+		proc.waitFor(1, TimeUnit.MINUTES);
+	}
+
+	public static void build() throws Exception
+	{
+		String gradlew = "gradlew";
+		if (OS_TYPE == OS_WINDOWS)
+			gradlew += ".bat";
+		else if (OS_TYPE == OS_LINUX)
+			gradlew = "./" + gradlew;
+		Process proc = exec(gradlew, "build");
+		proc.waitFor(1, TimeUnit.MINUTES);
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T extends Throwable> void exception(Throwable t) throws T
 	{
 		throw (T) t;
+	}
+
+	static
+	{
+		String osName = System.getProperty("os.name").toLowerCase();
+		if (osName.startsWith("win"))
+			OS_TYPE = OS_WINDOWS;
+		else if (osName.startsWith("linux"))
+			OS_TYPE = OS_LINUX;
+		else
+			OS_TYPE = OS_UNKNOWN;
 	}
 }

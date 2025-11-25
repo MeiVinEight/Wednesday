@@ -1,8 +1,8 @@
 package org.mve;
 
 import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.event.events.BotOfflineEvent;
-import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.Event;
+import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.mc.Minecraft;
@@ -10,6 +10,8 @@ import top.mrxiaom.overflow.BotBuilder;
 import top.mrxiaom.overflow.OverflowAPI;
 
 import java.lang.invoke.MethodHandle;
+import java.util.Objects;
+import java.util.concurrent.CancellationException;
 
 public class Wednesday extends Synchronize
 {
@@ -17,6 +19,7 @@ public class Wednesday extends Synchronize
 	public final SynchronizeNET synchronize = new SynchronizeNET();
 	public static final WednesdayLogger LOGGER = new WednesdayLogger(SID, Configuration.LOG_LEVEL);
 	private final Bot QQ;
+	private final Listener<Event> subscribe;
 
 	public Wednesday()
 	{
@@ -33,17 +36,12 @@ public class Wednesday extends Synchronize
 			.retryRestMills(-1)
 			.overrideLogger(LOGGER)
 			.connect();
-		if (QQ == null)
-		{
-			this.close();
-			return;
-		}
-		SubscribeMessage sub = new SubscribeMessage();
+		Objects.requireNonNull(QQ);
+		SubscribeMessage sub = new SubscribeMessage(this);
 		sub.register(new EchoingMessage(this));
 		sub.register(new Minecraft());
-		QQ.getEventChannel().subscribe(MessageEvent.class, sub);
+		this.subscribe = QQ.getEventChannel().subscribe(Event.class, sub);
 		this.synchronize.offer(sub);
-		QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, event -> Wednesday.this.close());
 	}
 
 	public void close()
@@ -51,6 +49,8 @@ public class Wednesday extends Synchronize
 		LOGGER.info(LoggerMessage.LOG_WEDNESDAY_SHUTDOWN);
 		this.cancel();
 		this.synchronize.close();
+		if (this.subscribe != null)
+			this.subscribe.cancel(new CancellationException("close"));
 		if (this.QQ != null)
 			this.QQ.close();
 	}

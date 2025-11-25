@@ -1,6 +1,8 @@
 package org.mve;
 
+import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.ListeningStatus;
+import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.util.LinkedList;
@@ -8,10 +10,26 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
 
-public class SubscribeMessage extends Synchronize implements Function<MessageEvent, ListeningStatus>
+public class SubscribeMessage extends Synchronize implements Function<Event, ListeningStatus>
 {
+	private final Wednesday wednesday;
 	private final Queue<MessageEvent> queue = new ConcurrentLinkedQueue<>();
 	private final LinkedList<Function<MessageEvent, Boolean>> listeners = new LinkedList<>();
+
+	public SubscribeMessage(Wednesday wednesday)
+	{
+		this.wednesday = wednesday;
+	}
+
+	@Override
+	public ListeningStatus apply(Event event)
+	{
+		if (event instanceof MessageEvent me)
+			return this.apply(me);
+		else if (event instanceof BotOfflineEvent)
+			this.wednesday.close();
+		return ListeningStatus.LISTENING;
+	}
 
 	public ListeningStatus apply(MessageEvent event)
 	{

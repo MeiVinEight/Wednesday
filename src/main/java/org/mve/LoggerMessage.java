@@ -27,7 +27,7 @@ public class LoggerMessage
 	public static final String LOG_WEDNESDAY_UPDATE_GIT_TIMEOUT;
 
 	private static final char ESCAPING = '§';
-	private static final WednesdayLogger LOGGER = new WednesdayLogger("Language");
+	private static final WednesdayLogger LOGGER = LoggerManager.create("Language");
 	private static final JsonObject LANGUAGE;
 
 	public static String translate(String key)

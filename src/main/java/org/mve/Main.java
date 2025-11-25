@@ -17,6 +17,7 @@ public class Main
 	public static void main(String[] args)
 	{
 		System.setProperty("kotlinx.coroutines.scheduler.keep.alive.sec", "1");
+		LoggerManager.register(FileLogger.INSTANCE);
 		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP);
 		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP_PATCHING);
 

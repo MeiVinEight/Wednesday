@@ -22,7 +22,7 @@ public class Configuration
 	private static final String KEY_LANGUAGE = "Language";
 	private static final String KEY_OWNER = "Owner";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-	private static final WednesdayLogger LOGGER = new WednesdayLogger("Configuration");
+	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 
 	public static final String ONEBOT_WS_FORWARD;
 	public static final String ONEBOT_TOKEN;

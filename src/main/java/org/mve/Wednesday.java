@@ -17,7 +17,7 @@ public class Wednesday extends Synchronize
 {
 	public static final String SID = "Wednesday";
 	public final SynchronizeNET synchronize = new SynchronizeNET();
-	public static final WednesdayLogger LOGGER = new WednesdayLogger(SID, Configuration.LOG_LEVEL);
+	public static final WednesdayLogger LOGGER = LoggerManager.create(SID, Configuration.LOG_LEVEL);
 	private final Bot QQ;
 	private final Listener<Event> subscribe;
 
@@ -29,7 +29,7 @@ public class Wednesday extends Synchronize
 			.modifyBotConfiguration(config ->
 			{
 				config.setBotLoggerSupplier(bot -> LOGGER);
-				config.setNetworkLoggerSupplier(bot -> new WednesdayLogger("Network", Configuration.LOG_LEVEL));
+				config.setNetworkLoggerSupplier(bot -> LoggerManager.create("Network", Configuration.LOG_LEVEL));
 				config.setReconnectionRetryTimes(2);
 			})
 			.retryTimes(0)
@@ -53,6 +53,7 @@ public class Wednesday extends Synchronize
 			this.subscribe.cancel(new CancellationException("close"));
 		if (this.QQ != null)
 			this.QQ.close();
+		FileLogger.INSTANCE.close();
 	}
 
 	public void join()
@@ -81,7 +82,7 @@ public class Wednesday extends Synchronize
 		try
 		{
 			MethodHandle logger = ModuleAccess.LOOKUP.findStaticSetter(OverflowAPI.Companion.class, "logger", MiraiLogger.class);
-			logger.invokeExact((MiraiLogger) new WednesdayLogger("OverflowAPI", SimpleLogger.LogPriority.DEBUG));
+			logger.invokeExact((MiraiLogger) LoggerManager.create("OverflowAPI", SimpleLogger.LogPriority.DEBUG));
 		}
 		catch (Throwable t)
 		{

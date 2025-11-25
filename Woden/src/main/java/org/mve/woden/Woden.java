@@ -41,7 +41,7 @@ public class Woden
 			.map(Woden::toURL)
 			.filter(Objects::nonNull)
 			.toArray(URL[]::new);
-		URLClassLoader loader = new URLClassLoader("Woden", urls, Woden.class.getClassLoader());
+		URLClassLoader loader = new URLClassLoader("Wednesday", urls, Woden.class.getClassLoader());
 		Class<?> clazz = loader.loadClass("org.mve.Main");
 		Method method = clazz.getDeclaredMethod("main", String[].class);
 		method.setAccessible(true);

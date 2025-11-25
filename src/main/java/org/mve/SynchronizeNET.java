@@ -13,7 +13,7 @@ public class SynchronizeNET implements Runnable
 
 	public SynchronizeNET()
 	{
-		this.thread = new Thread(this);
+		this.thread = new Thread(this, "Synchronize");
 		this.thread.start();
 	}
 

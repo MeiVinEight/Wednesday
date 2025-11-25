@@ -260,7 +260,7 @@ public class Minecraft implements Function<MessageEvent, Boolean>
 		}
 		catch (Throwable e)
 		{
-			Wednesday.LOGGER.error(LoggerMessage.translate("log.mc.load.obf.map.fail"), e);
+			Wednesday.LOGGER.error(LoggerMessage.translate("log.mc.load.obf.map.fail"), VERSION, e);
 		}
 	}
 }

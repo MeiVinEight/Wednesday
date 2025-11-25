@@ -10,35 +10,21 @@ import java.util.stream.Stream;
 
 public class Woden
 {
-	public static final boolean NATIVE;
-	public static boolean running = true;
+	public static final int STAT_RUNNING    = 1;
+	public static final int STAT_UPDATE     = 2;
+	public static final int STAT_TERMINATED = 3;
+
+	public static int stats = 0;
 	public static final Object WAIT = new Object();
-	public static Runnable before;
-	public static Runnable after;
 
 	public static void main(String[] args)
 	{
-		while (running)
+		stats = STAT_RUNNING;
+		while (stats < STAT_TERMINATED)
 		{
-			running = false;
 			try
 			{
-				if (before != null)
-				{
-					before.run();
-					before = null;
-				}
-
-
 				load();
-
-
-				if (after != null)
-				{
-					after.run();
-					after = null;
-				}
-				reset();
 			}
 			catch (Throwable e)
 			{
@@ -76,9 +62,9 @@ public class Woden
 		return null;
 	}
 
-	public static Process git(String cmd) throws IOException
+	public static Process exec(String cmd, String args) throws IOException
 	{
-		return new ProcessBuilder("git", cmd)
+		return new ProcessBuilder(cmd, args)
 			.directory(new File("."))
 			.inheritIO()
 			.start();
@@ -88,27 +74,5 @@ public class Woden
 	public static <T extends Throwable> void exception(Throwable t) throws T
 	{
 		throw (T) t;
-	}
-
-	public static void reset()
-	{
-		if (NATIVE)
-			reset0();
-	}
-
-	public static native void reset0();
-
-	static
-	{
-		boolean nativeLoaded = false;
-		try
-		{
-			System.loadLibrary("woden");
-			nativeLoaded = true;
-		}
-		catch (UnsatisfiedLinkError ignored)
-		{
-		}
-		NATIVE = nativeLoaded;
 	}
 }

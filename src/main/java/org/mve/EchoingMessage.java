@@ -20,49 +20,45 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 	@Override
 	public Boolean apply(MessageEvent event)
 	{
+		// Whether sender is owner
+		if (event.getSender().getId() != Configuration.OWNER)
+			return false;
 		MessageChain msg = event.getMessage();
 		if (msg.size() <= 1)
 			return false;
 		if (!(msg.get(1) instanceof PlainText text))
 			return false;
-		if (text.getContent().startsWith("/woden"))
+		String command = text.getContent().substring(6).stripLeading();
+		if (command.startsWith("echo"))
 		{
-			// Whether sender is owner
-			if (event.getSender().getId() != Configuration.OWNER)
-				return false;
-
-			String command = text.getContent().substring(6).stripLeading();
-			if (command.startsWith("echo"))
+			MessageChainBuilder builder = new MessageChainBuilder();
+			builder.append(command.substring(4).stripLeading());
+			builder.addAll(msg.stream().skip(2).toList());
+			MessageChain chain = builder.build();
+			if (chain.contentToString().isEmpty())
+				event.getSubject().sendMessage(" ");
+			else
+				event.getSubject().sendMessage(chain);
+			return true;
+		}
+		switch (command)
+		{
+			case "stop" ->
 			{
-				MessageChainBuilder builder = new MessageChainBuilder();
-				builder.append(command.substring(4).stripLeading());
-				builder.addAll(msg.stream().skip(2).toList());
-				MessageChain chain = builder.build();
-				if (chain.contentToString().isEmpty())
-					event.getSubject().sendMessage(" ");
-				else
-					event.getSubject().sendMessage(chain);
+				this.wednesday.close();
+				Woden.stats = Woden.STAT_TERMINATED;
 				return true;
 			}
-			switch (command)
+			case "reload" ->
 			{
-				case "stop" ->
-				{
-					this.wednesday.close();
-					Woden.stats = Woden.STAT_TERMINATED;
-					return true;
-				}
-				case "reload" ->
-				{
-					this.wednesday.close();
-					return true;
-				}
-				case "update" ->
-				{
-					this.wednesday.close();
-					Woden.stats = Woden.STAT_UPDATE;
-					return true;
-				}
+				this.wednesday.close();
+				return true;
+			}
+			case "update" ->
+			{
+				this.wednesday.close();
+				Woden.stats = Woden.STAT_UPDATE;
+				return true;
 			}
 		}
 		return false;

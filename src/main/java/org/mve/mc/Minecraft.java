@@ -11,11 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Minecraft implements Function<MessageEvent, Boolean>
+public class Minecraft
 {
 	private static final Pattern NAME_AND_TYPE = Pattern.compile("^([\\w$/]+)#([\\w$]+)$");
 	private static final Pattern TYPE_ONLY = Pattern.compile("^([\\w$/]+)#$");
@@ -23,8 +22,22 @@ public class Minecraft implements Function<MessageEvent, Boolean>
 	private static final String VERSION = "1.20.1";
 	private static final Map<String, ObfuscationMap> OBFUSCATIONS = new HashMap<>();
 
-	@Override
-	public Boolean apply(MessageEvent event)
+	public Boolean official(MessageEvent event)
+	{
+		return Minecraft.subject(event, ObfuscationMap.TYPE_OFFICIAL);
+	}
+
+	public Boolean searge(MessageEvent event)
+	{
+		return Minecraft.subject(event, ObfuscationMap.TYPE_SEARGE);
+	}
+
+	public Boolean obfuscate(MessageEvent event)
+	{
+		return Minecraft.subject(event, ObfuscationMap.TYPE_OBFUSCATE);
+	}
+
+	public static Boolean subject(MessageEvent event, int type)
 	{
 		MessageChain msg = event.getMessage();
 		if (msg.size() <= 1)
@@ -33,28 +46,10 @@ public class Minecraft implements Function<MessageEvent, Boolean>
 			return false;
 		if (OBFUSCATIONS.get(VERSION) == null)
 			return false;
-
 		ObfuscationMap obf = OBFUSCATIONS.get(VERSION);
-		String command = text.getContent();
-		if (command.startsWith("/mcp"))
-		{
-			String mcpName = command.substring("/mcp".length()).trim();
-			subject(obf, event.getSubject(), mcpName, ObfuscationMap.TYPE_OFFICIAL);
-			return true;
-		}
-		if (command.startsWith("/srg"))
-		{
-			String srgName = command.substring("/srg".length()).trim();
-			subject(obf, event.getSubject(), srgName, ObfuscationMap.TYPE_SEARGE);
-			return true;
-		}
-		if (command.startsWith("/obf"))
-		{
-			String obfName = command.substring("/obf".length()).trim();
-			subject(obf, event.getSubject(), obfName, ObfuscationMap.TYPE_OBFUSCATE);
-			return true;
-		}
-		return false;
+		String name = text.getContent().substring(4).trim();
+		subject(obf, event.getSubject(), name, type);
+		return true;
 	}
 
 	private static void subject(ObfuscationMap map, Contact subject, String name, int type)

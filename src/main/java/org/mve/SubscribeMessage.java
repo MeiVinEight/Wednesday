@@ -4,8 +4,11 @@ import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.ListeningStatus;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.PlainText;
 
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
@@ -14,7 +17,7 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 {
 	private final Wednesday wednesday;
 	private final Queue<MessageEvent> queue = new ConcurrentLinkedQueue<>();
-	private final LinkedList<Function<MessageEvent, Boolean>> listeners = new LinkedList<>();
+	private final Map<String, Function<MessageEvent, Boolean>> listeners = new HashMap<>();
 
 	public SubscribeMessage(Wednesday wednesday)
 	{
@@ -38,9 +41,9 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		return ListeningStatus.LISTENING;
 	}
 
-	public void register(Function<MessageEvent, Boolean> listener)
+	public void register(String cmd, Function<MessageEvent, Boolean> listener)
 	{
-		this.listeners.add(listener);
+		this.listeners.put(cmd, listener);
 	}
 
 	@Override
@@ -49,8 +52,18 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		MessageEvent event = queue.poll();
 		if (event == null)
 			return;
-		for (Function<MessageEvent, Boolean> listener : this.listeners)
-			if (listener.apply(event))
-				return;
+		MessageChain msg = event.getMessage();
+		if (!(msg.get(1) instanceof PlainText text))
+			return;
+		String content = text.getContent();
+		if (!content.startsWith(Configuration.COMMAND_PREFIX))
+			return;
+		content = content.substring(1);
+		String contentWithoutPrefix = content;
+		this.listeners.forEach((pfx, listener) ->
+		{
+			if (contentWithoutPrefix.startsWith(pfx))
+				listener.apply(event);
+		});
 	}
 }

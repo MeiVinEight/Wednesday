@@ -41,8 +41,11 @@ public class Wednesday extends Synchronize
 			.connect();
 		Objects.requireNonNull(QQ);
 		SubscribeMessage sub = new SubscribeMessage(this);
-		sub.register(new EchoingMessage(this));
-		sub.register(new Minecraft());
+		sub.register("woden", new EchoingMessage(this));
+		Minecraft minecraft = new Minecraft();
+		sub.register("obf", minecraft::obfuscate);
+		sub.register("srg", minecraft::searge);
+		sub.register("mcp", minecraft::official);
 		this.subscribe = QQ.getEventChannel().subscribe(Event.class, sub);
 		this.synchronize.offer(sub);
 	}

@@ -60,7 +60,6 @@ public class Wednesday extends Synchronize
 			this.subscribe.cancel(new CancellationException("close"));
 		if (this.QQ != null)
 			this.QQ.close();
-		FileLogger.INSTANCE.close();
 	}
 
 	public void join()

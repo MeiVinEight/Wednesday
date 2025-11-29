@@ -90,5 +90,6 @@ public class Main
 				key.interrupt();
 			}
 		}
+		FileLogger.INSTANCE.close();
 	}
 }

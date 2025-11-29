@@ -45,6 +45,7 @@ public class Woden
 				}
 				case STAT_RUNNING:
 				{
+					stats = STAT_TERMINATED;
 					try
 					{
 						load();

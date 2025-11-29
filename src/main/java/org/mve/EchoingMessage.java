@@ -46,12 +46,12 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 			case "stop" ->
 			{
 				this.wednesday.close();
-				Woden.stats = Woden.STAT_TERMINATED;
 				return true;
 			}
 			case "reload" ->
 			{
 				this.wednesday.close();
+				Woden.stats = Woden.STAT_RUNNING;
 				return true;
 			}
 			case "update" ->

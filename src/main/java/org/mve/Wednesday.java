@@ -19,14 +19,13 @@ import java.util.concurrent.CancellationException;
 public class Wednesday extends Synchronize
 {
 	public static final String SID = "Wednesday";
-	public final SynchronizeNET synchronize = new SynchronizeNET();
+	public final SynchronizeNET synchronize;
 	public static final WednesdayLogger LOGGER = LoggerManager.create(SID, Configuration.LOG_LEVEL);
 	private final Bot QQ;
 	private final Listener<Event> subscribe;
 
 	public Wednesday()
 	{
-		this.synchronize.offer(this);
 		this.QQ = BotBuilder.positive(Configuration.ONEBOT_WS_FORWARD)
 			.token(Configuration.ONEBOT_TOKEN)
 			.modifyBotConfiguration(config ->
@@ -46,6 +45,8 @@ public class Wednesday extends Synchronize
 		sub.register("obf", minecraft::obfuscate);
 		sub.register("srg", minecraft::searge);
 		sub.register("mcp", minecraft::official);
+		this.synchronize = new SynchronizeNET();
+		this.synchronize.offer(this);
 		this.subscribe = QQ.getEventChannel().subscribe(Event.class, sub);
 		this.synchronize.offer(sub);
 	}

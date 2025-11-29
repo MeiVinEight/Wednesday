@@ -41,7 +41,6 @@ public class Woden
 						e.printStackTrace(System.out);
 						return;
 					}
-					stats = STAT_RUNNING;
 				}
 				case STAT_RUNNING:
 				{

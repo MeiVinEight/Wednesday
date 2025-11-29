@@ -5,7 +5,6 @@ import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.SimpleLogger;
-import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
 import org.mve.mc.Minecraft;

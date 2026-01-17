@@ -60,6 +60,11 @@ public class Configuration
 			config.addProperty(KEY_LANGUAGE, LANGUAGE);
 			config.addProperty(KEY_OWNER, OWNER);
 			config.addProperty(KEY_COMMAND_PREFIX, COMMAND_PREFIX);
+			config.addProperty(KEY_MYSQL_HOST, MYSQL_HOST);
+			config.addProperty(KEY_MYSQL_PORT, MYSQL_PORT);
+			config.addProperty(KEY_MYSQL_USERNAME, MYSQL_USERNAME);
+			config.addProperty(KEY_MYSQL_PASSWORD, MYSQL_PASSWORD);
+			config.addProperty(KEY_FILE_SERVER, FILE_SERVER);
 			fos.write(GSON.toJson(config).getBytes(StandardCharsets.UTF_8));
 			fos.flush();
 		}

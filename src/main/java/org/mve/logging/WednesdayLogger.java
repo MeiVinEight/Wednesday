@@ -92,7 +92,7 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	@Override
 	protected void handleNormalizedLoggingCall(Level level, Marker marker, String messagePattern, Object[] arguments, Throwable throwable)
 	{
-		if (messagePattern != null)
+		if (messagePattern != null && arguments != null)
 		{
 			StringBuilder builder = new StringBuilder();
 			boolean useArg = false;

@@ -66,31 +66,31 @@
 第一次运行会在运行目录生成一个配置文件`config.json`,这里给出每项的介绍
 ```json5
 {
-  "OneBot": {
+  "onebot": {
     // 正向WebSocket连接地址，Wednesday会通过该地址主动向OneBot端建立WebSocket连接
     // 使用WebSocket URL格式
-    "WebSocket-Forward": "ws://127.0.0.1",
+    "ws-forward": "ws://127.0.0.1",
     // 可选字段
     // 如果在OneBot端配置了连接Token，则需要在此提供
     // 留空或不提供表示无Token
-    "Token": ""
+    "token": ""
   },
   // 可选字段
   // 日志记录等级，可选的配置项有 (DEBUG < VERBOSE < INFO < WARNING < ERROR)
   // 大小关系表示优先级
   // 只会记录优先级大于等于该配置项的日志
-  "LogLevel": "INFO",
+  "log-level": "INFO",
   // 可选字段
   // 日志使用的语言
   // 目前仅支持中文(zh_cn)
   // 其他语言仍在开发中
-  "Language": "zh_cn",
+  "lang": "zh_cn",
   // 可选字段
   // 所有者，拥有所有控制权限
-  "Owner": 0,
+  "owner": 0,
   // 可选字段
   // 指令前缀，以此前缀开头的消息才会被处理
-  "CommandPrefix": "/"
+  "command-prefix": "/"
 }
 ```
 

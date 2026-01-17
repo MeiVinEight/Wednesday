@@ -17,13 +17,13 @@ import java.nio.charset.StandardCharsets;
 public class Configuration
 {
 	private static final String CONFIG_FILE = "config.json";
-	private static final String KEY_ONEBOT = "OneBot";
-	private static final String KEY_ONEBOT_WS_FORWARD = "WebSocket-Forward";
-	private static final String KEY_ONEBOT_TOKEN = "Token";
-	private static final String KEY_LOGLEVEL = "LogLevel";
-	private static final String KEY_LANGUAGE = "Language";
-	private static final String KEY_OWNER = "Owner";
-	private static final String KEY_COMMAND_PREFIX = "CommandPrefix";
+	private static final String KEY_ONEBOT = "onebot";
+	private static final String KEY_ONEBOT_WS_FORWARD = "ws-forward";
+	private static final String KEY_ONEBOT_TOKEN = "token";
+	private static final String KEY_LOGLEVEL = "log-level";
+	private static final String KEY_LANGUAGE = "lang";
+	private static final String KEY_OWNER = "owner";
+	private static final String KEY_COMMAND_PREFIX = "command-prefix";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 

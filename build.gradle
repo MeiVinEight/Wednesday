@@ -69,6 +69,55 @@ tasks.register("runWoden", JavaExec) {
 	mainClass = "org.mve.woden.Woden"
 }
 
+tasks.register("scripts") {
+	File libsDir = new File(projectDir, "libs")
+	File[] libs = libsDir.listFiles()
+	if (libs == null)
+		return
+
+
+	if (File.pathSeparatorChar == (':' as char))
+	{
+		File wodenSh = new File(projectDir, "woden.sh")
+		try (FileOutputStream fout = new FileOutputStream(wodenSh))
+		{
+			PrintStream out = new PrintStream(fout)
+			out.println("CLASSPATH=")
+			for (File libFile : libs)
+			{
+				String absPath = libFile.getAbsolutePath()
+				out.println("CLASSPATH=\$CLASSPATH:\"" + absPath + '\"')
+			}
+			out.println("CLASSPATH=\"\$CLASSPATH\"")
+			out.println("OPTIONS=")
+			if (!max_memory.empty)
+				out.println("OPTIONS=\$OPTIONS\" -Xmx" + max_memory + '\"')
+
+			out.println("java -classpath \"\$CLASSPATH\" \$OPTIONS org.mve.Main")
+		}
+		println("Extract scripts: " + wodenSh)
+	}
+	else if (File.pathSeparatorChar == (';' as char))
+	{
+		File wodenBat = new File(projectDir, "woden.bat")
+		try (FileOutputStream fout = new FileOutputStream(wodenBat))
+		{
+			PrintStream out = new PrintStream(fout)
+			out.println("@echo off")
+			for (File libFile : libs)
+			{
+				String absPath = libFile.getAbsolutePath().replace(File.separatorChar, ('/' as char))
+				out.println("SET CLASSPATH=%CLASSPATH%" + absPath + ';')
+			}
+			out.println("SET CLASSPATH=\"%CLASSPATH%\"")
+			if (!max_memory.empty)
+				out.println("SET OPTIONS=%OPTIONS% -Xmx" + max_memory)
+			out.println("java -classpath %CLASSPATH% %OPTIONS% org.mve.Main")
+		}
+		println("Extract scripts: " + wodenBat)
+	}
+}
+
 tasks.jar.configure {
 	destinationDirectory = file("libs")
 	finalizedBy(sourceJar)

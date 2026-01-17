@@ -28,6 +28,7 @@ repositories {
 	maven { url 'https://maven.aliyun.com/repository/jcenter' }
 	maven { url 'https://maven.aliyun.com/repository/google' }
 	maven { url 'https://www.jitpack.io' }
+	flatDir { dir 'libs' }
 	mavenCentral()
 	gradlePluginPortal()
 	google()
@@ -46,6 +47,8 @@ dependencies {
 	implementation group: 'top.mrxiaom.mirai', name: 'overflow-core', version: '1.0.8'
 	// https://mvnrepository.com/artifact/org.ow2.asm/asm
 	implementation group: 'org.ow2.asm', name: 'asm', version: '9.9'
+	implementation group: '', name: 'mysql-connector-j', version: '9.5.0'
+	implementation group: '', name: 'ReflectionFX', version: '-SNAPSHOT'
 }
 
 tasks.register('sourceJar', Jar) {

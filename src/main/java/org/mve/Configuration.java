@@ -9,9 +9,12 @@ import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class Configuration
@@ -24,6 +27,11 @@ public class Configuration
 	private static final String KEY_LANGUAGE = "lang";
 	private static final String KEY_OWNER = "owner";
 	private static final String KEY_COMMAND_PREFIX = "command-prefix";
+	private static final String KEY_MYSQL_HOST = "mysql-host";
+	private static final String KEY_MYSQL_PORT = "mysql-port";
+	private static final String KEY_MYSQL_USERNAME = "mysql-username";
+	private static final String KEY_MYSQL_PASSWORD = "mysql-password";
+	private static final String KEY_FILE_SERVER = "file-server";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 
@@ -33,6 +41,11 @@ public class Configuration
 	public static final String LANGUAGE;
 	public static final long OWNER;
 	public static final String COMMAND_PREFIX;
+	public static final String MYSQL_HOST;
+	public static final int MYSQL_PORT;
+	public static final String MYSQL_USERNAME;
+	public static final String MYSQL_PASSWORD;
+	public static final String FILE_SERVER;
 
 	public static void save()
 	{
@@ -68,6 +81,11 @@ public class Configuration
 		String language = "zh_cn";
 		long owner = 0;
 		String commandPrefix = "/";
+		String mysqlHost = "127.0.0.1";
+		int mysqlPort = 3306;
+		String mysqlUsername = "root";
+		String mysqlPassword = "root";
+		String fileServer = ".";
 
 		if (!newFile)
 		{
@@ -86,6 +104,29 @@ public class Configuration
 					owner = config.get(KEY_OWNER).getAsLong();
 				if (config.has(KEY_COMMAND_PREFIX))
 					commandPrefix = config.get(KEY_COMMAND_PREFIX).getAsString();
+				if (config.has(KEY_MYSQL_HOST))
+					mysqlHost = config.get(KEY_MYSQL_HOST).getAsString();
+				if (config.has(KEY_MYSQL_PORT))
+					mysqlPort = config.get(KEY_MYSQL_PORT).getAsInt();
+				if (config.has(KEY_MYSQL_USERNAME))
+					mysqlUsername = config.get(KEY_MYSQL_USERNAME).getAsString();
+				if (config.has(KEY_MYSQL_PASSWORD))
+					mysqlPassword = config.get(KEY_MYSQL_PASSWORD).getAsString();
+				if (config.has(KEY_FILE_SERVER))
+					fileServer = config.get(KEY_FILE_SERVER).getAsString();
+				try
+				{
+					new URL(fileServer);
+				}
+				catch (MalformedURLException e)
+				{
+					Configuration.LOGGER.verbose(" Assume " + fileServer + " is file path");
+					File filePath = new File(fileServer);
+					if (!filePath.isDirectory())
+						throw new FileNotFoundException(fileServer + " is not a directory");
+					fileServer = "file:///" + fileServer;
+					Configuration.LOGGER.verbose(fileServer);
+				}
 			}
 			catch (IOException e)
 			{
@@ -109,6 +150,11 @@ public class Configuration
 		LANGUAGE = language;
 		OWNER = owner;
 		COMMAND_PREFIX = commandPrefix;
+		MYSQL_HOST = mysqlHost;
+		MYSQL_PORT = mysqlPort;
+		MYSQL_USERNAME = mysqlUsername;
+		MYSQL_PASSWORD = mysqlPassword;
+		FILE_SERVER = fileServer;
 
 		if (newFile)
 		{

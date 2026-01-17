@@ -90,7 +90,22 @@
   "owner": 0,
   // 可选字段
   // 指令前缀，以此前缀开头的消息才会被处理
-  "command-prefix": "/"
+  "command-prefix": "/",
+  // 可选字段
+  // MySQL数据库地址
+  "mysql-host": "127.0.0.1",
+  // 可选字段
+  // MySQL数据库端口
+  "mysql-port": 3306,
+  // 可选字段
+  // MySQL数据库用户名
+  "mysql-username": "root",
+  // 可选字段
+  // MySQL数据库密码
+  "mysql-password": "root",
+  // 可选字段
+  // 文件服务器地址, 可为本地路径, 需要上传的文件都会保存在指定位置
+  "file-server": "."
 }
 ```
 

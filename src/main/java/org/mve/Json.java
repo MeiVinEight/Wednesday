@@ -3,6 +3,7 @@ package org.mve;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class Json
 {
@@ -254,6 +255,14 @@ public class Json
 			case Json.TYPE_STRING , Json.TYPE_NUMBER, Json.TYPE_BOOLEAN -> 1;
 			default -> throw new IllegalArgumentException("Unknown type " + this.type);
 		};
+	}
+
+	@SuppressWarnings("unchecked")
+	public void foreach(BiConsumer<String, Json> action)
+	{
+		if (this.type != Json.TYPE_OBJECT)
+			throw new IllegalArgumentException("Json not component");
+		((HashMap<String, Json>) this.value).forEach(action);
 	}
 
 	@SuppressWarnings("unchecked")

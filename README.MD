@@ -73,7 +73,10 @@
     // 可选字段
     // 如果在OneBot端配置了连接Token，则需要在此提供
     // 留空或不提供表示无Token
-    "token": ""
+    "token": "",
+    // 可选字段
+    // OneBot断开链接后尝试重连次数
+    "reconnect-trys": 5
   },
   // 可选字段
   // 日志记录等级，可选的配置项有 (DEBUG < VERBOSE < INFO < WARNING < ERROR)

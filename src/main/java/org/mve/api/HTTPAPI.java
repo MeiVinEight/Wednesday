@@ -14,20 +14,21 @@ public class HTTPAPI
 	{
 		if (url == null)
 			throw new NullPointerException("URL");
-		if (headers == null)
-			throw new NullPointerException("HEADERS");
-		if (file == null)
-			throw new NullPointerException("FILE");
 		URL url1 = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) url1.openConnection();
-		headers.forEach((k,v)->
+		if (headers != null)
 		{
-			if (v != null)
-				conn.setRequestProperty(k, v);
-		});
+			headers.forEach((k, v) ->
+			{
+				if (v != null)
+					conn.setRequestProperty(k, v);
+			});
+		}
 		int code = conn.getResponseCode();
 		if (code != 200)
 			throw new IOException("HTTP CODE " + code);
+		if (file == null)
+			file = new File(new File(url1.getPath()).getName());
 		boolean ignored = file.getParentFile().mkdirs();
 		try (InputStream in = conn.getInputStream(); FileOutputStream fout = new FileOutputStream(file))
 		{

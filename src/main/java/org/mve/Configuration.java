@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Configuration
 {
@@ -30,7 +28,6 @@ public class Configuration
 	private static final String KEY_COFFEE_HOST = "host";
 	private static final String KEY_COFFEE_PORT = "port";
 	private static final String KEY_COFFEE_UPLOAD = "upload";
-	private static final String KEY_COFFEE_SERVICE_LOG_LEVEL = "service-log-level";
 	private static final String KEY_LOGLEVEL = "log-level";
 	private static final String KEY_LANGUAGE = "lang";
 	private static final String KEY_OWNER = "owner";
@@ -49,7 +46,6 @@ public class Configuration
 	public static final String COFFEE_HOST;
 	public static final int COFFEE_PORT;
 	public static final String COFFEE_UPLOAD;
-	public static final Map<String, SimpleLogger.LogPriority> COFFEE_SERVICE_LOG_LEVEL;
 	public static final SimpleLogger.LogPriority LOG_LEVEL;
 	public static final String LANGUAGE;
 	public static final long OWNER;
@@ -64,20 +60,19 @@ public class Configuration
 	{
 		try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE))
 		{
+			JsonObject config = new JsonObject();
 			JsonObject configOnebot = new JsonObject();
 			configOnebot.addProperty(KEY_ONEBOT_WS_FORWARD, ONEBOT_WS_FORWARD);
 			configOnebot.addProperty(KEY_ONEBOT_TOKEN, ONEBOT_TOKEN);
 			configOnebot.addProperty(KEY_ONEBOT_RECONNECT, ONEBOT_RECONNECT);
+			config.add(KEY_ONEBOT, configOnebot);
+
 			JsonObject configCoffee = new JsonObject();
-			JsonObject configCoffeeLogLevel = new JsonObject();
-			COFFEE_SERVICE_LOG_LEVEL.forEach((k, v) -> configCoffeeLogLevel.addProperty(k, v.toString()));
 			configCoffee.addProperty(KEY_COFFEE_HOST, COFFEE_HOST);
 			configCoffee.addProperty(KEY_COFFEE_PORT, COFFEE_PORT);
 			configCoffee.addProperty(KEY_COFFEE_UPLOAD, COFFEE_UPLOAD);
-			configCoffee.add(KEY_COFFEE_SERVICE_LOG_LEVEL, configCoffeeLogLevel);
-			JsonObject config = new JsonObject();
-			config.add(KEY_ONEBOT, configOnebot);
 			config.add(KEY_COFFEE, configCoffee);
+
 			config.addProperty(KEY_LOGLEVEL, LOG_LEVEL.toString());
 			config.addProperty(KEY_LANGUAGE, LANGUAGE);
 			config.addProperty(KEY_OWNER, OWNER);
@@ -108,10 +103,6 @@ public class Configuration
 		String coffeeHost = "0.0.0.0";
 		int coffeePort = 83;
 		String coffeeUpload = ".";
-		Map<String, SimpleLogger.LogPriority> coffeeServiceLogLevel = new HashMap<>();
-		coffeeServiceLogLevel.put("javax.management.remote.rmi", SimpleLogger.LogPriority.INFO);
-		coffeeServiceLogLevel.put("jdk.event.security", SimpleLogger.LogPriority.INFO);
-		coffeeServiceLogLevel.put("sun.net.www.protocol.http.HttpURLConnection", SimpleLogger.LogPriority.INFO);
 		String logLevel = "INFO";
 		String language = "zh_cn";
 		long owner = 0;
@@ -146,13 +137,6 @@ public class Configuration
 						coffeePort = coffee.get(KEY_COFFEE_PORT).getAsInt();
 					if (coffee.has(KEY_COFFEE_UPLOAD))
 						coffeeUpload = coffee.get(KEY_COFFEE_UPLOAD).getAsString();
-					if (coffee.has(KEY_COFFEE_SERVICE_LOG_LEVEL))
-					{
-						coffeeServiceLogLevel.clear();
-						coffee.getAsJsonObject(KEY_COFFEE_SERVICE_LOG_LEVEL)
-							.asMap()
-							.forEach((k, v) -> coffeeServiceLogLevel.put(k, SimpleLogger.LogPriority.valueOf(v.getAsString())));
-					}
 				}
 				if (config.has(KEY_LOGLEVEL))
 					logLevel = config.get(KEY_LOGLEVEL).getAsString();
@@ -198,7 +182,6 @@ public class Configuration
 		COFFEE_HOST = coffeeHost;
 		COFFEE_PORT = coffeePort;
 		COFFEE_UPLOAD = coffeeUpload;
-		COFFEE_SERVICE_LOG_LEVEL = Map.copyOf(coffeeServiceLogLevel);
 		SimpleLogger.LogPriority logPriority;
 		try
 		{

@@ -95,10 +95,9 @@ public class BilibiliAPI
 		{
 			conn.disconnect();
 		}
-		return urlText;
 	}
 
-	public static File video(String bvid, String downloadUrl, File downloadTo) throws Throwable
+	public static File video(String bvid, String downloadUrl, File downloadTo) throws IOException
 	{
 		Map<String, String> headers = Map.of(
 			HEADER_USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",

@@ -494,6 +494,7 @@ public class Json
 					case '\\':
 					case '\'':
 					case '"':
+					case '/':
 						ch = esc;
 						break;
 					case 'n':

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class HTTPAPI
 {
-	public static void download(String url, Map<String, String> headers, File file) throws IOException
+	public static File download(String url, Map<String, String> headers, File file) throws IOException
 	{
 		if (url == null)
 			throw new NullPointerException("URL");
@@ -39,5 +39,6 @@ public class HTTPAPI
 		{
 			in.transferTo(fout);
 		}
+		return file;
 	}
 }

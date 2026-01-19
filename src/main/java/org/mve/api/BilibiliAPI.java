@@ -95,12 +95,12 @@ public class BilibiliAPI
 		return urlText;
 	}
 
-	public static void video(String bvid, String downloadUrl, File downloadTo) throws Throwable
+	public static File video(String bvid, String downloadUrl, File downloadTo) throws Throwable
 	{
 		Map<String, String> headers = Map.of(
 			HEADER_USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
 			HEADER_REFERER, "https://www.bilibili.com/video/" + bvid + '/'
 		);
-		HTTPAPI.download(downloadUrl, headers, downloadTo);
+		return HTTPAPI.download(downloadUrl, headers, downloadTo);
 	}
 }

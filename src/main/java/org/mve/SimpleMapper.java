@@ -383,4 +383,16 @@ public class SimpleMapper<T> extends Mapper<T>
 			facc.set(o, rs.getObject(columnName, columnType));
 		}
 	}
+
+	static
+	{
+		try
+		{
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		}
+		catch (Throwable e)
+		{
+			Wednesday.LOGGER.error(e);
+		}
+	}
 }

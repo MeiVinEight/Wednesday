@@ -101,12 +101,16 @@ public class Configuration
 			try (FileReader reader = new FileReader(configFile))
 			{
 				JsonObject config = JsonParser.parseReader(reader).getAsJsonObject();
-				JsonObject configOnebot = config.getAsJsonObject(KEY_ONEBOT);
-				onebotWsForward = configOnebot.get(KEY_ONEBOT_WS_FORWARD).getAsString();
-				if (configOnebot.has(KEY_ONEBOT_TOKEN))
-					onebotToken = configOnebot.get(KEY_ONEBOT_TOKEN).getAsString();
-				if (configOnebot.has(KEY_ONEBOT_RECONNECT))
-					onebotRetry = configOnebot.get(KEY_ONEBOT_RECONNECT).getAsInt();
+				if (config.has(KEY_ONEBOT))
+				{
+					JsonObject configOnebot = config.getAsJsonObject(KEY_ONEBOT);
+					if (configOnebot.has(KEY_ONEBOT_WS_FORWARD))
+						onebotWsForward = configOnebot.get(KEY_ONEBOT_WS_FORWARD).getAsString();
+					if (configOnebot.has(KEY_ONEBOT_TOKEN))
+						onebotToken = configOnebot.get(KEY_ONEBOT_TOKEN).getAsString();
+					if (configOnebot.has(KEY_ONEBOT_RECONNECT))
+						onebotRetry = configOnebot.get(KEY_ONEBOT_RECONNECT).getAsInt();
+				}
 				if (config.has(KEY_LOGLEVEL))
 					logLevel = config.get(KEY_LOGLEVEL).getAsString();
 				if (config.has(KEY_LANGUAGE))

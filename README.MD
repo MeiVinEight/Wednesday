@@ -67,9 +67,10 @@
 ```json5
 {
   "onebot": {
+    // 可选字段
     // 正向WebSocket连接地址，Wednesday会通过该地址主动向OneBot端建立WebSocket连接
     // 使用WebSocket URL格式
-    "ws-forward": "ws://127.0.0.1",
+    "ws-forward": "ws://127.0.0.1:3001",
     // 可选字段
     // 如果在OneBot端配置了连接Token，则需要在此提供
     // 留空或不提供表示无Token

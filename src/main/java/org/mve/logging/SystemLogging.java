@@ -23,7 +23,7 @@ public class SystemLogging implements System.Logger
 	@Override
 	public boolean isLoggable(Level level)
 	{
-		return mapping(level).ordinal() >= Configuration.LOG_LEVEL.ordinal();
+		return mapping(level).ordinal() >= Configuration.COFFEE_SERVICE_LOG_LEVEL.getOrDefault(this.getName(), Configuration.LOG_LEVEL).ordinal();
 	}
 
 	@Override

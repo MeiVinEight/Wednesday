@@ -3,7 +3,6 @@ package org.mve;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.Listener;
-import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
@@ -11,7 +10,6 @@ import org.mve.mc.Minecraft;
 import top.mrxiaom.overflow.BotBuilder;
 import top.mrxiaom.overflow.OverflowAPI;
 
-import java.lang.invoke.MethodHandle;
 import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
@@ -86,8 +84,7 @@ public class Wednesday extends Synchronize
 	{
 		try
 		{
-			MethodHandle logger = ModuleAccess.LOOKUP.findStaticSetter(OverflowAPI.Companion.class, "logger", MiraiLogger.class);
-			logger.invokeExact((MiraiLogger) LoggerManager.create("OverflowAPI", SimpleLogger.LogPriority.DEBUG));
+			Mirroring.set(OverflowAPI.Companion.class, "logger", LoggerManager.create("OverflowAPI", SimpleLogger.LogPriority.DEBUG));
 		}
 		catch (Throwable t)
 		{

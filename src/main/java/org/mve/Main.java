@@ -7,7 +7,6 @@ import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerManager;
 
-import java.lang.invoke.MethodHandle;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -28,17 +27,16 @@ public class Main
 		{
 			try
 			{
-				MethodHandle getOrdinal = ModuleAccess.LOOKUP.findGetter(Enum.class, "ordinal", int.class);
-				MethodHandle setOrdinal = ModuleAccess.LOOKUP.findSetter(Enum.class, "ordinal", int.class);
-				int verbOrdinal = (int) getOrdinal.invokeExact((Enum<SimpleLogger.LogPriority>) SimpleLogger.LogPriority.VERBOSE);
-				int dbugOrdinal = (int) getOrdinal.invokeExact((Enum<SimpleLogger.LogPriority>) SimpleLogger.LogPriority.DEBUG);
-				setOrdinal.invoke((Enum<SimpleLogger.LogPriority>) SimpleLogger.LogPriority.VERBOSE, dbugOrdinal);
-				setOrdinal.invoke((Enum<SimpleLogger.LogPriority>) SimpleLogger.LogPriority.DEBUG, verbOrdinal);
+				String ordinalFieldName = "ordinal";
+				int verbOrdinal = Mirroring.get(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.VERBOSE);
+				int dbugOrdinal = Mirroring.get(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.DEBUG);
+				Mirroring.set(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.DEBUG, verbOrdinal);
+				Mirroring.set(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.VERBOSE, dbugOrdinal);
 				Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC);
 			}
 			catch (Throwable e)
 			{
-				Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL);
+				Wednesday.LOGGER.warn(LoggerMessage.LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL, e);
 			}
 		}
 

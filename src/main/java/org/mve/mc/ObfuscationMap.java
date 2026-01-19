@@ -1,6 +1,6 @@
 package org.mve.mc;
 
-import org.mve.ModuleAccess;
+import org.mve.Mirroring;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -146,7 +146,7 @@ public class ObfuscationMap
 		}
 		catch (Throwable e)
 		{
-			ModuleAccess.exception(e);
+			Mirroring.thrown(e);
 		}
 		this.field = countField;
 		this.method = countMethod;

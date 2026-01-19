@@ -28,6 +28,7 @@ public class HTTPAPI
 		int code = conn.getResponseCode();
 		if (code != 200)
 			throw new IOException("HTTP CODE " + code);
+		boolean ignored = file.getParentFile().mkdirs();
 		try (InputStream in = conn.getInputStream(); FileOutputStream fout = new FileOutputStream(file))
 		{
 			in.transferTo(fout);

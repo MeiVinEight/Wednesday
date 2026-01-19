@@ -4,7 +4,6 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.PlainText;
-import org.mve.woden.Woden;
 
 import java.util.function.Function;
 
@@ -41,25 +40,10 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 				event.getSubject().sendMessage(chain);
 			return true;
 		}
-		switch (command)
+		if (command.equals("stop"))
 		{
-			case "stop" ->
-			{
-				this.wednesday.close();
-				return true;
-			}
-			case "reload" ->
-			{
-				this.wednesday.close();
-				Woden.stats = Woden.STAT_RUNNING;
-				return true;
-			}
-			case "update" ->
-			{
-				this.wednesday.close();
-				Woden.stats = Woden.STAT_UPDATE;
-				return true;
-			}
+			this.wednesday.close();
+			return true;
 		}
 		return false;
 	}

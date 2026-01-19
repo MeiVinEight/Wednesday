@@ -40,7 +40,6 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
-	implementation project(":Woden")
 	// https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
 	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
 	// https://mvnrepository.com/artifact/top.mrxiaom.mirai/overflow-core
@@ -59,12 +58,6 @@ tasks.register("run", JavaExec)  {
 	group = "run"
 	classpath = sourceSets.main.runtimeClasspath
 	mainClass = "org.mve.Main"
-}
-
-tasks.register("runWoden", JavaExec) {
-	group = "run"
-	classpath = sourceSets.main.runtimeClasspath
-	mainClass = "org.mve.woden.Woden"
 }
 
 tasks.register("scripts") {

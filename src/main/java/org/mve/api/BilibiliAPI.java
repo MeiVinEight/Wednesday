@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BilibiliAPI
 {
@@ -95,21 +97,10 @@ public class BilibiliAPI
 
 	public static void video(String bvid, String downloadUrl, File downloadTo) throws Throwable
 	{
-		if (downloadUrl == null)
-			throw new NullPointerException("URL");
-		URL url = new URL(downloadUrl);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestProperty(HEADER_USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-		conn.setRequestProperty(HEADER_REFERER, "https://www.bilibili.com/video/" + bvid + '/');
-		if (conn.getResponseCode() != HttpURLConnection.HTTP_OK)
-			throw new IOException("Wrong response code: " + conn.getResponseCode());
-		try (InputStream input = conn.getInputStream(); FileOutputStream fout = new FileOutputStream(downloadTo))
-		{
-			input.transferTo(fout);
-		}
-		finally
-		{
-			conn.disconnect();
-		}
+		Map<String, String> headers = Map.of(
+			HEADER_USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+			HEADER_REFERER, "https://www.bilibili.com/video/" + bvid + '/'
+		);
+		HTTPAPI.download(downloadUrl, headers, downloadTo);
 	}
 }

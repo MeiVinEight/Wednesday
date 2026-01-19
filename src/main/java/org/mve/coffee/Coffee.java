@@ -42,7 +42,7 @@ public class Coffee implements HttpHandler
 	{
 		URI requestURI = exchange.getRequestURI();
 		String requestMethod = exchange.getRequestMethod();
-		Coffee.LOGGER.info("{} {}", requestMethod, requestURI);
+		Coffee.LOGGER.info("{} {} {}", exchange.getProtocol(), requestMethod, requestURI);
 		String path = requestURI.getPath();
 
 		int code = 200;
@@ -71,6 +71,7 @@ public class Coffee implements HttpHandler
 					responseMessage = "Download-From is required in header";
 					break HANLE_REQUEST;
 				}
+				Coffee.LOGGER.debug("<--{}", downloadUrl);
 
 				String downloadToPath = exchange.getRequestHeaders().getFirst("Download-To");
 				if (downloadToPath == null)
@@ -85,6 +86,7 @@ public class Coffee implements HttpHandler
 				code = 500;
 
 				File downloadTo = new File(Configuration.COFFEE_UPLOAD, downloadToPath);
+				Coffee.LOGGER.debug("-->{}", downloadTo.getAbsolutePath());
 				if (downloadTo.isDirectory())
 				{
 					responseMessage = "Path is directory";
@@ -101,6 +103,7 @@ public class Coffee implements HttpHandler
 				catch (NoSuchAlgorithmException e)
 				{
 					responseMessage = e.toString();
+					Coffee.LOGGER.debug(e);
 					break HANLE_REQUEST;
 				}
 
@@ -132,6 +135,7 @@ public class Coffee implements HttpHandler
 					catch (IOException e)
 					{
 						exception = e.toString();
+						Coffee.LOGGER.debug(e);
 					}
 					data.set("size", fileSize);
 					data.set("MD5", md5Value);
@@ -158,6 +162,7 @@ public class Coffee implements HttpHandler
 				catch (MalformedURLException e)
 				{
 					responseMessage = e.toString();
+					Coffee.LOGGER.debug(e);
 					break HANLE_REQUEST;
 				}
 
@@ -168,12 +173,18 @@ public class Coffee implements HttpHandler
 					if (downloadHeaders != null)
 					{
 						Json downHeaders = Json.resolve(downloadHeaders);
-						downHeaders.foreach((k, v) -> connection.setRequestProperty(k, v.string()));
+						Coffee.LOGGER.debug("HEADERS:");
+						downHeaders.foreach((k, v) ->
+						{
+							Coffee.LOGGER.debug("  {}: {}", k, v.string());
+							connection.setRequestProperty(k, v.string());
+						});
 					}
 				}
 				catch (IOException e)
 				{
 					responseMessage = e.toString();
+					Coffee.LOGGER.debug(e);
 					break HANLE_REQUEST;
 				}
 
@@ -194,6 +205,7 @@ public class Coffee implements HttpHandler
 				catch (IOException e)
 				{
 					responseMessage = e.toString();
+					Coffee.LOGGER.debug(e);
 					break HANLE_REQUEST;
 				}
 
@@ -216,6 +228,7 @@ public class Coffee implements HttpHandler
 				exchange.sendResponseHeaders(404, notFoundResp.length());
 				exchange.getResponseBody().write(notFoundResp.getBytes());
 				exchange.close();
+				Coffee.LOGGER.debug("RESPONSE: {} {}", 404, notFoundResp);
 				return;
 			}
 
@@ -226,6 +239,7 @@ public class Coffee implements HttpHandler
 			exchange.sendResponseHeaders(code, bodyValue.length());
 			exchange.getResponseBody().write(bodyValue.getBytes(StandardCharsets.UTF_8));
 			exchange.close();
+			Coffee.LOGGER.debug("RESPONSE: {} {}", code, bodyValue);
 		}
 		catch (IOException e)
 		{

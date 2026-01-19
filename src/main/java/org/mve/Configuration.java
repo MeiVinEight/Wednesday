@@ -102,7 +102,7 @@ public class Configuration
 		int onebotRetry = 5;
 		String coffeeHost = "0.0.0.0";
 		int coffeePort = 83;
-		String coffeeUpload = ".";
+		String coffeeUpload = "coffee";
 		String logLevel = "INFO";
 		String language = "zh_cn";
 		long owner = 0;

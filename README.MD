@@ -81,6 +81,37 @@
     "reconnect-trys": 5
   },
   // 可选字段
+  // Coffee: 一个文件代理服务, 可以将指定链接的文件下载到指定位置
+  // Coffee会开启一个http服务器, 可使用/upload请求让Coffee下载文件
+  "coffee": {
+    // 可选字段
+    // Coffee默认监听的地址
+    // "0.0.0.0": 全部地址
+    // "127.0.0.1": 仅本机地址
+    "host": "0.0.0.0",
+    // 可选字段
+    // Coffee服务的端口
+    "port": 83,
+    // 可选字段
+    // Coffee将文件下载的位置
+    // 请求中指定的路径都会在此路径下
+    // 例如请求中指定的路径为"/image/ico.png", 此处配置的路径为"coffee"
+    // 则最终文件的路径为"./coffee/image/ico.png"
+    "upload": "coffee",
+    // 可选字段
+    // 可以对每个服务设置不同的日志等级
+    // 由于Coffee提供了系统日志记录器
+    // 因此一些系统日志也会使用Coffee的日志记录器输出
+    // 也许有一些系统日志是你不想看到的
+    // 可以在此处设置日志等级
+    // 这里的每一项都是一条针对某个系统服务设置的日志等级
+    "service-log-level": {
+      "javax.management.remote.rmi": "INFO",
+      "jdk.event.security": "INFO",
+      "sun.net.www.protocol.http.HttpURLConnection": "INFO"
+    }
+  },
+  // 可选字段
   // 日志记录等级，可选的配置项有 (DEBUG < VERBOSE < INFO < WARNING < ERROR)
   // 大小关系表示优先级
   // 只会记录优先级大于等于该配置项的日志

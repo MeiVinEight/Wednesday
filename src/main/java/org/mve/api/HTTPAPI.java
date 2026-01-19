@@ -29,7 +29,12 @@ public class HTTPAPI
 			throw new IOException("HTTP CODE " + code);
 		if (file == null)
 			file = new File(new File(url1.getPath()).getName());
-		boolean ignored = file.getParentFile().mkdirs();
+		if (!file.isDirectory())
+		{
+			boolean ignored = file.getParentFile().mkdirs();
+		}
+		else
+			file = new File(file, new File(url1.getPath()).getName());
 		try (InputStream in = conn.getInputStream(); FileOutputStream fout = new FileOutputStream(file))
 		{
 			in.transferTo(fout);

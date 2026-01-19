@@ -1,10 +1,12 @@
 package org.mve.api;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 
 public class BilibiliAPI
@@ -87,6 +89,7 @@ public class BilibiliAPI
 		{
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			input.transferTo(bos);
+			return bos.toString(StandardCharsets.UTF_8);
 		}
 		finally
 		{

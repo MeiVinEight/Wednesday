@@ -101,9 +101,17 @@
   // 可选字段
   // 文件服务器地址, 可为本地路径, 需要上传的文件都会保存在指定位置
   "file-server": ".",
+  // 可选字段
   // Coffee服务地址
   // Coffee: https://gtiee.com/meivi/coffee
-  "coffee-server": "http://127.0.0.1:8800"
+  "coffee-server": "http://127.0.0.1:8800",
+  // 可选字段
+  // 下载b站视频的最大大小
+  // 超过这个大小的视频不会下载后发到bot
+  // 以字节为单位
+  // 1K=1024
+  // 1M=1048576
+  "video-max-size": 33554432
 }
 ```
 

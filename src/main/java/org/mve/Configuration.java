@@ -34,6 +34,7 @@ public class Configuration
 	private static final String KEY_MYSQL_PASSWORD = "mysql-password";
 	private static final String KEY_FILE_SERVER = "file-server";
 	private static final String KEY_COFFEE_SERVER = "coffee-server";
+	private static final String KEY_VIDEO_MAX_SIZE = "video-max-size";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 
@@ -50,6 +51,7 @@ public class Configuration
 	public static final String MYSQL_PASSWORD;
 	public static final String FILE_SERVER;
 	public static final String COFFEE_SERVER;
+	public static final long VIDEO_MAX_SIZE;
 
 	public static void save()
 	{
@@ -72,6 +74,7 @@ public class Configuration
 			config.addProperty(KEY_MYSQL_PASSWORD, MYSQL_PASSWORD);
 			config.addProperty(KEY_FILE_SERVER, FILE_SERVER);
 			config.addProperty(KEY_COFFEE_SERVER, COFFEE_SERVER);
+			config.addProperty(KEY_VIDEO_MAX_SIZE, VIDEO_MAX_SIZE);
 			fos.write(GSON.toJson(config).getBytes(StandardCharsets.UTF_8));
 			fos.flush();
 		}
@@ -100,6 +103,7 @@ public class Configuration
 		String mysqlPassword = "root";
 		String fileServer = ".";
 		String coffeeServer = "http://127.0.0.1:8800";
+		long videoMaxSize = 32 * 1024 * 1024;
 
 		if (!newFile)
 		{
@@ -136,6 +140,8 @@ public class Configuration
 					fileServer = config.get(KEY_FILE_SERVER).getAsString();
 				if (config.has(KEY_COFFEE_SERVER))
 					coffeeServer = config.get(KEY_COFFEE_SERVER).getAsString();
+				if (config.has(KEY_VIDEO_MAX_SIZE))
+					videoMaxSize = config.get(KEY_VIDEO_MAX_SIZE).getAsLong();
 				try
 				{
 					new URL(fileServer);
@@ -179,6 +185,7 @@ public class Configuration
 		MYSQL_PASSWORD = mysqlPassword;
 		FILE_SERVER = fileServer;
 		COFFEE_SERVER = coffeeServer;
+		VIDEO_MAX_SIZE = videoMaxSize;
 
 		if (newFile)
 		{

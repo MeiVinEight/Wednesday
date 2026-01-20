@@ -19,7 +19,6 @@
 > ✨积极欢迎贡献代码✨
 
 ## 丨使用
-> **使用Gradle运行**
 
 1. 克隆项目到本地
 
@@ -27,40 +26,31 @@
    git clone https://github.com/MeiVinEight/Wednesday
    ```
 
-2. 使用gradlew运行
-
-   ```shell
-   ./gradlew run
-   ```
-
-> **使用Woden运行**
-
-1. 克隆项目到本地
-
-   ```shell
-   git clone https://github.com/MeiVinEight/Wednesday
-   ```
-
-2. 使用gradlew构建项目
+2. 构建项目
 
    ```shell
    ./gradlew build
    ```
 
-3. 使用Java运行Woden
+3. 生成启动脚本
 
    ```shell
-   java -cp libs/Woden-1.0.0.jar org.mve.woden.Woden
+   ./gradlew scripts
+   ```
+   
+4. 运行启动脚本
+
+   ```shell
+   ./woden.sh
    ```
 
-> **运行方式对比**
+---
 
-| 特性            | Gradle | Woden |
-|----------------|--------|--------|
-| 更少的内存占用   | ❌     | ✅     |
-| 热重载Kaybxg    | ❌     | ❌     |
-| 热重载Wednesday | ❌     | ✅     |
-| 热重载其他依赖   | ❌     | ✅     |
+5. 或使用gradle运行
+
+   ```shell
+   ./gradlew run
+   ```
 
 ## 丨配置
 第一次运行会在运行目录生成一个配置文件`config.json`,这里给出每项的介绍

@@ -5,7 +5,7 @@ import javax.persistence.Table;
 @Table("FACING")
 public class Facing
 {
-	public int ID;
+	public Integer ID;
 	public String SHA1;
 	public String NAME;
 }

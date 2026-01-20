@@ -6,8 +6,6 @@ import org.mve.logging.LoggerManager;
 
 public class Main
 {
-	private static final Object WAITING = new Object();
-
 	public static void main(String[] args)
 	{
 		LoggerManager.register(FileLogger.INSTANCE);

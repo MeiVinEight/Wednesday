@@ -317,6 +317,12 @@ public class Json
 		throw new IllegalArgumentException("Unknown type " + this.type);
 	}
 
+	@Override
+	public String toString()
+	{
+		return this.stringify();
+	}
+
 	public static String stringify(Json object)
 	{
 		if (object == null)

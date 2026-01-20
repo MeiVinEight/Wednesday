@@ -42,17 +42,15 @@ public class Wednesday extends Synchronize
 	public void close()
 	{
 		LOGGER.info(LoggerMessage.LOG_WEDNESDAY_SHUTDOWN);
+		this.QQ.close();
 		this.cancel();
 		this.synchronize.close();
 		this.subscribe.cancel();
-		if (this.QQ != null)
-			this.QQ.close();
 	}
 
 	public void join()
 	{
-		if (this.QQ != null)
-			this.QQ.join();
+		this.QQ.join();
 		while (this.synchronize.thread.isAlive())
 		{
 			try

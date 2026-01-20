@@ -1,4 +1,4 @@
-package org.mve.mc;
+package org.mve.minecraft;
 
 public class MemberName extends ValueName
 {

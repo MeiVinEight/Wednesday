@@ -1,5 +1,6 @@
-package org.mve;
+package org.mve.data;
 
+import org.mve.Wednesday;
 import org.mve.invoke.ConstructorAccessor;
 import org.mve.invoke.FieldAccessor;
 import org.mve.invoke.MagicAccessor;

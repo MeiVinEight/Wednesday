@@ -1,9 +1,11 @@
-package org.mve;
+package org.mve.service;
 
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.PlainText;
+import org.mve.Configuration;
+import org.mve.Wednesday;
 
 import java.util.function.Function;
 

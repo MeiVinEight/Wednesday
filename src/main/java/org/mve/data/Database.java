@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.data;
 
 public class Database
 {

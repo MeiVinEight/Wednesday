@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.uni;
 
 public class Array
 {

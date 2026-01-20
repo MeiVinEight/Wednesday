@@ -1,6 +1,6 @@
-package org.mve.mc;
+package org.mve.minecraft;
 
-import org.mve.Mirroring;
+import org.mve.uni.Mirroring;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -22,10 +22,10 @@ public class ObfuscationMap
 
 	public ObfuscationMap(String version)
 	{
-		InputStream iobf2srg = ObfuscationMap.class.getResourceAsStream("/mc/" + version + "/obf_to_srg.tsrg2");
-		InputStream isrg2mcp = ObfuscationMap.class.getResourceAsStream("/mc/" + version + "/srg_to_official_1.20.1.tsrg");
-		InputStream isuprmap = ObfuscationMap.class.getResourceAsStream("/mc/" + version + "/super_map.txt");
-		InputStream ifldtype = ObfuscationMap.class.getResourceAsStream("/mc/" + version + "/field_type.txt");
+		InputStream iobf2srg = ObfuscationMap.class.getResourceAsStream("/data/minecraft/" + version + "/obf_to_srg.tsrg2");
+		InputStream isrg2mcp = ObfuscationMap.class.getResourceAsStream("/data/minecraft/" + version + "/srg_to_official_1.20.1.tsrg");
+		InputStream isuprmap = ObfuscationMap.class.getResourceAsStream("/data/minecraft/" + version + "/super_map.txt");
+		InputStream ifldtype = ObfuscationMap.class.getResourceAsStream("/data/minecraft/" + version + "/field_type.txt");
 		Map<String, TypeName> mapTyp = new HashMap<>();
 		int countField = 0;
 		int countMethod = 0;

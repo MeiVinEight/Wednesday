@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.uni;
 
 import java.util.HashMap;
 import java.util.Map;

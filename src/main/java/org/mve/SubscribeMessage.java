@@ -9,6 +9,9 @@ import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
+import org.mve.data.Database;
+import org.mve.data.SimpleMapper;
+import org.mve.service.ApplicationMessage;
 import org.mve.service.NudgeFacing;
 import org.mve.vo.Facing;
 

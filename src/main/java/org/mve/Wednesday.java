@@ -6,7 +6,9 @@ import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
-import org.mve.mc.Minecraft;
+import org.mve.minecraft.Minecraft;
+import org.mve.service.EchoingMessage;
+import org.mve.uni.Mirroring;
 import top.mrxiaom.overflow.BotBuilder;
 import top.mrxiaom.overflow.OverflowAPI;
 

@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.uni;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

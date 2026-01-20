@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.service;
 
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -6,6 +6,9 @@ import net.mamoe.mirai.message.data.LightApp;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.ShortVideo;
 import net.mamoe.mirai.utils.ExternalResource;
+import org.mve.Configuration;
+import org.mve.uni.Json;
+import org.mve.Wednesday;
 import org.mve.api.BilibiliAPI;
 import org.mve.api.HTTPAPI;
 import org.mve.uni.ResourceManager;

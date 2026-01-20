@@ -3,7 +3,6 @@ package org.mve.uni;
 import net.mamoe.mirai.message.data.ShortVideo;
 import net.mamoe.mirai.utils.ExternalResource;
 import org.mve.Configuration;
-import org.mve.Mirroring;
 import top.mrxiaom.overflow.internal.message.OnebotMessages;
 import top.mrxiaom.overflow.internal.message.data.WrappedVideo;
 import top.mrxiaom.overflow.internal.utils.ResourceUtilsKt;

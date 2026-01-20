@@ -1,4 +1,4 @@
-package org.mve;
+package org.mve.data;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

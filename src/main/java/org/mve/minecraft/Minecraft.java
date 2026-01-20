@@ -1,4 +1,4 @@
-package org.mve.mc;
+package org.mve.minecraft;
 
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;

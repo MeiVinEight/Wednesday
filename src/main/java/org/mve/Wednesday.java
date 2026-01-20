@@ -26,9 +26,9 @@ public class Wednesday extends Synchronize
 			{
 				config.setBotLoggerSupplier(bot -> LOGGER);
 				config.setNetworkLoggerSupplier(bot -> LoggerManager.create("Network", Configuration.LOG_LEVEL));
-				config.setReconnectionRetryTimes(2);
+				config.setReconnectionRetryTimes(0);
 			})
-			.retryTimes(Configuration.ONEBOT_RECONNECT)
+			.retryTimes(0)
 			.retryRestMills(-1)
 			.overrideLogger(LOGGER)
 			.connect());

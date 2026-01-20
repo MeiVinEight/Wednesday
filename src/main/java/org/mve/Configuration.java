@@ -23,7 +23,6 @@ public class Configuration
 	private static final String KEY_ONEBOT = "onebot";
 	private static final String KEY_ONEBOT_WS_FORWARD = "ws-forward";
 	private static final String KEY_ONEBOT_TOKEN = "token";
-	private static final String KEY_ONEBOT_RECONNECT = "reconnect-trys";
 	private static final String KEY_LOGLEVEL = "log-level";
 	private static final String KEY_LANGUAGE = "lang";
 	private static final String KEY_OWNER = "owner";
@@ -40,7 +39,6 @@ public class Configuration
 
 	public static final String ONEBOT_WS_FORWARD;
 	public static final String ONEBOT_TOKEN;
-	public static final int ONEBOT_RECONNECT;
 	public static final SimpleLogger.LogPriority LOG_LEVEL;
 	public static final String LANGUAGE;
 	public static final long OWNER;
@@ -61,7 +59,6 @@ public class Configuration
 			JsonObject configOnebot = new JsonObject();
 			configOnebot.addProperty(KEY_ONEBOT_WS_FORWARD, ONEBOT_WS_FORWARD);
 			configOnebot.addProperty(KEY_ONEBOT_TOKEN, ONEBOT_TOKEN);
-			configOnebot.addProperty(KEY_ONEBOT_RECONNECT, ONEBOT_RECONNECT);
 			config.add(KEY_ONEBOT, configOnebot);
 
 			config.addProperty(KEY_LOGLEVEL, LOG_LEVEL.toString());
@@ -92,7 +89,6 @@ public class Configuration
 		// default configs
 		String onebotWsForward = "ws://127.0.0.1:3001";
 		String onebotToken = "";
-		int onebotRetry = 5;
 		String logLevel = "INFO";
 		String language = "zh_cn";
 		long owner = 0;
@@ -117,8 +113,6 @@ public class Configuration
 						onebotWsForward = configOnebot.get(KEY_ONEBOT_WS_FORWARD).getAsString();
 					if (configOnebot.has(KEY_ONEBOT_TOKEN))
 						onebotToken = configOnebot.get(KEY_ONEBOT_TOKEN).getAsString();
-					if (configOnebot.has(KEY_ONEBOT_RECONNECT))
-						onebotRetry = configOnebot.get(KEY_ONEBOT_RECONNECT).getAsInt();
 				}
 				if (config.has(KEY_LOGLEVEL))
 					logLevel = config.get(KEY_LOGLEVEL).getAsString();
@@ -164,7 +158,6 @@ public class Configuration
 
 		ONEBOT_WS_FORWARD = onebotWsForward;
 		ONEBOT_TOKEN = onebotToken;
-		ONEBOT_RECONNECT = onebotRetry;
 		SimpleLogger.LogPriority logPriority;
 		try
 		{

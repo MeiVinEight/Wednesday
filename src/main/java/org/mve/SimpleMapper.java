@@ -348,6 +348,58 @@ public class SimpleMapper<T> extends Mapper<T>
 		return 0;
 	}
 
+	public int count(T o)
+	{
+		Class<?> clazz = o.getClass();
+		String tableName = o.getClass().getSimpleName();
+		Table tableAnno = clazz.getAnnotation(Table.class);
+		if (tableAnno != null)
+		{
+			tableName = tableAnno.value();
+		}
+
+		try (Connection conn = this.connection())
+		{
+			StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ")
+				.append(tableName)
+				.append(" WHERE ");
+			Field[] fields = Arrays.stream(MagicAccessor.accessor.getFields(clazz))
+				.filter(x -> !Modifier.isStatic(x.getModifiers()))
+				.toArray(Field[]::new);
+			Object[] args = new Object[fields.length];
+			int argCount = 0;
+			for (Field field : fields)
+			{
+				String columnName = field.getName();
+				Column columnAnno = field.getAnnotation(Column.class);
+				if (columnAnno != null) columnName = columnAnno.name();
+				FieldAccessor<?> facc = ReflectionFactory.access(field);
+				Object value = facc.get(o);
+				if (value == null) continue;
+				if (argCount > 0) sql.append(" AND ");
+				sql.append(columnName).append(" = ?");
+				args[argCount++] = value;
+			}
+			sql.append(';');
+			Wednesday.LOGGER.verbose(sql.toString());
+			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
+			{
+				for (int i = 0; i < argCount; i++)
+					stmt.setObject(i + 1, args[i]);
+				try (ResultSet rs = stmt.executeQuery())
+				{
+					if (rs.next())
+						return rs.getInt(1);
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			Wednesday.LOGGER.error(e);
+		}
+		return 0;
+	}
+
 	public Set<String> primaryKey(String tableName)
 	{
 		Set<String> primKeys = new HashSet<>();

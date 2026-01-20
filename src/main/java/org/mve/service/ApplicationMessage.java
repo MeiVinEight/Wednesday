@@ -106,7 +106,15 @@ public class ApplicationMessage
 			subject.sendMessage("下载视频封面失败: " + e);
 			return;
 		}
-		subject.sendMessage(subject.uploadImage(ExternalResource.create(picFile)));
+		try (ExternalResource resource = ExternalResource.create(picFile))
+		{
+			subject.sendMessage(subject.uploadImage(resource));
+		}
+		catch (IOException e)
+		{
+			Wednesday.LOGGER.warning(e);
+			subject.sendMessage("上传视频封面失败: " + e);
+		}
 
 		Json playurl;
 		try

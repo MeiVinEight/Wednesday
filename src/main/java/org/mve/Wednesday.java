@@ -4,8 +4,6 @@ import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
-import org.mve.minecraft.Minecraft;
-import org.mve.service.EchoingMessage;
 import org.mve.uni.Mirroring;
 import top.mrxiaom.overflow.BotBuilder;
 import top.mrxiaom.overflow.OverflowAPI;
@@ -38,11 +36,6 @@ public class Wednesday extends Synchronize
 		this.synchronize = new SynchronizeNET();
 		this.synchronize.offer(this);
 		this.subscribe = new SubscribeMessage(this);
-		this.subscribe.register("woden", new EchoingMessage(this));
-		Minecraft minecraft = new Minecraft();
-		this.subscribe.register("obf", minecraft::obfuscate);
-		this.subscribe.register("srg", minecraft::searge);
-		this.subscribe.register("mcp", minecraft::official);
 		this.synchronize.offer(this.subscribe);
 	}
 

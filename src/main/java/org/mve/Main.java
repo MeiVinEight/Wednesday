@@ -3,6 +3,8 @@ package org.mve;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerManager;
+import org.mve.minecraft.Minecraft;
+import org.mve.service.EchoingMessage;
 import org.mve.uni.Mirroring;
 
 public class Main
@@ -34,6 +36,12 @@ public class Main
 		try
 		{
 			Wednesday wednesday = new Wednesday();
+
+			wednesday.subscribe.register("woden", new EchoingMessage(wednesday));
+			Minecraft minecraft = new Minecraft();
+			wednesday.subscribe.register("obf", minecraft::obfuscate);
+			wednesday.subscribe.register("srg", minecraft::searge);
+			wednesday.subscribe.register("mcp", minecraft::official);
 			wednesday.join();
 		}
 		catch (Throwable e)

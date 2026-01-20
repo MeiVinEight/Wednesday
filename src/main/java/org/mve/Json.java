@@ -361,7 +361,7 @@ public class Json
 		buf.put('"');
 		bytes = new byte[buf.length()];
 		buf.get(bytes);
-		return new String(bytes, 0, bytes.length, StandardCharsets.UTF_8);
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	public static Json resolve(String json)

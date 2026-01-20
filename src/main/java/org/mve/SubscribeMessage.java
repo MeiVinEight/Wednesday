@@ -161,7 +161,10 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 				{
 					File file = new File(url.substring("file:///".length()));
 					if (!file.isFile())
+					{
+						Wednesday.LOGGER.error("File {} not found", file);
 						return;
+					}
 					image = Contact.uploadImage(nudge.getSubject(), file);
 				}
 				nudge.getSubject().sendMessage(image);

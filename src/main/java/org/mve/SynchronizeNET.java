@@ -45,8 +45,9 @@ public class SynchronizeNET implements Runnable
 				{
 					task.run();
 				}
-				catch (Throwable ignored)
+				catch (Throwable t)
 				{
+					Wednesday.LOGGER.error("Synchronize error", t);
 				}
 				task.delay = task.period;
 			}

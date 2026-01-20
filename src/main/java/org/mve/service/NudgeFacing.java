@@ -28,62 +28,66 @@ public class NudgeFacing
 		{
 			if (!(msg instanceof WrappedImage wimg))
 				continue;
+			capture(wimg);
+		}
+	}
 
-			if (wimg.getJson() == null)
-				continue;
-			Json data = Json.resolve(wimg.getJson());
-			Wednesday.LOGGER.debug(data.stringify());
-			String summary = data.string("summary");
-			if (summary == null || summary.isEmpty())
-				continue;
+	public static void capture(WrappedImage wimg)
+	{
+		if (wimg.getJson() == null)
+			return;
+		Json data = Json.resolve(wimg.getJson());
+		Wednesday.LOGGER.debug(data.stringify());
+		String summary = data.string("summary");
+		if (summary == null || summary.isEmpty())
+			return;
 
-			String fileName = data.string("file");
-			Facing fac = new Facing();
-			fac.NAME = fileName;
-			if (FACING.count(fac) > 0)
-				continue;
+		String fileName = data.string("file");
+		Facing fac = new Facing();
+		fac.NAME = fileName;
+		if (FACING.count(fac) > 0)
+			return;
 
-			String url = data.string("url");
-			try
+		String url = data.string("url");
+		try
+		{
+			String urlText = Configuration.COFFEE_SERVER + "/upload";
+			URL uploadUrl = new URL(urlText);
+			HttpURLConnection conn = (HttpURLConnection) uploadUrl.openConnection();
+			conn.setRequestProperty("Download-From", url);
+			conn.setRequestProperty("Download-To", "image/" + fileName);
+
+			int respCode = conn.getResponseCode();
+			if (respCode != HttpURLConnection.HTTP_OK)
 			{
-				String urlText = Configuration.COFFEE_SERVER + "/upload";
-				URL uploadUrl = new URL(urlText);
-				HttpURLConnection conn = (HttpURLConnection) uploadUrl.openConnection();
-				conn.setRequestProperty("Download-From", url);
-				conn.setRequestProperty("Download-To", "image/" + fileName);
-
-				int respCode = conn.getResponseCode();
-				if (respCode != HttpURLConnection.HTTP_OK)
-				{
-					Wednesday.LOGGER.error("{}: {}", urlText, conn.getResponseMessage());
-					continue;
-				}
-
-				Json body;
-				try (InputStream in = conn.getInputStream())
-				{
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					in.transferTo(out);
-					body = Json.resolve(out.toString());
-				}
-
-				respCode = body.number("code").intValue();
-				String message = body.string("message");
-				if (respCode != 0 && respCode != 5)
-				{
-					Wednesday.LOGGER.warn("{}: {}", respCode, message);
-					continue;
-				}
-
-				data = body.get("data");
-				fac.SHA1 = data.string("SHA1");
-				FACING.insert(fac);
-
+				Wednesday.LOGGER.error("{}: {}", urlText, conn.getResponseMessage());
+				return;
 			}
-			catch (IOException e)
+
+			Json body;
+			try (InputStream in = conn.getInputStream())
 			{
-				Wednesday.LOGGER.error(e);
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				in.transferTo(out);
+				body = Json.resolve(out.toString());
 			}
+
+			respCode = body.number("code").intValue();
+			String message = body.string("message");
+			if (respCode != 0 && respCode != 5)
+			{
+				Wednesday.LOGGER.warn("{}: {}", respCode, message);
+				return;
+			}
+
+			data = body.get("data");
+			fac.SHA1 = data.string("SHA1");
+			FACING.insert(fac);
+
+		}
+		catch (IOException e)
+		{
+			Wednesday.LOGGER.error(e);
 		}
 	}
 

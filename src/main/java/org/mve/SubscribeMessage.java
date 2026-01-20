@@ -65,9 +65,9 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 	{
 		if (Event.class.isAssignableFrom(type))
 			this.consumation.put(Mirroring.checkcast(type), Mirroring.checkcast(consumer));
-		if (SingleMessage.class.isAssignableFrom(type))
+		else if (SingleMessage.class.isAssignableFrom(type))
 			this.segmentation.put(Mirroring.checkcast(type), Mirroring.checkcast(consumer));
-		throw new IllegalArgumentException(type.getName());
+		else throw new IllegalArgumentException(type.getName());
 	}
 
 	public void register(String cmd, Consumer<MessageEvent> listener)

@@ -1,8 +1,6 @@
 package org.mve;
 
 import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.event.Event;
-import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
@@ -13,15 +11,14 @@ import top.mrxiaom.overflow.BotBuilder;
 import top.mrxiaom.overflow.OverflowAPI;
 
 import java.util.Objects;
-import java.util.concurrent.CancellationException;
 
 public class Wednesday extends Synchronize
 {
 	public static final String SID = "Wednesday";
 	public final SynchronizeNET synchronize;
 	public static final WednesdayLogger LOGGER = LoggerManager.create(SID, Configuration.LOG_LEVEL);
-	private final Bot QQ;
-	private final Listener<Event> subscribe;
+	public final Bot QQ;
+	public final SubscribeMessage subscribe;
 
 	public Wednesday()
 	{
@@ -38,16 +35,15 @@ public class Wednesday extends Synchronize
 			.overrideLogger(LOGGER)
 			.connect();
 		Objects.requireNonNull(QQ);
-		SubscribeMessage sub = new SubscribeMessage(this);
-		sub.register("woden", new EchoingMessage(this));
-		Minecraft minecraft = new Minecraft();
-		sub.register("obf", minecraft::obfuscate);
-		sub.register("srg", minecraft::searge);
-		sub.register("mcp", minecraft::official);
 		this.synchronize = new SynchronizeNET();
 		this.synchronize.offer(this);
-		this.subscribe = QQ.getEventChannel().subscribe(Event.class, sub);
-		this.synchronize.offer(sub);
+		this.subscribe = new SubscribeMessage(this);
+		this.subscribe.register("woden", new EchoingMessage(this));
+		Minecraft minecraft = new Minecraft();
+		this.subscribe.register("obf", minecraft::obfuscate);
+		this.subscribe.register("srg", minecraft::searge);
+		this.subscribe.register("mcp", minecraft::official);
+		this.synchronize.offer(this.subscribe);
 	}
 
 	public void close()
@@ -55,8 +51,7 @@ public class Wednesday extends Synchronize
 		LOGGER.info(LoggerMessage.LOG_WEDNESDAY_SHUTDOWN);
 		this.cancel();
 		this.synchronize.close();
-		if (this.subscribe != null)
-			this.subscribe.cancel(new CancellationException("close"));
+		this.subscribe.cancel();
 		if (this.QQ != null)
 			this.QQ.close();
 	}

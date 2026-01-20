@@ -2,6 +2,7 @@ package org.mve;
 
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
+import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.event.ListeningStatus;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -20,20 +21,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class SubscribeMessage extends Synchronize implements Function<Event, ListeningStatus>
 {
 	private final Wednesday wednesday;
+	private final Listener<Event> subscribe;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
-	private final Map<String, Function<MessageEvent, Boolean>> listeners = new HashMap<>();
+	private final Map<Class<? extends Event>, Consumer<Event>> event = new HashMap<>();
+	private final Map<String, Function<MessageEvent, Boolean>> command = new HashMap<>();
 	private final SimpleMapper<Facing> facing;
 	private final Random random = new Random();
 
 	public SubscribeMessage(Wednesday wednesday)
 	{
 		this.wednesday = wednesday;
+		this.subscribe = this.wednesday.QQ.getEventChannel().subscribe(Event.class, this);
 		String mysqlUrl = "jdbc:mysql://" + Configuration.MYSQL_HOST + ':' + Configuration.MYSQL_PORT + "/COFFEE";
 		this.facing = new SimpleMapper<>(new Database(mysqlUrl, Configuration.MYSQL_USERNAME, Configuration.MYSQL_PASSWORD));
 	}
@@ -54,7 +60,7 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 
 	public void register(String cmd, Function<MessageEvent, Boolean> listener)
 	{
-		this.listeners.put(cmd, listener);
+		this.command.put(cmd, listener);
 	}
 
 	@Override
@@ -76,7 +82,7 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 				return;
 			content = content.substring(1);
 			String contentWithoutPrefix = content;
-			this.listeners.forEach((pfx, listener) ->
+			this.command.forEach((pfx, listener) ->
 			{
 				if (contentWithoutPrefix.startsWith(pfx))
 					listener.apply(messageEvent);
@@ -108,5 +114,11 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 				nudge.getSubject().sendMessage(image);
 			}
 		}
+	}
+
+	public void cancel()
+	{
+		super.cancel();
+		this.subscribe.cancel(new CancellationException("close"));
 	}
 }

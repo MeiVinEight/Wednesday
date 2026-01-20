@@ -1,6 +1,9 @@
 package org.mve.service;
 
+import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.events.NudgeEvent;
+import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.SingleMessage;
 import org.mve.Configuration;
@@ -12,14 +15,17 @@ import org.mve.vo.Facing;
 import top.mrxiaom.overflow.internal.message.data.WrappedImage;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Random;
 
 public class NudgeFacing
 {
 	private static final SimpleMapper<Facing> FACING;
+	private static final Random RANDOM = new Random();
 
 	public static void capture(MessageEvent messageEvent)
 	{
@@ -89,6 +95,30 @@ public class NudgeFacing
 		{
 			Wednesday.LOGGER.error(e);
 		}
+	}
+
+	public static void nudge(NudgeEvent nudge)
+	{
+		if (nudge.getTarget().getId() != nudge.getBot().getId())
+			return;
+		int count = FACING.count("FACING");
+		Wednesday.LOGGER.debug("{} Facings", count);
+		Facing fac = new Facing();
+		fac.ID = RANDOM.nextInt(count);
+		fac = FACING.primary(fac);
+		String url = Configuration.FILE_SERVER + "/image/" + fac.NAME;
+		Image image = Image.fromId(url);
+		if (url.startsWith("file:///"))
+		{
+			File file = new File(url.substring(8));
+			if (!file.isFile())
+			{
+				nudge.getSubject().sendMessage("File Not Found\nID=" + fac.ID + ", SHA1=" + fac.SHA1 + ", NAME=" + fac.NAME);
+				return;
+			}
+			image = Contact.uploadImage(nudge.getSubject(), file);
+		}
+		nudge.getSubject().sendMessage(image);
 	}
 
 	static

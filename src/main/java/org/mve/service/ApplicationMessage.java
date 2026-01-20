@@ -37,6 +37,8 @@ public class ApplicationMessage
 	public static void application(Contact subject, LightApp app)
 	{
 		Json content = Json.resolve(app.getContent());
+		if (!"com.tencent.miniapp_01".equals(content.string("app")))
+			return;
 		Json meta = content.get("meta");
 		Json detail1 = meta.get("detail_1");
 		if (!APP_BILIBILI.equals(detail1.string("appid")))

@@ -32,7 +32,7 @@ public class NudgeFacing
 			if (wimg.getJson() == null)
 				continue;
 			Json data = Json.resolve(wimg.getJson());
-			Wednesday.LOGGER.verbose(data.stringify());
+			Wednesday.LOGGER.debug(data.stringify());
 			String summary = data.string("summary");
 			if (summary == null || summary.isEmpty())
 				continue;

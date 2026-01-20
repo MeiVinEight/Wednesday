@@ -7,9 +7,9 @@ import net.mamoe.mirai.message.data.PlainText;
 import org.mve.Configuration;
 import org.mve.Wednesday;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
-public class EchoingMessage implements Function<MessageEvent, Boolean>
+public class EchoingMessage implements Consumer<MessageEvent>
 {
 	private final Wednesday wednesday;
 
@@ -19,16 +19,16 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 	}
 
 	@Override
-	public Boolean apply(MessageEvent event)
+	public void accept(MessageEvent event)
 	{
 		// Whether sender is owner
 		if (event.getSender().getId() != Configuration.OWNER)
-			return false;
+			return;
 		MessageChain msg = event.getMessage();
 		if (msg.size() <= 1)
-			return false;
+			return;
 		if (!(msg.get(1) instanceof PlainText text))
-			return false;
+			return;
 		String command = text.getContent().substring(6).stripLeading();
 		if (command.startsWith("echo"))
 		{
@@ -40,13 +40,9 @@ public class EchoingMessage implements Function<MessageEvent, Boolean>
 				event.getSubject().sendMessage(" ");
 			else
 				event.getSubject().sendMessage(chain);
-			return true;
+			return;
 		}
 		if (command.equals("stop"))
-		{
 			this.wednesday.close();
-			return true;
-		}
-		return false;
 	}
 }

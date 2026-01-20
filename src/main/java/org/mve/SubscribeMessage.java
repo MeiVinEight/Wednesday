@@ -32,7 +32,7 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 	private final Listener<Event> subscribe;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 	private final Map<Class<? extends Event>, Consumer<Event>> event = new HashMap<>();
-	private final Map<String, Function<MessageEvent, Boolean>> command = new HashMap<>();
+	private final Map<String, Consumer<MessageEvent>> command = new HashMap<>();
 	private final SimpleMapper<Facing> facing;
 	private final Random random = new Random();
 
@@ -58,7 +58,7 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		return ListeningStatus.LISTENING;
 	}
 
-	public void register(String cmd, Function<MessageEvent, Boolean> listener)
+	public void register(String cmd, Consumer<MessageEvent> listener)
 	{
 		this.command.put(cmd, listener);
 	}
@@ -85,7 +85,7 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 			this.command.forEach((pfx, listener) ->
 			{
 				if (contentWithoutPrefix.startsWith(pfx))
-					listener.apply(messageEvent);
+					listener.accept(messageEvent);
 			});
 		}
 		if (event instanceof BotOfflineEvent)

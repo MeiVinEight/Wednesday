@@ -22,34 +22,33 @@ public class Minecraft
 	private static final String VERSION = "1.20.1";
 	private static final Map<String, ObfuscationMap> OBFUSCATIONS = new HashMap<>();
 
-	public Boolean official(MessageEvent event)
+	public void official(MessageEvent event)
 	{
-		return Minecraft.subject(event, ObfuscationMap.TYPE_OFFICIAL);
+		Minecraft.subject(event, ObfuscationMap.TYPE_OFFICIAL);
 	}
 
-	public Boolean searge(MessageEvent event)
+	public void searge(MessageEvent event)
 	{
-		return Minecraft.subject(event, ObfuscationMap.TYPE_SEARGE);
+		Minecraft.subject(event, ObfuscationMap.TYPE_SEARGE);
 	}
 
-	public Boolean obfuscate(MessageEvent event)
+	public void obfuscate(MessageEvent event)
 	{
-		return Minecraft.subject(event, ObfuscationMap.TYPE_OBFUSCATE);
+		Minecraft.subject(event, ObfuscationMap.TYPE_OBFUSCATE);
 	}
 
-	public static Boolean subject(MessageEvent event, int type)
+	public static void subject(MessageEvent event, int type)
 	{
 		MessageChain msg = event.getMessage();
 		if (msg.size() <= 1)
-			return false;
+			return;
 		if (!(msg.get(1) instanceof PlainText text))
-			return false;
+			return;
 		if (OBFUSCATIONS.get(VERSION) == null)
-			return false;
+			return;
 		ObfuscationMap obf = OBFUSCATIONS.get(VERSION);
 		String name = text.getContent().substring(4).trim();
 		subject(obf, event.getSubject(), name, type);
-		return true;
 	}
 
 	private static void subject(ObfuscationMap map, Contact subject, String name, int type)

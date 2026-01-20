@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 
 public class FileLogger implements Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>
 {
-	private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
+	private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
 	private static final WednesdayLogger LOGGER = LoggerManager.create();
 	public static final FileLogger INSTANCE = new FileLogger();
 	private PrintStream out;

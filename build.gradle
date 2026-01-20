@@ -20,6 +20,7 @@ plugins {
 }
 
 repositories {
+	maven { url 'https://meivi.net:448/awesome/maven' }
 	maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
 	maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
 	maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
@@ -43,7 +44,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
 	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
 	// https://mvnrepository.com/artifact/top.mrxiaom.mirai/overflow-core
-	implementation group: 'top.mrxiaom.mirai', name: 'overflow-core', version: '1.0.8'
+	implementation group: 'top.mrxiaom.mirai', name: 'overflow-core', version: '1.0.8.2'
 	implementation group: '', name: 'mysql-connector-j', version: '9.5.0'
 	implementation group: '', name: 'ReflectionFX', version: '-SNAPSHOT'
 }

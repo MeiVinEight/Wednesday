@@ -82,7 +82,7 @@ public class NudgeFacing
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException(e);
+				Wednesday.LOGGER.error(e);
 			}
 		}
 	}

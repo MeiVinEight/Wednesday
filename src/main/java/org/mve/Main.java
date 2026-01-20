@@ -2,8 +2,10 @@ package org.mve;
 
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
+import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.FileLogger;
+import org.mve.logging.LoggerLazy;
 import org.mve.logging.LoggerManager;
 import org.mve.minecraft.Minecraft;
 import org.mve.service.EchoingMessage;
@@ -17,6 +19,14 @@ public class Main
 		LoggerManager.register(FileLogger.INSTANCE);
 		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP);
 		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP_PATCHING);
+
+
+		// ExternalResourceLeakObserver.class.getDeclaredField("logger$delegate")
+		Mirroring.set(
+			ExternalResourceLeakObserver.class,
+			"logger$delegate",
+			new LoggerLazy()
+		);
 
 		// Patcher
 		// Make LogPriority.DEBUG.ordinal() < LogPriority.VERBOSE.ordinal()

@@ -63,11 +63,9 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		if (event instanceof MessageEvent messageEvent)
 		{
 			NudgeFacing.capture(messageEvent);
-
+			ApplicationMessage.application(messageEvent);
 
 			MessageChain chain = messageEvent.getMessage();
-
-
 			if (!(chain.get(1) instanceof PlainText text))
 				return;
 			String content = text.getContent();

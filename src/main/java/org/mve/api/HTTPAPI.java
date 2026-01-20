@@ -1,5 +1,6 @@
 package org.mve.api;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,5 +41,15 @@ public class HTTPAPI
 			in.transferTo(fout);
 		}
 		return file;
+	}
+
+	public static byte[] body(HttpURLConnection conn) throws IOException
+	{
+		try (InputStream in = conn.getInputStream())
+		{
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			in.transferTo(out);
+			return out.toByteArray();
+		}
 	}
 }

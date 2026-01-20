@@ -33,6 +33,7 @@ public class Configuration
 	private static final String KEY_MYSQL_USERNAME = "mysql-username";
 	private static final String KEY_MYSQL_PASSWORD = "mysql-password";
 	private static final String KEY_FILE_SERVER = "file-server";
+	private static final String KEY_COFFEE_SERVER = "coffee-server";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 
@@ -48,6 +49,7 @@ public class Configuration
 	public static final String MYSQL_USERNAME;
 	public static final String MYSQL_PASSWORD;
 	public static final String FILE_SERVER;
+	public static final String COFFEE_SERVER;
 
 	public static void save()
 	{
@@ -69,6 +71,7 @@ public class Configuration
 			config.addProperty(KEY_MYSQL_USERNAME, MYSQL_USERNAME);
 			config.addProperty(KEY_MYSQL_PASSWORD, MYSQL_PASSWORD);
 			config.addProperty(KEY_FILE_SERVER, FILE_SERVER);
+			config.addProperty(KEY_COFFEE_SERVER, COFFEE_SERVER);
 			fos.write(GSON.toJson(config).getBytes(StandardCharsets.UTF_8));
 			fos.flush();
 		}
@@ -96,6 +99,7 @@ public class Configuration
 		String mysqlUsername = "root";
 		String mysqlPassword = "root";
 		String fileServer = ".";
+		String coffeeServer = "http://127.0.0.1:8800";
 
 		if (!newFile)
 		{
@@ -130,6 +134,8 @@ public class Configuration
 					mysqlPassword = config.get(KEY_MYSQL_PASSWORD).getAsString();
 				if (config.has(KEY_FILE_SERVER))
 					fileServer = config.get(KEY_FILE_SERVER).getAsString();
+				if (config.has(KEY_COFFEE_SERVER))
+					coffeeServer = config.get(KEY_COFFEE_SERVER).getAsString();
 				try
 				{
 					new URL(fileServer);
@@ -172,6 +178,7 @@ public class Configuration
 		MYSQL_USERNAME = mysqlUsername;
 		MYSQL_PASSWORD = mysqlPassword;
 		FILE_SERVER = fileServer;
+		COFFEE_SERVER = coffeeServer;
 
 		if (newFile)
 		{

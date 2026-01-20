@@ -110,7 +110,10 @@
   "mysql-password": "root",
   // 可选字段
   // 文件服务器地址, 可为本地路径, 需要上传的文件都会保存在指定位置
-  "file-server": "."
+  "file-server": ".",
+  // Coffee服务地址
+  // Coffee: https://gtiee.com/meivi/coffee
+  "coffee-server": "http://127.0.0.1:8800"
 }
 ```
 

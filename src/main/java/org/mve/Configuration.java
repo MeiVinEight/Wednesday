@@ -24,10 +24,6 @@ public class Configuration
 	private static final String KEY_ONEBOT_WS_FORWARD = "ws-forward";
 	private static final String KEY_ONEBOT_TOKEN = "token";
 	private static final String KEY_ONEBOT_RECONNECT = "reconnect-trys";
-	private static final String KEY_COFFEE = "coffee";
-	private static final String KEY_COFFEE_HOST = "host";
-	private static final String KEY_COFFEE_PORT = "port";
-	private static final String KEY_COFFEE_UPLOAD = "upload";
 	private static final String KEY_LOGLEVEL = "log-level";
 	private static final String KEY_LANGUAGE = "lang";
 	private static final String KEY_OWNER = "owner";
@@ -43,9 +39,6 @@ public class Configuration
 	public static final String ONEBOT_WS_FORWARD;
 	public static final String ONEBOT_TOKEN;
 	public static final int ONEBOT_RECONNECT;
-	public static final String COFFEE_HOST;
-	public static final int COFFEE_PORT;
-	public static final String COFFEE_UPLOAD;
 	public static final SimpleLogger.LogPriority LOG_LEVEL;
 	public static final String LANGUAGE;
 	public static final long OWNER;
@@ -66,12 +59,6 @@ public class Configuration
 			configOnebot.addProperty(KEY_ONEBOT_TOKEN, ONEBOT_TOKEN);
 			configOnebot.addProperty(KEY_ONEBOT_RECONNECT, ONEBOT_RECONNECT);
 			config.add(KEY_ONEBOT, configOnebot);
-
-			JsonObject configCoffee = new JsonObject();
-			configCoffee.addProperty(KEY_COFFEE_HOST, COFFEE_HOST);
-			configCoffee.addProperty(KEY_COFFEE_PORT, COFFEE_PORT);
-			configCoffee.addProperty(KEY_COFFEE_UPLOAD, COFFEE_UPLOAD);
-			config.add(KEY_COFFEE, configCoffee);
 
 			config.addProperty(KEY_LOGLEVEL, LOG_LEVEL.toString());
 			config.addProperty(KEY_LANGUAGE, LANGUAGE);
@@ -100,9 +87,6 @@ public class Configuration
 		String onebotWsForward = "ws://127.0.0.1:3001";
 		String onebotToken = "";
 		int onebotRetry = 5;
-		String coffeeHost = "0.0.0.0";
-		int coffeePort = 83;
-		String coffeeUpload = "coffee";
 		String logLevel = "INFO";
 		String language = "zh_cn";
 		long owner = 0;
@@ -127,16 +111,6 @@ public class Configuration
 						onebotToken = configOnebot.get(KEY_ONEBOT_TOKEN).getAsString();
 					if (configOnebot.has(KEY_ONEBOT_RECONNECT))
 						onebotRetry = configOnebot.get(KEY_ONEBOT_RECONNECT).getAsInt();
-				}
-				if (config.has(KEY_COFFEE))
-				{
-					JsonObject coffee = config.getAsJsonObject(KEY_COFFEE);
-					if (coffee.has(KEY_COFFEE_HOST))
-						coffeeHost = coffee.get(KEY_COFFEE_HOST).getAsString();
-					if (coffee.has(KEY_COFFEE_PORT))
-						coffeePort = coffee.get(KEY_COFFEE_PORT).getAsInt();
-					if (coffee.has(KEY_COFFEE_UPLOAD))
-						coffeeUpload = coffee.get(KEY_COFFEE_UPLOAD).getAsString();
 				}
 				if (config.has(KEY_LOGLEVEL))
 					logLevel = config.get(KEY_LOGLEVEL).getAsString();
@@ -179,9 +153,6 @@ public class Configuration
 		ONEBOT_WS_FORWARD = onebotWsForward;
 		ONEBOT_TOKEN = onebotToken;
 		ONEBOT_RECONNECT = onebotRetry;
-		COFFEE_HOST = coffeeHost;
-		COFFEE_PORT = coffeePort;
-		COFFEE_UPLOAD = coffeeUpload;
 		SimpleLogger.LogPriority logPriority;
 		try
 		{

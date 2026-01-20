@@ -10,10 +10,12 @@ import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.SingleMessage;
 import org.mve.data.Database;
 import org.mve.data.SimpleMapper;
 import org.mve.service.ApplicationMessage;
 import org.mve.service.NudgeFacing;
+import org.mve.uni.Mirroring;
 import org.mve.vo.Facing;
 
 import java.io.File;
@@ -31,8 +33,9 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 	private final Wednesday wednesday;
 	private final Listener<Event> subscribe;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
-	private final Map<Class<? extends Event>, Consumer<Event>> event = new HashMap<>();
-	private final Map<String, Consumer<MessageEvent>> command = new HashMap<>();
+	private final Map<Class<? extends Event>, Consumer<? extends Event>> consumation = new HashMap<>();
+	private final Map<String, Consumer<MessageEvent>> message = new HashMap<>();
+	private final Map<Class<? extends SingleMessage>, Consumer<? extends SingleMessage>> segmentation = new HashMap<>();
 	private final SimpleMapper<Facing> facing;
 	private final Random random = new Random();
 
@@ -58,9 +61,18 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		return ListeningStatus.LISTENING;
 	}
 
+	public <T> void register(Class<T> type, Consumer<T> consumer)
+	{
+		if (Event.class.isAssignableFrom(type))
+			this.consumation.put(Mirroring.checkcast(type), Mirroring.checkcast(consumer));
+		if (SingleMessage.class.isAssignableFrom(type))
+			this.segmentation.put(Mirroring.checkcast(type), Mirroring.checkcast(consumer));
+		throw new IllegalArgumentException(type.getName());
+	}
+
 	public void register(String cmd, Consumer<MessageEvent> listener)
 	{
-		this.command.put(cmd, listener);
+		this.message.put(cmd, listener);
 	}
 
 	@Override
@@ -69,6 +81,11 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		Event event = queue.poll();
 		if (event == null)
 			return;
+		this.consumation.forEach((k, v) ->
+		{
+			if (k.isInstance(event))
+				Mirroring.<Consumer<Event>>checkcast(v).accept(event);
+		});
 		if (event instanceof MessageEvent messageEvent)
 		{
 			NudgeFacing.capture(messageEvent);
@@ -82,11 +99,16 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 				return;
 			content = content.substring(1);
 			String contentWithoutPrefix = content;
-			this.command.forEach((pfx, listener) ->
+			this.message.forEach((pfx, listener) ->
 			{
 				if (contentWithoutPrefix.startsWith(pfx))
 					listener.accept(messageEvent);
 			});
+			for (SingleMessage singleMessage : chain)
+				this.segmentation.forEach((k, v) -> {
+					if (k.isInstance(singleMessage))
+						Mirroring.<Consumer<SingleMessage>>checkcast(v).accept(singleMessage);
+				});
 		}
 		if (event instanceof BotOfflineEvent)
 			this.wednesday.close();

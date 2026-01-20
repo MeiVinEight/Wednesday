@@ -125,6 +125,11 @@ public class Mirroring
 		throw (T) t;
 	}
 
+	public static <T> T checkcast(Object obj)
+	{
+		return (T) obj;
+	}
+
 	static
 	{
 		try

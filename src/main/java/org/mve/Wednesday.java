@@ -20,7 +20,7 @@ public class Wednesday extends Synchronize
 
 	public Wednesday()
 	{
-		this.QQ = BotBuilder.positive(Configuration.ONEBOT_WS_FORWARD)
+		this.QQ = Objects.requireNonNull(BotBuilder.positive(Configuration.ONEBOT_WS_FORWARD)
 			.token(Configuration.ONEBOT_TOKEN)
 			.modifyBotConfiguration(config ->
 			{
@@ -31,8 +31,7 @@ public class Wednesday extends Synchronize
 			.retryTimes(Configuration.ONEBOT_RECONNECT)
 			.retryRestMills(-1)
 			.overrideLogger(LOGGER)
-			.connect();
-		Objects.requireNonNull(QQ);
+			.connect());
 		this.synchronize = new SynchronizeNET();
 		this.synchronize.offer(this);
 		this.subscribe = new SubscribeMessage(this);

@@ -3,14 +3,17 @@ package org.mve;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
+import net.mamoe.mirai.message.data.LightApp;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerLazy;
 import org.mve.logging.LoggerManager;
 import org.mve.minecraft.Minecraft;
+import org.mve.service.ApplicationMessage;
 import org.mve.service.EchoingMessage;
 import org.mve.service.NudgeFacing;
 import org.mve.uni.Mirroring;
+import top.mrxiaom.overflow.internal.message.data.WrappedImage;
 
 public class Main
 {
@@ -57,6 +60,9 @@ public class Main
 			wednesday.subscribe.register("mcp", minecraft::official);
 			wednesday.subscribe.register(BotOfflineEvent.class, e -> wednesday.close());
 			wednesday.subscribe.register(NudgeEvent.class, NudgeFacing::nudge);
+			wednesday.subscribe.register(WrappedImage.class, NudgeFacing::capture);
+			wednesday.subscribe.register(LightApp.class, ApplicationMessage::application);
+
 			wednesday.join();
 		}
 		catch (Throwable e)

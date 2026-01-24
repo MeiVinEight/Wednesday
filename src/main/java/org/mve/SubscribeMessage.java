@@ -7,8 +7,6 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.message.data.SingleMessage;
-import org.mve.service.ApplicationMessage;
-import org.mve.service.NudgeFacing;
 import org.mve.uni.Mirroring;
 
 import java.util.HashMap;
@@ -78,9 +76,6 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 
 		if (event instanceof MessageEvent messageEvent)
 		{
-			NudgeFacing.capture(messageEvent);
-			ApplicationMessage.application(messageEvent);
-
 			MessageChain chain = messageEvent.getMessage();
 			if (!(chain.get(1) instanceof PlainText text))
 				return;

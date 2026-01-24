@@ -3,7 +3,6 @@ package org.mve.service;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.LightApp;
-import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.ShortVideo;
 import net.mamoe.mirai.utils.ExternalResource;
 import org.mve.Configuration;
@@ -23,19 +22,9 @@ public class ApplicationMessage
 {
 	public static final String APP_BILIBILI = "1109937557";
 
-	public static void application(MessageEvent event)
+	public static void application(MessageEvent event, LightApp app)
 	{
 		Contact subject = event.getSubject();
-		for (Message singleMessage : event.getMessage())
-		{
-			if (!(singleMessage instanceof LightApp app))
-				continue;
-			ApplicationMessage.application(subject, app);
-		}
-	}
-
-	public static void application(Contact subject, LightApp app)
-	{
 		Json content = Json.resolve(app.getContent());
 		if (!"com.tencent.miniapp_01".equals(content.string("app")))
 			return;

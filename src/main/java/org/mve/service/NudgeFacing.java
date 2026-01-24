@@ -4,8 +4,6 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.message.data.Image;
-import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.SingleMessage;
 import org.mve.Configuration;
 import org.mve.data.Database;
 import org.mve.uni.Json;
@@ -27,18 +25,7 @@ public class NudgeFacing
 	private static final SimpleMapper<Facing> FACING;
 	private static final Random RANDOM = new Random();
 
-	public static void capture(MessageEvent messageEvent)
-	{
-		MessageChain chain = messageEvent.getMessage();
-		for (SingleMessage msg : chain)
-		{
-			if (!(msg instanceof WrappedImage wimg))
-				continue;
-			capture(wimg);
-		}
-	}
-
-	public static void capture(WrappedImage wimg)
+	public static void capture(MessageEvent ignored, WrappedImage wimg)
 	{
 		if (wimg.getJson() == null)
 			return;

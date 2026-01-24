@@ -77,6 +77,16 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		if (event instanceof MessageEvent messageEvent)
 		{
 			MessageChain chain = messageEvent.getMessage();
+			for (SingleMessage singleMessage : chain)
+			{
+				this.segmentation.forEach((k, v) ->
+				{
+					if (k.isInstance(singleMessage))
+						v.accept(messageEvent, singleMessage);
+				});
+			}
+
+
 			if (!(chain.get(1) instanceof PlainText text))
 				return;
 			String content = text.getContent();
@@ -89,16 +99,6 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 				if (contentWithoutPrefix.startsWith(pfx))
 					listener.accept(messageEvent);
 			});
-
-
-			for (SingleMessage singleMessage : chain)
-			{
-				this.segmentation.forEach((k, v) ->
-				{
-					if (k.isInstance(singleMessage))
-						v.accept(messageEvent, singleMessage);
-				});
-			}
 		}
 	}
 

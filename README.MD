@@ -107,7 +107,10 @@
   // 以字节为单位
   // 1K=1024
   // 1M=1048576
-  "video-max-size": 33554432
+  "video-max-size": 33554432,
+  // 可选字段
+  // bot复读群消息的概率
+   "repeat-probability": 0.05
 }
 ```
 

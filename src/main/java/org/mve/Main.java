@@ -1,8 +1,11 @@
 package org.mve;
 
 import net.mamoe.mirai.event.events.BotOfflineEvent;
+import net.mamoe.mirai.event.events.GroupMemberEvent;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
+import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.LightApp;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.FileLogger;
@@ -12,8 +15,11 @@ import org.mve.minecraft.Minecraft;
 import org.mve.service.ApplicationMessage;
 import org.mve.service.EchoingMessage;
 import org.mve.service.NudgeFacing;
+import org.mve.service.RepeatingMessage;
 import org.mve.uni.Mirroring;
 import top.mrxiaom.overflow.internal.message.data.WrappedImage;
+
+import java.util.Set;
 
 public class Main
 {
@@ -62,6 +68,7 @@ public class Main
 			wednesday.subscribe.register(NudgeEvent.class, NudgeFacing::nudge);
 			wednesday.subscribe.register(WrappedImage.class, NudgeFacing::capture);
 			wednesday.subscribe.register(LightApp.class, ApplicationMessage::application);
+			wednesday.subscribe.register(GroupMessageEvent.class, new RepeatingMessage(Configuration.REPEAT_PROBABILITY, Set.of(LightApp.class))::random);
 
 			wednesday.join();
 		}

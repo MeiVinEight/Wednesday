@@ -1,11 +1,9 @@
 package org.mve;
 
 import net.mamoe.mirai.event.events.BotOfflineEvent;
-import net.mamoe.mirai.event.events.GroupMemberEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
-import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.LightApp;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.FileLogger;

@@ -26,7 +26,7 @@ public class RepeatingMessage
 	public void random(GroupMessageEvent messageEvent)
 	{
 		double randomValue = RANDOM.nextDouble();
-		Wednesday.LOGGER.trace("{}: {}", randomValue, this.probability);
+		Wednesday.LOGGER.debug("REPEAT PROBABILIRY: {}: {}", randomValue, this.probability);
 		if (randomValue > probability)
 			return;
 		MessageChain chain = messageEvent.getMessage();

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -23,9 +24,9 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 {
 	private final Listener<Event> subscribe;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
-	private final Map<Class<? extends Event>, Consumer<? extends Event>> consumation = new HashMap<>();
+	private final Map<Class<? extends Event>, Consumer<Event>> consumation = new HashMap<>();
 	private final Map<String, Consumer<MessageEvent>> message = new HashMap<>();
-	private final Map<Class<? extends SingleMessage>, Consumer<? extends SingleMessage>> segmentation = new HashMap<>();
+	private final Map<Class<? extends SingleMessage>, BiConsumer<MessageEvent, SingleMessage>> segmentation = new HashMap<>();
 
 	public SubscribeMessage(Wednesday wednesday)
 	{
@@ -46,18 +47,19 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		return ListeningStatus.LISTENING;
 	}
 
-	public <T> void register(Class<T> type, Consumer<T> consumer)
+	public <T extends Event> void register(Class<T> type, Consumer<? super T> consumer)
 	{
-		if (Event.class.isAssignableFrom(type))
-			this.consumation.put(Mirroring.checkcast(type), Mirroring.checkcast(consumer));
-		else if (SingleMessage.class.isAssignableFrom(type))
-			this.segmentation.put(Mirroring.checkcast(type), Mirroring.checkcast(consumer));
-		else throw new IllegalArgumentException(type.getName());
+		this.consumation.put(type, Mirroring.checkcast(consumer));
 	}
 
 	public void register(String cmd, Consumer<MessageEvent> listener)
 	{
 		this.message.put(cmd, listener);
+	}
+
+	public <T extends SingleMessage> void register(Class<T> type, BiConsumer<? super MessageEvent, ? super T> consumer)
+	{
+		this.segmentation.put(type, Mirroring.checkcast(consumer));
 	}
 
 	@Override
@@ -66,11 +68,14 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		Event event = queue.poll();
 		if (event == null)
 			return;
+
 		this.consumation.forEach((k, v) ->
 		{
 			if (k.isInstance(event))
-				Mirroring.<Consumer<Event>>checkcast(v).accept(event);
+				v.accept(event);
 		});
+
+
 		if (event instanceof MessageEvent messageEvent)
 		{
 			NudgeFacing.capture(messageEvent);
@@ -89,11 +94,16 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 				if (contentWithoutPrefix.startsWith(pfx))
 					listener.accept(messageEvent);
 			});
+
+
 			for (SingleMessage singleMessage : chain)
-				this.segmentation.forEach((k, v) -> {
+			{
+				this.segmentation.forEach((k, v) ->
+				{
 					if (k.isInstance(singleMessage))
-						Mirroring.<Consumer<SingleMessage>>checkcast(v).accept(singleMessage);
+						v.accept(messageEvent, singleMessage);
 				});
+			}
 		}
 	}
 

@@ -3,11 +3,14 @@ package org.mve.logging;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function4;
 import net.mamoe.mirai.utils.SimpleLogger;
+import org.mve.Configuration;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoggerManager
+public class LoggerManager implements ILoggerFactory
 {
 	private static final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> FUNCTION = new ArrayList<>();
 
@@ -38,5 +41,11 @@ public class LoggerManager
 		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
 			logger.function(function);
 		return logger;
+	}
+
+	@Override
+	public Logger getLogger(String name)
+	{
+		return create(name, Configuration.LOG_LEVEL);
 	}
 }

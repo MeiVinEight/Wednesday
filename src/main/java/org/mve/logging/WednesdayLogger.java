@@ -41,9 +41,7 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	@Override
 	public Unit invoke(SimpleLogger.LogPriority logPriority, String s, Throwable throwable)
 	{
-		if (logPriority == null)
-			return null;
-		if (this.priority.compareTo(logPriority) > 0)
+		if (!this.loggable(logPriority))
 			return null;
 		if (s == null && throwable == null)
 			return null;
@@ -210,6 +208,13 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	public boolean isErrorEnabled()
 	{
 		return true;
+	}
+
+	public boolean loggable(SimpleLogger.LogPriority priority)
+	{
+		if (priority == null)
+			return false;
+		return this.priority.compareTo(priority) <= 0;
 	}
 
 	public static String timestamp()

@@ -1,9 +1,6 @@
 package org.mve;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
@@ -16,6 +13,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Configuration
 {
@@ -35,6 +34,7 @@ public class Configuration
 	private static final String KEY_COFFEE_SERVER = "coffee-server";
 	private static final String KEY_VIDEO_MAX_SIZE = "video-max-size";
 	private static final String KEY_REPEAT_PROBABILITY = "repeat-probability";
+	private static final String KEY_BLACKLIST = "blacklist";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 
@@ -52,6 +52,7 @@ public class Configuration
 	public static final String COFFEE_SERVER;
 	public static final long VIDEO_MAX_SIZE;
 	public static final double REPEAT_PROBABILITY;
+	public static final Set<Long> BLACKLIST;
 
 	public static void save()
 	{
@@ -75,6 +76,11 @@ public class Configuration
 			config.addProperty(KEY_COFFEE_SERVER, COFFEE_SERVER);
 			config.addProperty(KEY_VIDEO_MAX_SIZE, VIDEO_MAX_SIZE);
 			config.addProperty(KEY_REPEAT_PROBABILITY, REPEAT_PROBABILITY);
+
+			JsonArray blacklist = new JsonArray();
+			BLACKLIST.forEach(blacklist::add);
+			config.add(KEY_BLACKLIST, blacklist);
+
 			fos.write(GSON.toJson(config).getBytes(StandardCharsets.UTF_8));
 			fos.flush();
 		}
@@ -104,6 +110,7 @@ public class Configuration
 		String coffeeServer = "http://127.0.0.1:8800";
 		long videoMaxSize = 32 * 1024 * 1024;
 		double repeatProbability = 0.05;
+		Set<Long> blacklist = new HashSet<>();
 
 		if (!newFile)
 		{
@@ -142,6 +149,9 @@ public class Configuration
 					videoMaxSize = config.get(KEY_VIDEO_MAX_SIZE).getAsLong();
 				if (config.has(KEY_REPEAT_PROBABILITY))
 					repeatProbability = config.get(KEY_REPEAT_PROBABILITY).getAsDouble();
+				if (config.has(KEY_BLACKLIST))
+					for (JsonElement element : config.getAsJsonArray("blacklist"))
+						blacklist.add(element.getAsLong());
 				try
 				{
 					new URL(fileServer);
@@ -186,6 +196,7 @@ public class Configuration
 		COFFEE_SERVER = coffeeServer;
 		VIDEO_MAX_SIZE = videoMaxSize;
 		REPEAT_PROBABILITY = repeatProbability;
+		BLACKLIST = blacklist;
 
 		if (newFile)
 		{

@@ -1,5 +1,6 @@
 package org.mve;
 
+import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.event.ListeningStatus;
@@ -7,8 +8,13 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.message.data.SingleMessage;
+import org.mve.invoke.MagicAccessor;
+import org.mve.invoke.MethodAccessor;
+import org.mve.invoke.ReflectionFactory;
 import org.mve.uni.Mirroring;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
@@ -66,6 +72,29 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 		Event event = queue.poll();
 		if (event == null)
 			return;
+
+		// Check in blacklist
+		Class<?> clazz = event.getClass();
+		while (clazz.getSuperclass() != null)
+		{
+			try
+			{
+				Method getSubjectMethod = MagicAccessor.accessor.getMethod(clazz, "getSubject", Contact.class);
+				if (!Modifier.isPublic(getSubjectMethod.getModifiers()))
+					continue;
+				MethodAccessor<Contact> getSubject = ReflectionFactory.access(getSubjectMethod, ReflectionFactory.KIND_INVOKE_VIRTUAL);
+				Contact subject = getSubject.invoke(event);
+				if(subject == null)
+					continue;
+				if (Configuration.BLACKLIST.contains(subject.getId()))
+					return;
+				break;
+			}
+			catch (Throwable ignored)
+			{
+			}
+			clazz = clazz.getSuperclass();
+		}
 
 		this.consumation.forEach((k, v) ->
 		{

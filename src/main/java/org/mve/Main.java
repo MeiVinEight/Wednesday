@@ -5,7 +5,6 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
 import net.mamoe.mirai.message.data.LightApp;
-import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerLazy;
 import org.mve.logging.LoggerManager;
@@ -25,7 +24,6 @@ public class Main
 	{
 		LoggerManager.register(FileLogger.INSTANCE);
 		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP);
-		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP_PATCHING);
 
 
 		// ExternalResourceLeakObserver.class.getDeclaredField("logger$delegate")
@@ -34,24 +32,6 @@ public class Main
 			"logger$delegate",
 			new LoggerLazy()
 		);
-
-		// Patcher
-		// Make LogPriority.DEBUG.ordinal() < LogPriority.VERBOSE.ordinal()
-		{
-			try
-			{
-				String ordinalFieldName = "ordinal";
-				int verbOrdinal = Mirroring.get(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.VERBOSE);
-				int dbugOrdinal = Mirroring.get(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.DEBUG);
-				Mirroring.set(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.DEBUG, verbOrdinal);
-				Mirroring.set(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.VERBOSE, dbugOrdinal);
-				Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_PATCHING_LOGLEVEL_SUCC);
-			}
-			catch (Throwable e)
-			{
-				Wednesday.LOGGER.warn(LoggerMessage.LOG_WEDNESDAY_PATCHING_LOGLEVEL_FAIL, e);
-			}
-		}
 
 		try
 		{

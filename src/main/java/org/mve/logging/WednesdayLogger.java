@@ -8,6 +8,7 @@ import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.Nullable;
+import org.mve.uni.Mirroring;
 import org.slf4j.Marker;
 import org.slf4j.event.Level;
 import org.slf4j.helpers.LegacyAbstractLogger;
@@ -254,5 +255,21 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.INFO, "INFO");
 		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.WARNING, "WARN");
 		PRIORITY_ALIGNED_NAME.put(SimpleLogger.LogPriority.ERROR, "ERRO");
+		// Patcher
+		// Make LogPriority.DEBUG.ordinal() < LogPriority.VERBOSE.ordinal()
+		{
+			try
+			{
+				String ordinalFieldName = "ordinal";
+				int verbOrdinal = Mirroring.get(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.VERBOSE);
+				int dbugOrdinal = Mirroring.get(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.DEBUG);
+				Mirroring.set(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.DEBUG, verbOrdinal);
+				Mirroring.set(Enum.class, ordinalFieldName, SimpleLogger.LogPriority.VERBOSE, dbugOrdinal);
+			}
+			catch (Throwable e)
+			{
+				Mirroring.thrown(e);
+			}
+		}
 	}
 }

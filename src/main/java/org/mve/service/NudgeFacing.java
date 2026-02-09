@@ -27,9 +27,9 @@ public class NudgeFacing
 
 	public static void capture(MessageEvent ignored, WrappedImage wimg)
 	{
-		if (wimg.getJson() == null)
+		if (wimg.getRawJson() == null)
 			return;
-		Json data = Json.resolve(wimg.getJson());
+		Json data = Json.resolve(wimg.getRawJson().toString());
 		Wednesday.LOGGER.debug(data.stringify());
 		String summary = data.string("summary");
 		if (summary == null || summary.isEmpty())

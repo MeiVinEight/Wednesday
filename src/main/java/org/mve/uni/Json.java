@@ -446,7 +446,7 @@ public class Json
 					if (ch == ',' || ch == '}' || ch == ']' || ch < 0x20)
 						break;
 
-					digit &= (ch >= '0' && ch <= '9');
+					digit &= ((ch >= '0' && ch <= '9') || (ch == '+') || (ch == '-'));
 					len++;
 				}
 				if (len == 0)
@@ -549,7 +549,7 @@ public class Json
 						throw new IllegalArgumentException("Unterminated escape sequence at position " + pos);
 					default:
 						throw new IllegalArgumentException("Unrecognized escape sequence at position " + pos);
-				};
+				}
 			}
 
 			if (utf)

@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 buildscript {
 	repositories {
 		maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
@@ -44,9 +47,12 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
 	implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.2'
 	// https://mvnrepository.com/artifact/top.mrxiaom.mirai/overflow-core
-	implementation group: 'top.mrxiaom.mirai', name: 'overflow-core', version: '1.0.8.2'
-	implementation group: '', name: 'mysql-connector-j', version: '9.5.0'
-	implementation group: '', name: 'ReflectionFX', version: '-SNAPSHOT'
+	implementation group: 'top.mrxiaom.mirai', name: 'overflow-core', version: '1.0.9.1'
+	// https://mvnrepository.com/artifact/org.ow2.asm/asm
+	implementation group: 'org.ow2.asm', name: 'asm', version: '9.9'
+	// https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
+	implementation group: 'com.mysql', name: 'mysql-connector-j', version: '9.6.0'
+	implementation group: 'org.mve', name: 'reflectionfx', version: '1.10'
 }
 
 tasks.register('sourceJar', Jar) {
@@ -55,62 +61,31 @@ tasks.register('sourceJar', Jar) {
 	from sourceSets.main.allSource
 }
 
-tasks.register("run", JavaExec)  {
-	group = "run"
-	classpath = sourceSets.main.runtimeClasspath
+tasks.register("depends") {
+	group = "build"
+
+	File libDir = new File(projectDir, "libs")
+	libDir.mkdirs()
+	sourceSets.main.runtimeClasspath.files.forEach {
+		if (!it.isFile())
+			return
+		File libFile = new File(libDir, it.getName())
+		if (libFile.isFile())
+			return
+		Files.copy(it.toPath(), libFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+		println(libFile)
+	}
+}
+
+tasks.register("run", JavaExec) {
+	dependsOn depends
+	dependsOn build
+	group = "build"
+	classpath = project.files(new File(projectDir, project.name + "-" + project.version + ".jar"))
 	mainClass = "org.mve.Main"
 }
 
-tasks.register("scripts") {
-	File libsDir = new File(projectDir, "libs")
-	File[] libs = libsDir.listFiles()
-	if (libs == null)
-		return
-
-
-	if (File.pathSeparatorChar == (':' as char))
-	{
-		File wodenSh = new File(projectDir, "woden.sh")
-		try (FileOutputStream fout = new FileOutputStream(wodenSh))
-		{
-			PrintStream out = new PrintStream(fout)
-			out.println("CLASSPATH=")
-			for (File libFile : libs)
-			{
-				String absPath = libFile.getAbsolutePath()
-				out.println("CLASSPATH=\$CLASSPATH:\"" + absPath + '\"')
-			}
-			out.println("CLASSPATH=\"\$CLASSPATH\"")
-			out.println("OPTIONS=")
-			if (!max_memory.empty)
-				out.println("OPTIONS=\$OPTIONS\" -Xmx" + max_memory + '\"')
-
-			out.println("java -classpath \"\$CLASSPATH\" \$OPTIONS org.mve.Main")
-		}
-		println("Extract scripts: " + wodenSh)
-	}
-	else if (File.pathSeparatorChar == (';' as char))
-	{
-		File wodenBat = new File(projectDir, "woden.bat")
-		try (FileOutputStream fout = new FileOutputStream(wodenBat))
-		{
-			PrintStream out = new PrintStream(fout)
-			out.println("@echo off")
-			for (File libFile : libs)
-			{
-				String absPath = libFile.getAbsolutePath().replace(File.separatorChar, ('/' as char))
-				out.println("SET CLASSPATH=%CLASSPATH%" + absPath + ';')
-			}
-			out.println("SET CLASSPATH=\"%CLASSPATH%\"")
-			if (!max_memory.empty)
-				out.println("SET OPTIONS=%OPTIONS% -Xmx" + max_memory)
-			out.println("java -classpath %CLASSPATH% %OPTIONS% org.mve.Main")
-		}
-		println("Extract scripts: " + wodenBat)
-	}
-}
-
 tasks.jar.configure {
-	destinationDirectory = file("libs")
+	destinationDirectory = file(".")
 	finalizedBy(sourceJar)
 }

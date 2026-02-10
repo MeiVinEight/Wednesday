@@ -89,3 +89,13 @@ tasks.jar.configure {
 	destinationDirectory = file(".")
 	finalizedBy(sourceJar)
 }
+
+tasks.clean.doLast {
+	File libDir = new File(projectDir, "libs")
+	project.delete(libDir)
+	project.delete(new File(projectDir, project.name + "-" + project.version + ".jar"))
+}
+
+tasks.build.configure {
+	finalizedBy("depends")
+}

@@ -13,7 +13,7 @@ public class MixinMethodVisitor extends MethodVisitor
 	public final String signature;
 	public final String[] exceptions;
 	public final MixinInjection[] injection;
-	public int[] varialeTable = new int[0];
+	public int[] variable = new int[0];
 	private int stack = 0;
 
 	public MixinMethodVisitor(MethodVisitor methodVisitor, int access, String name, String descriptor, String signature, String[] exceptions, MixinInjection[] injection)
@@ -44,7 +44,7 @@ public class MixinMethodVisitor extends MethodVisitor
 	{
 		super.visitVarInsn(opcode, varIndex);
 		this.expandVarTable(varIndex + 1);
-		this.varialeTable[varIndex] = switch (opcode)
+		this.variable[varIndex] = switch (opcode)
 		{
 			case Opcodes.ILOAD -> Type.INT;
 			case Opcodes.FLOAD -> Type.FLOAT;
@@ -53,6 +53,18 @@ public class MixinMethodVisitor extends MethodVisitor
 			case Opcodes.ALOAD -> Type.OBJECT;
 			default -> Type.VOID;
 		};
+		switch (opcode)
+		{
+			case Opcodes.ISTORE:
+			case Opcodes.FSTORE:
+			case Opcodes.DSTORE:
+			case Opcodes.ASTORE:
+				this.expandVarTable(varIndex + 1);
+				break;
+			case Opcodes.LSTORE:
+				this.expandVarTable(varIndex + 2);
+				break;
+		}
 	}
 
 	@Override
@@ -74,18 +86,18 @@ public class MixinMethodVisitor extends MethodVisitor
 
 	public void expandVarTable(int length)
 	{
-		if (this.varialeTable.length >= length)
+		if (this.variable.length >= length)
 			return;
-		int[] oldTable = this.varialeTable;
-		int oldLen = this.varialeTable.length;
-		this.varialeTable = new int[length];
-		System.arraycopy(oldTable, 0, this.varialeTable, 0, oldLen);
+		int[] oldTable = this.variable;
+		int oldLen = this.variable.length;
+		this.variable = new int[length];
+		System.arraycopy(oldTable, 0, this.variable, 0, oldLen);
 	}
 
 	public int varType(int idx)
 	{
-		if (this.varialeTable.length <= idx)
+		if (this.variable.length <= idx)
 			return Type.VOID;
-		return this.varialeTable[idx];
+		return this.variable[idx];
 	}
 }

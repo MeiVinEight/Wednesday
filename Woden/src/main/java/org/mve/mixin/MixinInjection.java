@@ -50,32 +50,33 @@ public class MixinInjection
 		this.instruction++;
 		if (this.applied)
 			return;
-		if (this.at == Inject.AT_HEAD)
+		boolean apply = false;
+		APPLY_COND:
 		{
-			if (node == null)
-				this.apply(visitor);
-			return;
-		}
-		else if (this.at == Inject.AT_INVOKE)
-		{
-			if (!(node instanceof MethodInsnNode mnode))
-				return;
-			if (shift != this.shift)
-				return;
-			String desc = 'L' + mnode.owner + ';' + mnode.name + mnode.desc;
-			if (!desc.equals(this.method))
-				return;
-			if (this.index != this.ordinal)
+			if (this.at == Inject.AT_HEAD)
 			{
-				this.index++;
-				return;
+				if (node == null)
+					apply = true;
+			}
+			else if (this.at == Inject.AT_INVOKE)
+			{
+				if (!(node instanceof MethodInsnNode mnode))
+					break APPLY_COND;
+				if (shift != this.shift)
+					break APPLY_COND;
+				String desc = 'L' + mnode.owner + ';' + mnode.name + mnode.desc;
+				if (!desc.equals(this.method))
+					break APPLY_COND;
+				int idx = this.index++;
+				if (idx != this.ordinal)
+					break APPLY_COND;
+				apply = true;
 			}
 		}
-		else
-			return;
 
 		// Inject
-		this.apply(visitor);
+		if (apply)
+			this.apply(visitor);
 	}
 
 	public void apply(MixinMethodVisitor visitor)
@@ -118,14 +119,14 @@ public class MixinInjection
 		mv.visitInsn(Opcodes.DUP);
 		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, callback, "<init>", "()V", false);
 		mv.visitInsn(Opcodes.DUP);
-		mv.visitVarInsn(Opcodes.ASTORE, visitor.varialeTable.length);
+		mv.visitVarInsn(Opcodes.ASTORE, visitor.variable.length);
 		int opc = Opcodes.INVOKEVIRTUAL;
 		if (isStatic == 1)
 			opc = Opcodes.INVOKESTATIC;
 		mv.visitMethodInsn(opc, this.info.target, this.shadowName, this.node.desc, false);
 		Type returnType = Type.getReturnType(visitor.descriptor);
 		Label label = new Label();
-		mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+		mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 		mv.visitFieldInsn(Opcodes.GETFIELD, callback, "cancelled", "Z");
 		mv.visitJumpInsn(Opcodes.IFEQ, label);
 		switch (returnType.getSort())
@@ -134,14 +135,14 @@ public class MixinInjection
 				mv.visitInsn(Opcodes.RETURN);
 				break;
 			case Type.BOOLEAN:
-				mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
 				mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Boolean");
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
 				mv.visitInsn(Opcodes.IRETURN);
 				break;
 			case Type.CHAR:
-				mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
 				mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Character");
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C", false);
@@ -150,35 +151,35 @@ public class MixinInjection
 			case Type.BYTE:
 			case Type.SHORT:
 			case Type.INT:
-				mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
 				mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "intValue", "()I", false);
 				mv.visitInsn(Opcodes.IRETURN);
 				break;
 			case Type.FLOAT:
-				mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
 				mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "floatValue", "()F", false);
 				mv.visitInsn(Opcodes.FRETURN);
 				break;
 			case Type.LONG:
-				mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
 				mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "longValue", "()J", false);
 				mv.visitInsn(Opcodes.LRETURN);
 				break;
 			case Type.DOUBLE:
-				mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
 				mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Number");
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "doubleValue", "()D", false);
 				mv.visitInsn(Opcodes.DRETURN);
 				break;
 			default:
-				mv.visitVarInsn(Opcodes.ALOAD, visitor.varialeTable.length);
+				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
 				mv.visitTypeInsn(Opcodes.CHECKCAST, returnType.getDescriptor());
 				mv.visitInsn(Opcodes.ARETURN);

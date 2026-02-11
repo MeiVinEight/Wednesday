@@ -209,7 +209,7 @@ public class MixinEngine extends URLClassLoader
 			List<MixinInfo> infos = this.mixins.get(name.replace('.', '/'));
 			if (infos != null && !infos.isEmpty())
 			{
-				ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+				MixinClassWriter writer = new MixinClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, this);
 				MixinClassVisitor mcv = new MixinClassVisitor(writer, infos.toArray(MixinInfo[]::new));
 				ClassReader cr = new ClassReader(classData);
 				cr.accept(mcv, ClassReader.SKIP_FRAMES);

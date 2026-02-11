@@ -1,0 +1,40 @@
+buildscript {
+	repositories {
+		maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
+		mavenCentral()
+		gradlePluginPortal()
+		google()
+	}
+}
+
+plugins {
+	id 'java'
+}
+
+repositories {
+	maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
+}
+
+group = "org.mve"
+version = "1.0.0"
+java.sourceCompatibility = JavaVersion.VERSION_17
+java.targetCompatibility = JavaVersion.VERSION_17
+
+dependencies {
+	// https://mvnrepository.com/artifact/org.ow2.asm/asm
+	implementation group: 'org.ow2.asm', name: 'asm', version: '9.9'
+	// https://mvnrepository.com/artifact/org.ow2.asm/asm-tree
+	implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.9'
+}
+
+tasks.register('sourceJar', Jar) {
+	dependsOn classes
+	archiveClassifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+tasks.jar.configure {
+	destinationDirectory = rootProject.projectDir
+	finalizedBy(sourceJar)
+	into("")
+}

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class LoggerManager implements ILoggerFactory
 {
-	private static final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> FUNCTION = new ArrayList<>();
+	public static final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> FUNCTION = new ArrayList<>();
 
 	public static void register(Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function)
 	{
@@ -23,7 +23,7 @@ public class LoggerManager implements ILoggerFactory
 	{
 		WednesdayLogger logger = new WednesdayLogger(null, SimpleLogger.LogPriority.DEBUG);
 		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
-			logger.function(function);
+			logger.consumation(function);
 		return logger;
 	}
 
@@ -31,7 +31,7 @@ public class LoggerManager implements ILoggerFactory
 	{
 		WednesdayLogger logger = new WednesdayLogger(name, SimpleLogger.LogPriority.DEBUG);
 		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
-			logger.function(function);
+			logger.consumation(function);
 		return logger;
 	}
 
@@ -39,7 +39,7 @@ public class LoggerManager implements ILoggerFactory
 	{
 		WednesdayLogger logger = new WednesdayLogger(name, priority);
 		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
-			logger.function(function);
+			logger.consumation(function);
 		return logger;
 	}
 

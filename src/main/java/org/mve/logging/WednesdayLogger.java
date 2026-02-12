@@ -25,7 +25,7 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	private static final Map<SimpleLogger.LogPriority, Consumer<Ansi>> PRIORITY_COLOR;
 	public static final Map<SimpleLogger.LogPriority, String> PRIORITY_ALIGNED_NAME;
 	public final SimpleLogger.LogPriority priority;
-	private final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> functions = new LinkedList<>();
+	private final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> consumation = new LinkedList<>();
 	private boolean function = true;
 
 	public WednesdayLogger(String name, SimpleLogger.LogPriority priority)
@@ -34,9 +34,9 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 		this.priority = priority;
 	}
 
-	public void function(Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function)
+	public void consumation(Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function)
 	{
-		this.functions.add(function);
+		this.consumation.add(function);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 		System.out.print(ansi);
 		if (!function)
 			return null;
-		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : this.functions)
+		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : this.consumation)
 		{
 			try
 			{

@@ -1,0 +1,6 @@
+{
+	"mixins":
+	[
+		"org.mve.mixin.IAdaptorMixin"
+	]
+}

@@ -1,5 +1,6 @@
 package org.mve;
 
+import net.mamoe.mirai.contact.AvatarSpec;
 import org.mve.uni.Json;
 
 import javax.persistence.Column;
@@ -74,13 +75,11 @@ public class ConnectionWednesday
 	{
 		if (this.connection == null)
 			return null;
-		Json info = new Json();
-		info.set(KEY_NAME, this.NAME);
-		info.set(KEY_URL, this.URL);
-		info.set(KEY_TOKEN, this.TOKEN);
+		Json info = this.data();
 		Json conn = new Json();
 		conn.set("id", this.connection.QQ.getId());
 		conn.set("name", this.connection.QQ.getNick());
+		conn.set("avatar", this.connection.QQ.getAvatarUrl(AvatarSpec.ORIGINAL));
 		info.set("conn", conn);
 		return info;
 	}

@@ -167,28 +167,35 @@ public class SimpleMapper<T> extends Mapper<T>
 		Map<String, Object> column = new HashMap<>();
 		for (int i = 0; i < where.length; i += 2)
 			column.put(where[i].toString(), where[i + 1]);
-		return this.select(column, clazz);
+		return this.select(column, null);
 	}
 
 	@Override
-	public List<T> select(Map<String, Object> where, Class<T> clazz)
+	public List<T> select(Map<String, Object> where, Class<T> clacc)
 	{
-		String tableName = clazz.getSimpleName();
-		Table tableAnno = clazz.getAnnotation(Table.class);
-		if (tableAnno != null) tableName = tableAnno.value();
-		List<T> retVal = new LinkedList<>();
+		return this.select(where);
+	}
 
+	public List<T> select(Map<String, Object> where)
+	{
+		String tableName = table(this.clazz);
+		List<T> retVal = new LinkedList<>();
 		try (Connection conn = this.connection())
 		{
-			StringBuilder sql = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
-			Object[] args = new Object[where.size()];
+			StringBuilder sql = new StringBuilder("SELECT * FROM " + tableName);
+			Object[] args = null;
 			int idx = 0;
-			for (String key : where.keySet())
+			if (!where.isEmpty())
 			{
-				Object value = where.get(key);
-				if (idx > 0) sql.append(" AND ");
-				sql.append(key).append(" = ?");
-				args[idx++] = value;
+				args = new Object[where.size()];
+				sql.append( " WHERE ");
+				for (String key : where.keySet())
+				{
+					Object value = where.get(key);
+					if (idx > 0) sql.append(" AND ");
+					sql.append(key).append(" = ?");
+					args[idx++] = value;
+				}
 			}
 			sql.append(';');
 			Wednesday.LOGGER.verbose(sql.toString());

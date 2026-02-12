@@ -1,12 +1,12 @@
 package org.mve.data;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Creation extends Query
 {
+	public int db;
 	public String name;
 	public LinkedList<Column> columns = new LinkedList<>();
 	public Integer increment = null;
@@ -19,9 +19,16 @@ public class Creation extends Query
 		this.name = name;
 	}
 
+	public Creation db(int t)
+	{
+		this.db = t;
+		return this;
+	}
+
 	public Creation column(String name, String type)
 	{
 		Column column = new Column();
+		column.db = this.db;
 		column.name = name;
 		column.type = type;
 		columns.add(column);
@@ -83,7 +90,14 @@ public class Creation extends Query
 		return this.unique(this.current.name, this.current.name);
 	}
 
-	public <T> void query(SimpleMapper<T> mapper) throws SQLException
+	@Override
+	public <T> Boolean query(SimpleMapper<T> mapper)
+	{
+		return mapper.create(this);
+	}
+
+	@Override
+	public String toString()
 	{
 		StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS `")
 			.append(this.name)
@@ -124,6 +138,6 @@ public class Creation extends Query
 		}
 		builder.setCharAt(builder.length() - 1, '\n');
 		builder.append(");");
-		System.out.println(builder.toString());
+		return builder.toString();
 	}
 }

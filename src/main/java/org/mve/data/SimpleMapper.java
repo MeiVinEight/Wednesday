@@ -401,6 +401,69 @@ public class SimpleMapper<T> extends Mapper<T>
 		return 0;
 	}
 
+	public boolean create(Creation c)
+	{
+		try (Connection conn = this.connection())
+		{
+			PreparedStatement stmt = conn.prepareStatement(c.toString());
+			return stmt.execute();
+		}
+		catch (SQLException e)
+		{
+			Mirroring.thrown(e);
+		}
+		return false;
+	}
+
+	public Object query(Query query)
+	{
+		Object obj1 = null;
+		Object[] obj2 = null;
+		Object[][] obj3 = null;
+		try (Connection conn = this.connection())
+		{
+			PreparedStatement stmt = conn.prepareStatement(query.toString());
+			try (ResultSet rs = stmt.executeQuery())
+			{
+				CoreResultSet crs = (CoreResultSet) rs;
+				int rows = Math.toIntExact(crs.maxRows);
+				int cols = crs.colsMeta.length;
+				if (rows == 0 && cols == 0)
+					return null;
+				if (rows == 1 && cols == 1)
+				{
+					rs.next();
+					return rs.getObject(1);
+				}
+				if (rows == 1)
+					obj1 = obj2 = new Object[cols];
+				else if (cols == 1)
+					obj1 = obj2 = new Object[rows];
+				else
+					obj1 = obj3 = new Object[rows][cols];
+				int i = 0;
+				while (rs.next())
+				{
+					for (int j = 0; j < cols; j++)
+					{
+						if (rows == 1)
+							obj2[j] = rs.getObject(j + 1);
+						else if (cols == 1)
+							obj2[i] = rs.getObject(j + 1);
+						else
+							obj3[i][j] = rs.getObject(j + 1);
+					}
+					i++;
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			Mirroring.thrown(e);
+		}
+		return obj1;
+	}
+
 	public Set<String> primaryKey(String tableName)
 	{
 		Set<String> primKeys = new HashSet<>();

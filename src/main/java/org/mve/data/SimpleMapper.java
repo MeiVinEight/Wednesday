@@ -6,6 +6,8 @@ import org.mve.invoke.FieldAccessor;
 import org.mve.invoke.MagicAccessor;
 import org.mve.invoke.ReflectionFactory;
 import org.mve.invoke.common.JavaVM;
+import org.mve.uni.Mirroring;
+import org.sqlite.core.CoreResultSet;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
@@ -18,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,9 +29,12 @@ import java.util.Set;
 
 public class SimpleMapper<T> extends Mapper<T>
 {
-	public SimpleMapper(Database database)
+	public final Class<T> clazz;
+
+	public SimpleMapper(Database database, Class<T> clazz)
 	{
 		super(database);
+		this.clazz = clazz;
 	}
 
 	@Override
@@ -47,19 +53,24 @@ public class SimpleMapper<T> extends Mapper<T>
 			Field[] fields = Arrays.stream(MagicAccessor.accessor.getFields(clazz))
 				.filter(x -> (x.getModifiers() & Modifier.STATIC) == 0)
 				.toArray(Field[]::new);
-			for (int i = 0; i < fields.length; i++)
+			List<Object> args = new ArrayList<>();
+			for (Field field : fields)
 			{
-				Field field = fields[i];
-				String columnName = field.getName();
-				Column columnAnno = field.getAnnotation(Column.class);
-				if (columnAnno != null) columnName = columnAnno.name();
-				if (i > 0)
+				String columnName = columnName(field);
+				if (columnName == null)
+					continue;
+				FieldAccessor<?> facc = ReflectionFactory.access(field);
+				Object val = facc.get(o);
+				if (val == null)
+					continue;
+				if (!args.isEmpty())
 				{
 					columnBuilder.append(", ");
 					valuesBuilder.append(", ");
 				}
 				columnBuilder.append(columnName);
 				valuesBuilder.append('?');
+				args.add(val);
 			}
 			columnBuilder.append(')');
 			valuesBuilder.append(')');
@@ -68,11 +79,9 @@ public class SimpleMapper<T> extends Mapper<T>
 
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
-				for (int i = 0; i < fields.length; i++)
+				for (int i = 0; i < args.size(); i++)
 				{
-					Field field = fields[i];
-					FieldAccessor<?> facc = ReflectionFactory.access(field);
-					stmt.setObject(i + 1, facc.get(o));
+					stmt.setObject(i + 1, args.get(i));
 				}
 				int x = stmt.executeUpdate();
 				return x > 0;
@@ -108,10 +117,7 @@ public class SimpleMapper<T> extends Mapper<T>
 
 			for (Field field : fields)
 			{
-				String columnName = field.getName();
-				Column column = field.getAnnotation(Column.class);
-				if (column != null) columnName = column.name();
-
+				String columnName = columnName(field);
 				if (primKeys.contains(columnName))
 				{
 					if (!primaryKeys.isEmpty())
@@ -156,6 +162,14 @@ public class SimpleMapper<T> extends Mapper<T>
 		return t;
 	}
 
+	public List<T> select(Class<T> clazz, Object... where)
+	{
+		Map<String, Object> column = new HashMap<>();
+		for (int i = 0; i < where.length; i += 2)
+			column.put(where[i].toString(), where[i + 1]);
+		return this.select(column, clazz);
+	}
+
 	@Override
 	public List<T> select(Map<String, Object> where, Class<T> clazz)
 	{
@@ -181,9 +195,7 @@ public class SimpleMapper<T> extends Mapper<T>
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
 				for (int i = 0; i < idx; i++)
-				{
 					stmt.setObject(i + 1, args[i]);
-				}
 
 				try (ResultSet rs = stmt.executeQuery())
 				{
@@ -209,125 +221,139 @@ public class SimpleMapper<T> extends Mapper<T>
 	@Override
 	public boolean update(T o)
 	{
-		Class<?> clazz = o.getClass();
-		String tableName = o.getClass().getSimpleName();
-		Table tableAnno = clazz.getAnnotation(Table.class);
-		if (tableAnno != null)
+		return this.update(o, this.primaryKey(SimpleMapper.table(o.getClass())).toArray(String[]::new)) != 0;
+	}
+
+	public int update(T o, String... whereCol)
+	{
+		Map<String, Object> set = new HashMap<>();
+		Map<String, Object> whr = new HashMap<>();
+		Set<String> wheres = Set.of(whereCol);
+		// Set<String> primKeys = this.primaryKey(tableName);
+		Field[] fields = Arrays.stream(MagicAccessor.accessor.getFields(clazz))
+			.filter(x -> (x.getModifiers() & Modifier.STATIC) == 0)
+			.toArray(Field[]::new);
+		for (Field field : fields)
 		{
-			tableName = tableAnno.value();
+			String columnName = columnName(field);
+			if (columnName == null) continue;
+			FieldAccessor<?> accessor = ReflectionFactory.access(field);
+			Object val = accessor.get(o);
+			if (val == null) continue;
+			if (wheres.contains(columnName))
+				whr.put(columnName, val);
+			else
+				set.put(columnName, val);
 		}
+		return this.update(set, whr);
+	}
+
+	public int update(Map<String, Object> set, Map<String, Object> where)
+	{
+		String tableName = table(this.clazz);
 		try (Connection conn = this.connection())
 		{
-			StringBuilder sql = new StringBuilder("UPDATE ").append(tableName).append(" SET ");
-			StringBuilder where = new StringBuilder(" WHERE ");
+			StringBuilder queryStmt = new StringBuilder("UPDATE ").append(tableName).append(" SET ");
+			StringBuilder whereStmt = new StringBuilder(" WHERE ");
 
-			Set<String> primKeys = this.primaryKey(tableName);
-			Field[] fields = Arrays.stream(MagicAccessor.accessor.getFields(clazz))
-				.filter(x -> (x.getModifiers() & Modifier.STATIC) == 0)
-				.toArray(Field[]::new);
-			int setCount = 0;
-			int whereCount = 0;
-			for (Field field : fields)
+			// Set<String> primKeys = this.primaryKey(tableName);
+			Object[] setArg = new Object[set.size()];
+			Object[] whrArg = new Object[where.size()];
+			int idxs = 0;
+			int idxw = 0;
+			// for (Field field : fields)
+			for (Map.Entry<String, Object> entry : set.entrySet())
 			{
-				String columnName = field.getName();
-				Column columnAnno = field.getAnnotation(Column.class);
-				if (columnAnno != null) columnName = columnAnno.name();
-				if (primKeys.contains(columnName))
-				{
-					if (whereCount > 0) where.append(" AND ");
-					where.append(columnName).append(" = ?");
-					whereCount++;
-				}
-				else
-				{
-					if (setCount > 0) sql.append(", ");
-					sql.append(columnName).append(" = ?");
-					setCount++;
-				}
+				String columnName = entry.getKey();
+				if (idxs > 0) queryStmt.append(", ");
+				queryStmt.append(columnName).append(" = ?");
+				setArg[idxs++] = entry.getValue();
+			}
+			for (Map.Entry<String, Object> entry : where.entrySet())
+			{
+				String columnName = entry.getKey();
+				if (idxw > 0) whereStmt.append(" AND ");
+				whereStmt.append(columnName).append(" = ?");
+				whrArg[idxw++] = entry.getValue();
 			}
 
-			sql.append(where).append(';');
-			Wednesday.LOGGER.verbose(sql.toString());
-			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
+			queryStmt.append(whereStmt).append(';');
+			Wednesday.LOGGER.verbose(queryStmt.toString());
+			try (PreparedStatement stmt = conn.prepareStatement(queryStmt.toString()))
 			{
-				int idxs = 0;
-				int idxw = 0;
-				for (Field field : fields)
-				{
-					FieldAccessor<?> accessor = ReflectionFactory.access(field);
-					String columnName = field.getName();
-					Column columnAnno = field.getAnnotation(Column.class);
-					if (columnAnno != null) columnName = columnAnno.name();
-					if (primKeys.contains(columnName))
-					{
-						idxw++;
-						stmt.setObject(setCount + idxw, accessor.get(o));
-					}
-					else
-					{
-						idxs++;
-						stmt.setObject(idxs, accessor.get(o));
-					}
-				}
-				return stmt.executeUpdate() > 0;
+				for (int i = 0; i < idxs; i++)
+					stmt.setObject(i + 1, setArg[i]);
+				for (int i = 0; i < idxw; i++)
+					stmt.setObject(idxs + i + 1, whrArg[i]);
+				return stmt.executeUpdate();
 			}
 		}
 		catch (SQLException e)
 		{
-			Wednesday.LOGGER.error(e);
+			Mirroring.thrown(e);
 		}
-		return false;
+		return 0;
 	}
 
 	@Override
 	public boolean delete(T o)
 	{
+		Map<String ,Object> col = new HashMap<>();
 		Class<?> clazz = o.getClass();
-		String tableName = o.getClass().getSimpleName();
-		Table tableAnno = clazz.getAnnotation(Table.class);
-		if (tableAnno != null)
+		String tableName = table(clazz);
+		Set<String> primKeys = this.primaryKey(tableName);
+		Field[] fields = Arrays.stream(MagicAccessor.accessor.getFields(clazz))
+			.filter(x -> (x.getModifiers() & Modifier.STATIC) == 0)
+			.toArray(Field[]::new);
+		for (Field field : fields)
 		{
-			tableName = tableAnno.value();
+			String columnName = columnName(field);
+			if (columnName == null)
+				continue;
+			if (primKeys.contains(columnName))
+				col.put(columnName, ReflectionFactory.access(field).get(o));
 		}
+		return this.delete(tableName, col) > 0;
+	}
+
+	public int delete(Class<T> clazz, Object... params)
+	{
+		String tableName = table(clazz);
+		Map<String, Object> column = new HashMap<>();
+		for (int i = 0; i < params.length; i += 2)
+			column.put(params[i].toString(), params[i + 1]);
+		return this.delete(tableName, column);
+	}
+
+	public int delete(String tableName, Map<String, Object> column)
+	{
 		try (Connection conn = this.connection())
 		{
 			StringBuilder sql = new StringBuilder("DELETE FROM ").append(tableName).append(" WHERE ");
-			Set<String> primKeys = this.primaryKey(tableName);
-			Field[] fields = Arrays.stream(MagicAccessor.accessor.getFields(clazz))
-				.filter(x -> (x.getModifiers() & Modifier.STATIC) == 0)
-				.toArray(Field[]::new);
-			List<Object> args = new ArrayList<>(primKeys.size());
-			for (Field field : fields)
+			int idx = 0;
+			Object[] args = new Object[column.size()];
+			for (Map.Entry<String, Object> entry : column.entrySet())
 			{
-				String columnName = field.getName();
-				Column columnAnno = field.getAnnotation(Column.class);
-				if (columnAnno != null) columnName = columnAnno.name();
-				if (primKeys.contains(columnName))
-				{
-					FieldAccessor<?> facc = ReflectionFactory.access(field);
-					if (!args.isEmpty()) sql.append(" AND ");
-					sql.append(columnName).append(" = ?");
-					args.add(facc.get(o));
-				}
+				if (idx != 0)
+					sql.append(" AND ");
+				sql.append(entry.getKey()).append(" = ?");
+				args[idx++] = entry.getValue();
 			}
 
 			sql.append(';');
 			Wednesday.LOGGER.verbose(sql.toString());
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
-				for (int i = 0; i < args.size(); i++)
-				{
-					stmt.setObject(i + 1, args.get(i));
-				}
-
-				return stmt.executeUpdate() > 0;
+				for (idx = 0; idx < args.length; idx++)
+					stmt.setObject(idx + 1, args[idx]);
+				return stmt.executeUpdate();
 			}
 		}
 		catch (SQLException e)
 		{
 			Wednesday.LOGGER.error(e);
 		}
-		return false;
+		return 0;
 	}
 
 	public int count(String tableName)
@@ -371,9 +397,9 @@ public class SimpleMapper<T> extends Mapper<T>
 			int argCount = 0;
 			for (Field field : fields)
 			{
-				String columnName = field.getName();
-				Column columnAnno = field.getAnnotation(Column.class);
-				if (columnAnno != null) columnName = columnAnno.name();
+				String columnName = columnName(field);
+				if (columnName == null)
+					continue;
 				FieldAccessor<?> facc = ReflectionFactory.access(field);
 				Object value = facc.get(o);
 				if (value == null) continue;
@@ -484,6 +510,15 @@ public class SimpleMapper<T> extends Mapper<T>
 		return primKeys;
 	}
 
+	public static <T> String table(Class<T> clazz)
+	{
+		String tableName = clazz.getSimpleName();
+		Table tableAnno = clazz.getAnnotation(Table.class);
+		if (tableAnno != null)
+			tableName = tableAnno.value();
+		return tableName;
+	}
+
 	public static <T> void convert(ResultSet rs, T o) throws SQLException
 	{
 		Field[] fields = Arrays.stream(MagicAccessor.accessor.getFields(o.getClass()))
@@ -491,13 +526,26 @@ public class SimpleMapper<T> extends Mapper<T>
 			.toArray(Field[]::new);
 		for (Field field : fields)
 		{
+			String columnName = columnName(field);
+			if (columnName == null)
+				continue;
 			FieldAccessor<?> facc = ReflectionFactory.access(field);
-			String columnName = field.getName();
-			Column column = field.getAnnotation(Column.class);
-			if (column != null) columnName = column.name();
 			Class<?> columnType = field.getType();
 			facc.set(o, rs.getObject(columnName, columnType));
 		}
+	}
+
+	public static String columnName(Field field)
+	{
+		String columnName = field.getName();
+		Column columnAnno = field.getAnnotation(Column.class);
+		if (columnAnno != null)
+		{
+			if (columnAnno.exclude())
+				return null;
+			columnName = columnAnno.name();
+		}
+		return columnName;
 	}
 
 	static

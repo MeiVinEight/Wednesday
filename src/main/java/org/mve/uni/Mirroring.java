@@ -7,7 +7,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,15 +14,30 @@ import java.util.concurrent.ConcurrentMap;
 public class Mirroring
 {
 	public static final MethodHandles.Lookup LOOKUP;
-	public static final int FIELD_GETTER = 0;
-	public static final int FIELD_SETTER = 1;
+	public static final int FIELD_VIRTUAL_GETTER = 0;
+	public static final int FIELD_VIRTUAL_SETTER = 1;
+	public static final int FIELD_STATIC_GETTER = 2;
+	public static final int FIELD_STATIC_SETTER = 3;
 	private static final ConcurrentMap<ClassLoader, ConcurrentMap<Class<?>, ConcurrentMap<String, Object>>> MAPPING = new ConcurrentHashMap<>();
 
 	public static <T> T get(Class<?> clazz, String fieldName)
 	{
 		try
 		{
-			return (T) Mirroring.mapping(clazz, fieldName, FIELD_GETTER).invoke();
+			return (T) Mirroring.mapping(clazz, fieldName, FIELD_STATIC_GETTER).invoke();
+		}
+		catch (Throwable e)
+		{
+			Mirroring.thrown(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static <T> T get(Class<?> clazz, String fieldName, Class<?> type)
+	{
+		try
+		{
+			return (T) Mirroring.mapping(clazz, fieldName, type, FIELD_STATIC_GETTER).invoke();
 		}
 		catch (Throwable e)
 		{
@@ -36,7 +50,20 @@ public class Mirroring
 	{
 		try
 		{
-			return (T) Mirroring.mapping(clazz, fieldName, FIELD_GETTER).invoke(obj);
+			return (T) Mirroring.mapping(clazz, fieldName, FIELD_VIRTUAL_GETTER).invoke(obj);
+		}
+		catch (Throwable e)
+		{
+			Mirroring.thrown(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static <T> T get(Class<?> clazz, String fieldName, Class<?> type, Object obj)
+	{
+		try
+		{
+			return (T) Mirroring.mapping(clazz, fieldName, type, FIELD_VIRTUAL_GETTER).invoke(obj);
 		}
 		catch (Throwable e)
 		{
@@ -49,7 +76,7 @@ public class Mirroring
 	{
 		try
 		{
-			Mirroring.mapping(clazz, fieldName, FIELD_SETTER).invoke(value);
+			Mirroring.mapping(clazz, fieldName, FIELD_STATIC_SETTER).invoke(value);
 		}
 		catch (Throwable e)
 		{
@@ -58,11 +85,37 @@ public class Mirroring
 		}
 	}
 
-	public static <T> void set(Class<?> clazz, String fieldName, Object obj, Object value)
+	public static void set(Class<?> clazz, String fieldName, Class<?> type, Object value)
 	{
 		try
 		{
-			Mirroring.mapping(clazz, fieldName, FIELD_SETTER).invoke(obj, value);
+			Mirroring.mapping(clazz, fieldName, type, FIELD_STATIC_SETTER).invoke(value);
+		}
+		catch (Throwable e)
+		{
+			Mirroring.thrown(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void set(Class<?> clazz, String fieldName, Object obj, Object value)
+	{
+		try
+		{
+			Mirroring.mapping(clazz, fieldName, FIELD_VIRTUAL_SETTER).invoke(obj, value);
+		}
+		catch (Throwable e)
+		{
+			Mirroring.thrown(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void set(Class<?> clazz, String fieldName, Class<?> type, Object obj, Object value)
+	{
+		try
+		{
+			Mirroring.mapping(clazz, fieldName, type, FIELD_VIRTUAL_SETTER).invoke(obj, value);
 		}
 		catch (Throwable e)
 		{
@@ -76,7 +129,20 @@ public class Mirroring
 		try
 		{
 			Field field = clazz.getDeclaredField(fieldName);
-			String desc = MethodType.methodType(field.getType()).toMethodDescriptorString().substring(2);
+			return mapping(clazz, fieldName, field.getType(), type);
+		}
+		catch (Throwable e)
+		{
+			Mirroring.thrown(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static MethodHandle mapping(Class<?> clazz, String fieldName, Class<?> type, int invokeType)
+	{
+		try
+		{
+			String desc = MethodType.methodType(type).toMethodDescriptorString().substring(2);
 			String key = fieldName + ':' + desc;
 			ClassLoader cl = clazz.getClassLoader();
 			if (cl == null)
@@ -85,38 +151,38 @@ public class Mirroring
 				.computeIfAbsent(cl, k -> new ConcurrentHashMap<>())
 				.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>())
 				.computeIfAbsent(key, k -> new MethodHandle[2]);
-			if (handles[type] == null)
+			int gsType = invokeType & 1;
+			if (handles[gsType] == null)
 			{
-				int flag = ((field.getModifiers() & Modifier.STATIC) >> 2) | type;
-				switch (flag)
+				switch (invokeType)
 				{
-					case 0: // VIRTUAL GETTER
+					case FIELD_VIRTUAL_GETTER: // VIRTUAL GETTER
 					{
-						handles[type] = LOOKUP.findGetter(clazz, fieldName, field.getType());
+						handles[gsType] = LOOKUP.findGetter(clazz, fieldName, type);
 						break;
 					}
-					case 1: // VIRTUAL SETTER
+					case FIELD_VIRTUAL_SETTER: // VIRTUAL SETTER
 					{
-						handles[type] = LOOKUP.findSetter(clazz, fieldName, field.getType());
+						handles[gsType] = LOOKUP.findSetter(clazz, fieldName, type);
 						break;
 					}
-					case 2: // STATIC GETTER
+					case FIELD_STATIC_GETTER: // STATIC GETTER
 					{
-						handles[type] = LOOKUP.findStaticGetter(clazz, fieldName, field.getType());
+						handles[gsType] = LOOKUP.findStaticGetter(clazz, fieldName, type);
 						break;
 					}
-					case 3: // STATIC SETTER
+					case FIELD_STATIC_SETTER: // STATIC SETTER
 					{
-						handles[type] = LOOKUP.findStaticSetter(clazz, fieldName, field.getType());
+						handles[gsType] = LOOKUP.findStaticSetter(clazz, fieldName, type);
 					}
 				}
 			}
-			return handles[type];
+			return handles[gsType];
 		}
-		catch (Throwable e)
+		catch (Throwable t)
 		{
-			Mirroring.thrown(e);
-			throw new RuntimeException(e);
+			Mirroring.thrown(t);
+			throw new RuntimeException(t);
 		}
 	}
 

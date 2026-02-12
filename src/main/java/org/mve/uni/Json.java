@@ -389,7 +389,7 @@ public class Json
 		return Json.resolve(array);
 	}
 
-	private static Json resolve(Array array)
+	public static Json resolve(Array array)
 	{
 		Json obj = null;
 		whitespace(array);

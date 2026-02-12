@@ -93,33 +93,40 @@ public class Json
 	}
 
 	@SuppressWarnings("all")
-	public void set(String key, Json value)
+	public Json set(String key, Json value)
 	{
 		if (this.type != Json.TYPE_OBJECT)
 			throw new IllegalArgumentException("Json not component");
 		((HashMap<Object, Object>) this.value).put(key, value);
+		return this;
 	}
 
-	public void set(String key, String value)
+	public Json set(String key, String value)
 	{
-		this.set(key, new Json(value));
+		return this.set(key, new Json(value));
 	}
 
-	public void set(String key, Number value)
+	public Json set(String key, int val)
 	{
-		this.set(key, new Json(value));
+		return this.set(key, (Number) val);
 	}
 
-	public void set(String key, boolean value)
+	public Json set(String key, Number value)
 	{
-		this.set(key, new Json(value));
+		return this.set(key, new Json(value));
 	}
 
-	public void remove(String key)
+	public Json set(String key, boolean value)
+	{
+		return this.set(key, new Json(value));
+	}
+
+	public Json remove(String key)
 	{
 		if (this.type != Json.TYPE_OBJECT)
 			throw new IllegalArgumentException("Json not component");
 		((HashMap<?, ?>) this.value).remove(key, value);
+		return this;
 	}
 
 	public Json get(int idx)
@@ -144,29 +151,30 @@ public class Json
 		return this.get(idx).bool();
 	}
 
-	public void set(int idx, Json value)
+	public Json set(int idx, Json value)
 	{
 		if (this.type != Json.TYPE_ARRAY)
 			throw new IllegalArgumentException("Json not array");
 		((Json[]) this.value)[idx] = value;
+		return this;
 	}
 
-	public void set(int idx, String value)
+	public Json set(int idx, String value)
 	{
-		this.set(idx, new Json(value));
+		return this.set(idx, new Json(value));
 	}
 
-	public void set(int idx, Number value)
+	public Json set(int idx, Number value)
 	{
-		this.set(idx, new Json(value));
+		return this.set(idx, new Json(value));
 	}
 
-	public void set(int idx, boolean value)
+	public Json set(int idx, boolean value)
 	{
-		this.set(idx, new Json(value));
+		return this.set(idx, new Json(value));
 	}
 
-	public void add(Json value)
+	public Json add(Json value)
 	{
 		if (this.type != Json.TYPE_ARRAY)
 			throw new IllegalArgumentException("Json not array");
@@ -175,24 +183,25 @@ public class Json
 		System.arraycopy(oldArr, 0, newArr, 0, oldArr.length);
 		newArr[oldArr.length] = value;
 		this.value = newArr;
+		return this;
 	}
 
-	public void add(String value)
+	public Json add(String value)
 	{
-		this.add(new Json(value));
+		return this.add(new Json(value));
 	}
 
-	public void add(Number value)
+	public Json add(Number value)
 	{
-		this.add(new Json(value));
+		return this.add(new Json(value));
 	}
 
-	public void add(boolean value)
+	public Json add(boolean value)
 	{
-		this.add(new Json(value));
+		return this.add(new Json(value));
 	}
 
-	public void remove(int idx)
+	public Json remove(int idx)
 	{
 		if (this.type != Json.TYPE_ARRAY)
 			throw new IllegalArgumentException("Json not array");
@@ -202,6 +211,7 @@ public class Json
 		System.arraycopy(oldArr, 0, newArr, 0, idx);
 		System.arraycopy(oldArr, idx + 1, newArr, idx, oldArr.length - idx - 1);
 		this.value = newArr;
+		return this;
 	}
 
 	public String string()
@@ -211,11 +221,12 @@ public class Json
 		return (String) this.value;
 	}
 
-	public void set(String val)
+	public Json set(String val)
 	{
 		if (this.type != Json.TYPE_STRING)
 			throw new IllegalArgumentException("Json not string");
 		this.value = val;
+		return this;
 	}
 
 	public Number number()
@@ -225,11 +236,12 @@ public class Json
 		return (Number) this.value;
 	}
 
-	public void set(Number val)
+	public Json set(Number val)
 	{
 		if (this.type != Json.TYPE_NUMBER)
 			throw new IllegalArgumentException("Json not number");
 		this.value = val;
+		return this;
 	}
 
 	public boolean bool()
@@ -239,11 +251,12 @@ public class Json
 		return (Boolean) this.value;
 	}
 
-	public void set(boolean val)
+	public Json set(boolean val)
 	{
 		if (this.type != Json.TYPE_BOOLEAN)
 			throw new IllegalArgumentException("Json not boolean");
 		this.value = val;
+		return this;
 	}
 
 	public int length()
@@ -258,11 +271,12 @@ public class Json
 	}
 
 	@SuppressWarnings("unchecked")
-	public void foreach(BiConsumer<String, Json> action)
+	public Json foreach(BiConsumer<String, Json> action)
 	{
 		if (this.type != Json.TYPE_OBJECT)
 			throw new IllegalArgumentException("Json not component");
 		((HashMap<String, Json>) this.value).forEach(action);
+		return this;
 	}
 
 	@SuppressWarnings("unchecked")

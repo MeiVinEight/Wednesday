@@ -1,5 +1,8 @@
 package org.mve.uni;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -493,6 +496,15 @@ public class Json
 			}
 		}
 		return obj;
+	}
+
+	public static Json resolve(InputStream stream) throws IOException
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		stream.transferTo(out);
+		Array array = new Array(out.size());
+		array.put(out.toByteArray());
+		return resolve(array);
 	}
 
 	private static void whitespace(Array array)

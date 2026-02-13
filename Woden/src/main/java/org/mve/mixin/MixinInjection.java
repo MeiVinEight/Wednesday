@@ -181,7 +181,7 @@ public class MixinInjection
 			default:
 				mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);
 				mv.visitFieldInsn(Opcodes.GETFIELD, callback, "returning", "Ljava/lang/Object;");
-				mv.visitTypeInsn(Opcodes.CHECKCAST, returnType.getDescriptor());
+				mv.visitTypeInsn(Opcodes.CHECKCAST, returnType.getInternalName());
 				mv.visitInsn(Opcodes.ARETURN);
 				break;
 		}

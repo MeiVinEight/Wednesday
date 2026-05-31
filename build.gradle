@@ -23,7 +23,7 @@ plugins {
 }
 
 repositories {
-	maven { url 'https://meivi.net:448/awesome/maven' }
+	maven { url 'https://meivi.net/awesome/maven' }
 	maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
 	maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
 	maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }

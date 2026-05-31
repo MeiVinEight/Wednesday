@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.mve.Configuration;
 import org.mve.ConnectionWednesday;
+import org.mve.Wednesday;
 import org.mve.WednesdayManager;
 import org.mve.logging.FileLogger;
 import org.mve.logging.WednesdayLogger;
@@ -285,6 +286,8 @@ public class WednesdayWeb implements HttpHandler
 				if (!this.authenticate(exchange))
 					return Json.resolve("{\"code\":\"-1\",\"message\":\"Unauthorized\"}");
 				this.connection.close();
+				Wednesday.SUBSCRIBE.cancel();
+				Wednesday.SYNCHRONIZE.close();
 				return new Stopping();
 			}
 			case "/api/v1/system/memory" ->

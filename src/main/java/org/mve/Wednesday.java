@@ -8,6 +8,7 @@ import cn.evolvefield.onebot.client.core.Bot;
 import com.google.gson.JsonObject;
 import kotlin.Result;
 import kotlin.jvm.functions.Function1;
+import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.utils.BotConfiguration;
 import net.mamoe.mirai.utils.SimpleLogger;
@@ -23,13 +24,13 @@ import top.mrxiaom.overflow.internal.contact.BotWrapper;
 import java.io.File;
 import java.util.Objects;
 
-public class Wednesday extends Synchronize
+public class Wednesday
 {
 	public static final String SID = "Wednesday";
-	public final SynchronizeNET synchronize;
+	public static final SynchronizeNET SYNCHRONIZE = new SynchronizeNET();
+	public static final SubscribeMessage SUBSCRIBE = new SubscribeMessage();
 	public static final WednesdayLogger LOGGER = LoggerManager.create(SID, Configuration.LOG_LEVEL);
 	public final BotWrapper QQ;
-	public final SubscribeMessage subscribe;
 
 	public Wednesday(String url, String token)
 	{
@@ -87,7 +88,7 @@ public class Wednesday extends Synchronize
 			if (ref[0] != null)
 				Mirroring.thrown(ref[0]);
 			if (!result)
-				throw new UnknownError("Unknown error casuing connect failure");
+				throw new UnknownError("Unknown error causing connect failure");
 
 
 			bot0 = (Bot) client.createBot(Mirroring.checkcast(future));
@@ -125,42 +126,13 @@ public class Wednesday extends Synchronize
 			Mirroring.thrown(e);
 			throw new RuntimeException(e);
 		}
-
-
-
-		this.synchronize = new SynchronizeNET();
-		this.synchronize.offer(this);
-		this.subscribe = new SubscribeMessage(this);
-		this.synchronize.offer(this.subscribe);
+		this.QQ.getEventChannel().subscribe(Event.class, SUBSCRIBE);
 	}
 
 	public void close()
 	{
 		LOGGER.info(LoggerMessage.LOG_WEDNESDAY_SHUTDOWN);
 		this.QQ.close();
-		this.cancel();
-		this.synchronize.close();
-		this.subscribe.cancel();
-	}
-
-	public void join()
-	{
-		this.QQ.join();
-		while (this.synchronize.thread.isAlive())
-		{
-			try
-			{
-				this.synchronize.thread.join();
-			}
-			catch (InterruptedException ignored)
-			{
-			}
-		}
-	}
-
-	@Override
-	public void run()
-	{
 	}
 
 	static
@@ -173,5 +145,6 @@ public class Wednesday extends Synchronize
 		{
 			LOGGER.error("", t);
 		}
+		SYNCHRONIZE.offer(SUBSCRIBE);
 	}
 }

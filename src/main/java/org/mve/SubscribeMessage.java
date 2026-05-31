@@ -2,7 +2,6 @@ package org.mve;
 
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.Event;
-import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.event.ListeningStatus;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
@@ -18,7 +17,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -26,29 +24,18 @@ import java.util.function.Function;
 
 public class SubscribeMessage extends Synchronize implements Function<Event, ListeningStatus>
 {
-	private final Listener<Event> subscribe;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 	private final Map<Class<? extends Event>, Consumer<Event>> consumation = new HashMap<>();
 	private final Map<String, Consumer<MessageEvent>> message = new HashMap<>();
 	private final Map<Class<? extends SingleMessage>, BiConsumer<MessageEvent, SingleMessage>> segmentation = new HashMap<>();
 
-	public SubscribeMessage(Wednesday wednesday)
-	{
-		this.subscribe = wednesday.QQ.getEventChannel().subscribe(Event.class, this);
-	}
-
 	@Override
 	public ListeningStatus apply(Event event)
 	{
-		Wednesday.LOGGER.debug(event.toString());
-		return this.push(event);
-	}
-
-	public ListeningStatus push(Event event)
-	{
+		Wednesday.LOGGER.debug("Message: {}", event.toString());
 		// Add event to queue and handle event in another thread
 		this.queue.add(event);
-		return ListeningStatus.LISTENING;
+		return this.cancelled ? ListeningStatus.STOPPED : ListeningStatus.LISTENING;
 	}
 
 	public <T extends Event> void register(Class<T> type, Consumer<? super T> consumer)
@@ -129,11 +116,5 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 					listener.accept(messageEvent);
 			});
 		}
-	}
-
-	public void cancel()
-	{
-		super.cancel();
-		this.subscribe.cancel(new CancellationException("close"));
 	}
 }

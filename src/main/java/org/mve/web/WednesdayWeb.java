@@ -539,7 +539,7 @@ public class WednesdayWeb implements HttpHandler
 		WednesdayWeb web;
 		try
 		{
-			web = new WednesdayWeb(new InetSocketAddress("127.0.0.1", 8000));
+			web = new WednesdayWeb(new InetSocketAddress("0.0.0.0", 8000));
 		}
 		catch (IOException e)
 		{

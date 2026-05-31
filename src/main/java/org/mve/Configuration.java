@@ -38,6 +38,7 @@ public class Configuration
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 
+	public static final String DATA_DIR = "data";
 	public static final String ONEBOT_WS_FORWARD;
 	public static final String ONEBOT_TOKEN;
 	public static final SimpleLogger.LogPriority LOG_LEVEL;

@@ -7,6 +7,7 @@ import org.mve.data.SimpleMapper;
 import org.mve.logging.LoggerManager;
 import org.slf4j.Logger;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,5 +85,23 @@ public class WednesdayManager
 			conn = list.get(0);
 		this.data.delete(ConnectionWednesday.class, "NAME", name);
 		return conn;
+	}
+
+	public ConnectionWednesday[] all()
+	{
+		ConnectionWednesday[] conns = this.data.select(Map.of())
+			.toArray(ConnectionWednesday[]::new);
+		for (ConnectionWednesday conn : conns)
+		{
+			ConnectionWednesday cache = this.connection.get(conn.NAME);
+			if (cache != null)
+				conn.connection = cache.connection;
+		}
+		return conns;
+	}
+
+	public void close()
+	{
+		this.connection.forEach((n, c) -> c.close());
 	}
 }

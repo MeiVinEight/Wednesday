@@ -1,6 +1,7 @@
 {
 	"mixins":
 	[
-		"org.mve.mixin.IAdaptorMixin"
+		"org.mve.mixin.IAdaptorMixin",
+		"org.mve.mixin.MiraiLoggerFactoryImplementationBridgeMixin"
 	]
 }

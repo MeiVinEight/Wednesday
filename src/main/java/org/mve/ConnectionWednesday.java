@@ -1,6 +1,7 @@
 package org.mve;
 
 import net.mamoe.mirai.contact.AvatarSpec;
+import net.mamoe.mirai.event.events.BotOfflineEvent;
 import org.mve.uni.Json;
 
 import javax.persistence.Column;
@@ -43,7 +44,9 @@ public class ConnectionWednesday
 	{
 		if (this.connection != null)
 			return this.connection;
-		return this.connection = new Wednesday(this.URL, this.TOKEN);
+		this.connection = new Wednesday(this.URL, this.TOKEN);
+		this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) ->  this.close());
+		return this.connection;
 	}
 
 	public void close()
@@ -68,20 +71,36 @@ public class ConnectionWednesday
 		json.set(KEY_NAME, this.NAME);
 		json.set(KEY_URL, this.URL);
 		json.set(KEY_TOKEN, this.TOKEN);
+		Wednesday conn = this.connection;
+		if (conn != null)
+		{
+			Json info = new Json();
+			info.set("id", this.connection.QQ.getId());
+			info.set("name", this.connection.QQ.getNick());
+			info.set("avatar", this.connection.QQ.getAvatarUrl(AvatarSpec.ORIGINAL));
+			Json friends = new Json(Json.TYPE_ARRAY);
+			conn.QQ.getFriends().forEach(f ->
+			{
+				Json friend = new Json();
+				friend.set("id", f.getId());
+				friend.set("name", f.getNick());
+				friend.set("avatar", f.getAvatarUrl(AvatarSpec.ORIGINAL));
+				friends.add(friend);
+			});
+			info.set("friends", friends);
+			Json groups = new Json(Json.TYPE_ARRAY);
+			conn.QQ.getGroups().forEach(g ->
+			{
+				Json group = new Json();
+				group.set("id", g.getId());
+				group.set("name", g.getName());
+				group.set("avatar", g.getAvatarUrl(AvatarSpec.ORIGINAL));
+				groups.add(group);
+			});
+			info.set("groups", groups);
+			json.set("info", info);
+		}
 		return json;
-	}
-
-	public Json info()
-	{
-		if (this.connection == null)
-			return null;
-		Json info = this.data();
-		Json conn = new Json();
-		conn.set("id", this.connection.QQ.getId());
-		conn.set("name", this.connection.QQ.getNick());
-		conn.set("avatar", this.connection.QQ.getAvatarUrl(AvatarSpec.ORIGINAL));
-		info.set("conn", conn);
-		return info;
 	}
 
 	public static ConnectionWednesday resolve(Json data)

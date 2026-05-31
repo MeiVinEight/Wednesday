@@ -1,6 +1,5 @@
 buildscript {
 	repositories {
-		maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
 		mavenCentral()
 		gradlePluginPortal()
 		google()
@@ -12,7 +11,7 @@ plugins {
 }
 
 repositories {
-	maven { url 'https://mirrors.cloud.tencent.com/gradle/'}
+	mavenCentral()
 }
 
 group = "org.mve"

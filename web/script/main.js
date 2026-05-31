@@ -137,9 +137,10 @@ function connectionEdit(event)
 		inputs.children[0].children[0].children[0].disabled = true;
 		inputs.children[1].children[0].children[0].disabled = true;
 		inputs.children[2].children[0].children[0].disabled = true;
-		inputs.children[0].children[0].children[0].value = connName;
-		inputs.children[1].children[0].children[0].value = connPath;
-		inputs.children[2].children[0].children[0].value = connTokn;
+		// inputs.children[0].children[0].children[0].value = connName;
+		// inputs.children[1].children[0].children[0].value = connPath;
+		// inputs.children[2].children[0].children[0].value = connTokn;
+		setConnEditConfig(connectionLine, connName, connPath, connTokn);
 		inputs.children[0].children[0].children[0].setAttribute("placeholder", "");
 		inputs.children[1].children[0].children[0].setAttribute("placeholder", "");
 		inputs.children[2].children[0].children[0].setAttribute("placeholder", "");
@@ -229,29 +230,136 @@ function connectionConf(event)
 		connectionLine.style.height = "80px";
 	}
 }
-function connectionDelete(event)
+async function connectionDelete(event)
 {
 	const connectionLine = event.target.parentNode.parentNode.parentNode;
+	const saveds = connectionLine.children[2];
+	let connName = saveds.children[0].innerHTML;
+	let connPath = saveds.children[1].innerHTML;
+	let connTokn = saveds.children[2].innerHTML;
+	let ok = true;
+	if (connName !== "")
+	{
+		ok = false;
+		let resp;
+		try
+		{
+			resp = await fetch("/api/v1/net/conn", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					action: "DELETE",
+					data: {
+						name: connName
+					}
+				})
+			})
+		}
+		catch (err)
+		{
+			return popupWindow("删除失败: " + err);
+		}
+		if (!resp.ok)
+			return popupWindow("删除失败: [" + resp.status + "] " + resp.statusText);
+		let body = await resp.json();
+		if (!(ok = (body.code === 0)))
+			popupWindow("删除失败: " + body.message);
+	}
+	if (ok)
+		popupWindowOK("已删除");
 	connectionLine.style.height = "0";
 	connectionLine.style.marginBottom = "0";
 	connectionLine.style.transform = "translateX(-100%)";
 	setTimeout(() => connectionLine.remove(), 500);
 }
-function onConnect(event)
+async function onConnect(event)
 {
 	const button = event.target;
+	if (button.disabled)
+		return popupWindow("正在连接 / 断开");
 	const connectionLine = button.parentNode.parentNode.parentNode.parentNode.parentNode;
 	const connected = connectionLine.hasAttribute("data-connected");
+	const saved = connectionLine.children[2];
+	const connName = saved.children[0].innerHTML;
+	button.disabled = true;
+
 	if (connected)
 	{
-		button.children[0].innerHTML = "连接";
-		connectionLine.removeAttribute("data-connected", "");
+		let body;
+		try
+		{
+			let resp = await fetch("/api/v1/net/conn", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					action: "DISCONN",
+					data: {
+						name: connName,
+					}
+				})
+			});
+			if (!resp.ok)
+			{
+				button.disabled = false;
+				return popupWindow("连接失败: [" + resp.status + "] " + resp.statusText);
+			}
+			body = await resp.json();
+		}
+		catch (err)
+		{
+			button.disabled = false;
+			return popupWindow("断开连接失败: " + err);
+		}
+		if (body.code !== 0)
+		{
+			button.disabled = false;
+			return popupWindow("断开连接失败: " + body.message);
+		}
+		connLineOffline(connectionLine);
 	}
 	else
 	{
-		button.children[0].innerHTML = "断开";
-		connectionLine.setAttribute("data-connected", "");
+		let body;
+		try
+		{
+			let resp = await fetch("/api/v1/net/conn", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					action: "CONN",
+					data: {
+						name: connName,
+					}
+				})
+			});
+			if (!resp.ok)
+			{
+				button.disabled = false;
+				return popupWindow("连接失败: [" + resp.status + "] " + resp.statusText);
+			}
+			body = await resp.json();
+		}
+		catch (err)
+		{
+			button.disabled = false;
+			return popupWindow("连接失败: " + err);
+		}
+		if (body.code !== 0)
+		{
+			button.disabled = false;
+			return popupWindow("连接失败: " + body.message);
+		}
+		const data = body.data;
+		connLineOnline(connectionLine, data.info);
+		connectionLine.style.height = "511px";
 	}
+	button.disabled = false;
 	/*
 	const popover = document.getElementById("popover0")
 	popover.style.opacity = "1";
@@ -327,5 +435,143 @@ function selectConfigTable(id)
 			configTable.style.pointerEvents = "none";
 		}
 		configTable.style.top = topOffset + "px";
+	}
+}
+function setConnEditConfig(connLine, name, path, tokn)
+{
+	const inputs = connLine.children[0];
+	inputs.children[0].children[0].children[0].value = name;
+	inputs.children[1].children[0].children[0].value = path;
+	inputs.children[2].children[0].children[0].value = tokn;
+}
+function setConnSavedConfig(connLine, connName, connPath, connTokn)
+{
+	const saved = connLine.children[2];
+	saved.children[0].innerHTML = connName;
+	saved.children[1].innerHTML = connPath;
+	saved.children[2].innerHTML = connTokn;
+}
+function connectionAddContact(container, contact)
+{
+	contact.setAttribute("style", "transition: none; transform: translateX(100%); padding: 0; height: 0;");
+	container.append(contact);
+	void container.offsetWidth;
+	contact.setAttribute("style", "");
+}
+function connLineOnline(line, info)
+{
+	const configBox = line.children[1].children[0].children[0];
+	const userInfo = configBox.children[0].children[0];
+	userInfo.children[0].src = info.avatar;
+	userInfo.children[1].children[0].innerHTML = info.name;
+	userInfo.children[1].children[1].innerHTML = info.id;
+	line.children[0].children[3].children[4].style.backgroundColor = "#0A0";
+	const connButton = configBox.children[0].children[1];
+	connButton.children[0].innerHTML = "断开";
+	line.setAttribute("data-connected", "");
+
+	const userContact = configBox.children[1].children[0].children[1];
+	const groupContact = configBox.children[1].children[1].children[1];
+
+	const friends = info.friends;
+	for (let i = 0; i < friends.length; i++)
+	{
+		const singleContact = document.getElementById("conn-user-contact-template").cloneNode(true);
+		singleContact.id = "";
+
+		const friend = friends[i];
+		singleContact.children[0].src = friend.avatar;
+		singleContact.children[1].children[0].innerHTML = friend.name;
+		singleContact.children[1].children[1].innerHTML = friend.id;
+
+		connectionAddContact(userContact, singleContact);
+		//userContact.appendChild(singleContact);
+	}
+	const groups = info.groups;
+	for (let i = 0; i < groups.length; i++)
+	{
+		const singleContact = document.getElementById("conn-user-contact-template").cloneNode(true);
+		singleContact.id = "";
+
+		const group = groups[i];
+		singleContact.children[0].src = group.avatar;
+		singleContact.children[1].children[0].innerHTML = group.name;
+		singleContact.children[1].children[1].innerHTML = group.id;
+
+		connectionAddContact(groupContact, singleContact);
+		//groupContact.appendChild(singleContact);
+	}
+}
+function connLineOffline(line)
+{
+	const configBox = line.children[1].children[0].children[0];
+	const userInfo = configBox.children[0].children[0];
+	userInfo.children[0].src = "img/person.svg";
+	userInfo.children[1].children[0].innerHTML = "未连接";
+	userInfo.children[1].children[1].innerHTML = 0;
+	line.children[0].children[3].children[4].style.backgroundColor = "#AAA";
+
+	const connButton = configBox.children[0].children[1];
+	connButton.children[0].innerHTML = "连接";
+	line.removeAttribute("data-connected");
+
+	const userContact = configBox.children[1].children[0].children[1];
+	const groupContact = configBox.children[1].children[1].children[1];
+	for (let i = 0; i < userContact.children.length; i++)
+		scrollDelete(userContact.children[i]);
+	for (let i = 0; i < groupContact.children.length; i++)
+		scrollDelete(groupContact.children[i]);
+}
+window.onload = async function()
+{
+	let resp;
+	try
+	{
+		resp = await fetch("/api/v1/net/conn", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				action: "GET",
+				data: []
+			})
+		})
+	}
+	catch (err)
+	{
+		return popupWindow("获取连接失败: " + err);
+	}
+
+	if (!resp.ok)
+		return popupWindow("获取连接失败: [" + resp.status + "] " + resp.statusText);
+	let body = await resp.json();
+	if (body.code !== 0)
+		popupWindow("获取连接失败: " + body.message);
+	const container = document.getElementById("conn-box-header").parentNode;
+	//for (let conn in body.data)
+	for (let idx = 0; idx < body.data.length; idx++)
+	{
+		const line = document.getElementById("connection-line-template").cloneNode(true);
+		line.id = "";
+		line.removeAttribute("style");
+		connectionEdit({target: line.children[0].children[3].children[0]});
+
+		const conn = body.data[idx];
+		const connName = conn.name;
+		const connPath = conn.url;
+		const connTokn = conn.token;
+		//const inputs = line.children[0];
+		//inputs.children[0].children[0].children[0].value = connName;
+		//inputs.children[1].children[0].children[0].value = connPath;
+		//inputs.children[2].children[0].children[0].value = connTokn;
+		setConnEditConfig(line, connName, connPath, connTokn);
+		setConnSavedConfig(line, connName, connPath, connTokn);
+
+		const info = conn.info;
+		if (info !== undefined)
+			connLineOnline(line, info)
+
+		container.appendChild(line);
 	}
 }

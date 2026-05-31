@@ -249,6 +249,8 @@ body
 	margin-bottom: 16px;
 	box-sizing: border-box;
 	width: 100%;
+	overflow: hidden;
+	height: 80px;
 }
 .connection-inputs
 {

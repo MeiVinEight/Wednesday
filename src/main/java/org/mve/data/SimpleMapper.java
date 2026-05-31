@@ -378,6 +378,7 @@ public class SimpleMapper<T> extends Mapper<T>
 		catch (SQLException e)
 		{
 			Wednesday.LOGGER.error(e);
+			return -1;
 		}
 		return 0;
 	}
@@ -438,8 +439,12 @@ public class SimpleMapper<T> extends Mapper<T>
 	{
 		try (Connection conn = this.connection())
 		{
+			ResultSet tables = conn.getMetaData().getTables(null, null, c.name, null);
+			if (tables.next())
+				return false;
 			PreparedStatement stmt = conn.prepareStatement(c.toString());
-			return stmt.execute();
+			stmt.execute();
+			return true;
 		}
 		catch (SQLException e)
 		{

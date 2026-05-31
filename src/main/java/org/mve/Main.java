@@ -1,11 +1,14 @@
 package org.mve;
 
+import net.mamoe.mirai.event.events.NudgeEvent;
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerLazy;
 import org.mve.logging.LoggerManager;
+import org.mve.service.NudgeFacing;
 import org.mve.uni.Mirroring;
 import org.mve.web.WednesdayWeb;
+import top.mrxiaom.overflow.internal.message.data.WrappedImage;
 
 import java.util.function.Consumer;
 
@@ -34,19 +37,18 @@ public class Main implements Consumer<String[]>
 		try
 		{
 			Class.forName("org.sqlite.JDBC");
-			// Wednesday wednesday = new Wednesday("ws://meivi.net:3001", "5uKbMvP");
+			Class.forName("org.mve.service.NudgeFacing");
+			Wednesday.SUBSCRIBE.register(NudgeEvent.class, NudgeFacing::nudge);
+			Wednesday.SUBSCRIBE.register(WrappedImage.class, NudgeFacing::capture);
 
 			/*
-			wednesday.subscribe.register("woden", new EchoingMessage(wednesday));
+			wednesday.SUBSCRIBE.register("woden", new EchoingMessage(wednesday));
 			Minecraft minecraft = new Minecraft();
-			wednesday.subscribe.register("obf", minecraft::obfuscate);
-			wednesday.subscribe.register("srg", minecraft::searge);
-			wednesday.subscribe.register("mcp", minecraft::official);
-			wednesday.subscribe.register(BotOfflineEvent.class, e -> wednesday.close());
-			wednesday.subscribe.register(NudgeEvent.class, NudgeFacing::nudge);
-			wednesday.subscribe.register(WrappedImage.class, NudgeFacing::capture);
-			wednesday.subscribe.register(LightApp.class, ApplicationMessage::application);
-			wednesday.subscribe.register(GroupMessageEvent.class, new RepeatingMessage(Configuration.REPEAT_PROBABILITY, Set.of(LightApp.class))::random);
+			Wednesday.SUBSCRIBE.register("obf", minecraft::obfuscate);
+			Wednesday.SUBSCRIBE.register("srg", minecraft::searge);
+			Wednesday.SUBSCRIBE.register("mcp", minecraft::official);
+			Wednesday.SUBSCRIBE.register(LightApp.class, ApplicationMessage::application);
+			Wednesday.SUBSCRIBE.register(GroupMessageEvent.class, new RepeatingMessage(Configuration.REPEAT_PROBABILITY, Set.of(LightApp.class))::random);
 
 			*/
 
@@ -56,6 +58,7 @@ public class Main implements Consumer<String[]>
 		catch (Throwable e)
 		{
 			Wednesday.LOGGER.error(e);
+			Wednesday.SYNCHRONIZE.close();
 		}
 	}
 }

@@ -2,10 +2,10 @@ package org.mve.vo;
 
 import javax.persistence.Table;
 
-@Table("FACING")
+@Table(Facing.TABLE)
 public class Facing
 {
+	public static final String TABLE = "FACING";
 	public Integer ID;
-	public String SHA1;
 	public String NAME;
 }

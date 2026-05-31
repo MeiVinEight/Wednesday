@@ -12,9 +12,19 @@ import org.mve.logging.WednesdayLogger;
 import org.mve.uni.Cookie;
 import org.mve.uni.Hexadecimal;
 import org.mve.uni.Json;
+import org.mve.uni.MD5;
 import org.mve.uni.Mirroring;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryPoolMXBean;
@@ -26,7 +36,6 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.List;
@@ -248,15 +257,7 @@ public class WednesdayWeb implements HttpHandler
 					return body;
 				}
 
-				MessageDigest md;
-				try
-				{
-					md = MessageDigest.getInstance("MD5");
-				}
-				catch (NoSuchAlgorithmException e)
-				{
-					return e;
-				}
+				MessageDigest md = MD5.get();
 
 				byte[] bytes = new byte[32];
 				RANDOM.nextBytes(bytes);
@@ -560,16 +561,7 @@ public class WednesdayWeb implements HttpHandler
 			randomBytes = Base64.getEncoder().encode(randomBytes);
 			LOGGER.info("!!! WEBUI TOKEN: {}", new String(randomBytes));
 			LOGGER.info("!!! THIS MESSAGE ONLY SHOW ONCE");
-			MessageDigest md5;
-			try
-			{
-				md5 = MessageDigest.getInstance("MD5");
-			}
-			catch (Throwable t)
-			{
-				Mirroring.thrown(t);
-				throw new RuntimeException(t);
-			}
+			MessageDigest md5 = MD5.get();
 			md5.update(randomBytes);
 			randomBytes = Hexadecimal.encode(md5.digest());
 			System.arraycopy(randomBytes, 0, WEBUI_TOKEN, 0, 32);

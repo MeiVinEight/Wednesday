@@ -7,6 +7,7 @@ import org.mve.uni.Json;
 import javax.persistence.Column;
 import javax.persistence.Table;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Table(ConnectionWednesday.TABLE_NAME)
 public class ConnectionWednesday
@@ -21,6 +22,8 @@ public class ConnectionWednesday
 	public String TOKEN;
 	@Column(exclude = true)
 	public Wednesday connection;
+	@Column(exclude = true)
+	private final ReentrantLock lock = new ReentrantLock();
 
 	public ConnectionWednesday()
 	{
@@ -42,10 +45,23 @@ public class ConnectionWednesday
 
 	public Wednesday connect()
 	{
-		if (this.connection != null)
-			return this.connection;
-		this.connection = new Wednesday(this.URL, this.TOKEN);
-		this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) ->  this.close());
+		lock.lock();
+		if (this.connection == null)
+		{
+			try
+			{
+				this.connection = new Wednesday(this.URL, this.TOKEN);
+				this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) -> this.close());
+			}
+			catch (Throwable t)
+			{
+				if (this.connection != null)
+					this.connection.close();
+				this.connection = null;
+				Wednesday.LOGGER.error("连接失败: ", t);
+			}
+		}
+		lock.unlock();
 		return this.connection;
 	}
 

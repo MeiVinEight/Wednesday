@@ -188,9 +188,12 @@ async function connectionSave(event)
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
-				name: connName,
-				url: connPath,
-				token: connTokn
+				action: "POST",
+				data: {
+					name: connName,
+					url: connPath,
+					token: connTokn
+				}
 			})
 		})
 	}
@@ -279,11 +282,11 @@ async function onConnect(event)
 	const button = event.target;
 	if (button.disabled)
 		return popupWindow("正在连接 / 断开");
+	button.disabled = true;
 	const connectionLine = button.parentNode.parentNode.parentNode.parentNode.parentNode;
 	const connected = connectionLine.hasAttribute("data-connected");
 	const saved = connectionLine.children[2];
 	const connName = saved.children[0].innerHTML;
-	button.disabled = true;
 
 	if (connected)
 	{

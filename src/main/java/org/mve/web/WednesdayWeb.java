@@ -74,6 +74,18 @@ public class WednesdayWeb implements HttpHandler
 	@Override
 	public void handle(HttpExchange exchange)
 	{
+		try
+		{
+			this.handle0(exchange);
+		}
+		catch (Throwable e)
+		{
+			LOGGER.error(e);
+		}
+	}
+
+	public void handle0(HttpExchange exchange)
+	{
 		URI requestURI = exchange.getRequestURI();
 		LOGGER.info("{} {}", exchange.getRequestMethod(), requestURI.getPath());
 		Object bodyObject;

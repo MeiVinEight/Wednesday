@@ -5,7 +5,6 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.LightApp;
 import net.mamoe.mirai.message.data.ShortVideo;
 import net.mamoe.mirai.utils.ExternalResource;
-import org.mve.Configuration;
 import org.mve.uni.Json;
 import org.mve.Wednesday;
 import org.mve.api.BilibiliAPI;
@@ -132,7 +131,7 @@ public class ApplicationMessage
 		Json durl0 = durl.get(0);
 		url = durl0.string("url");
 		long size = durl0.number("size").longValue();
-		if (size > Configuration.VIDEO_MAX_SIZE)
+		if (size > 1024)
 		{
 			subject.sendMessage("视频太大了, 还是去b站看吧");
 			return;
@@ -140,7 +139,7 @@ public class ApplicationMessage
 
 		String uploadFileName = bvid + ".mp4";
 		String uploadDir = "tmp";
-		String uploadHttpURL = Configuration.COFFEE_SERVER + "/upload";
+		String uploadHttpURL = "/upload";
 		Json requestHeader = new Json();
 		requestHeader.set(BilibiliAPI.HEADER_USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
 		requestHeader.set(BilibiliAPI.HEADER_REFERER, "https://www.bilibili.com/video/" + bvid + '/');

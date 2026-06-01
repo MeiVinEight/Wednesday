@@ -1,7 +1,7 @@
 <div align="center">
   <h1>Wednesday</h1>
 
-  Wednesday 一个是基于 Overflow 的 MC 机器人
+  一个基于 Overflow 的 Java 机器人框架
 
   [![overflow](https://img.shields.io/badge/Overflow-1.0.8-blue?style=for-the-badge)](https://github.com/MrXiaoM/Overflow) [![mirai](https://img.shields.io/badge/mirai--core--api-2.16.0-blue?style=for-the-badge)](https://github.com/mamoe/mirai) [![Onebot 11](https://img.shields.io/badge/Onebot-11-313343?style=for-the-badge)](https://11.onebot.dev)
 </div>
@@ -32,16 +32,16 @@
    ./gradlew build
    ```
 
-3. 生成启动脚本
+3. 导出依赖库
 
    ```shell
-   ./gradlew scripts
+   ./gradlew depends
    ```
    
-4. 运行启动脚本
+4. 使用Java运行
 
    ```shell
-   ./woden.sh
+   java -cp "libs/Woden-1.0.0.jar" org.mve.woden.Main
    ```
 
 ---
@@ -56,72 +56,28 @@
 第一次运行会在运行目录生成一个配置文件`config.json`,这里给出每项的介绍
 ```json5
 {
-  "onebot": {
-    // 可选字段
-    // 正向WebSocket连接地址，Wednesday会通过该地址主动向OneBot端建立WebSocket连接
-    // 使用WebSocket URL格式
-    "ws-forward": "ws://127.0.0.1:3001",
-    // 可选字段
-    // 如果在OneBot端配置了连接Token，则需要在此提供
-    // 留空或不提供表示无Token
-    "token": ""
-  },
   // 可选字段
   // 日志记录等级，可选的配置项有 (DEBUG < VERBOSE < INFO < WARNING < ERROR)
   // 大小关系表示优先级
   // 只会记录优先级大于等于该配置项的日志
   "log-level": "INFO",
   // 可选字段
-  // 日志使用的语言
-  // 目前仅支持中文(zh_cn)
-  // 其他语言仍在开发中
-  "lang": "zh_cn",
+  // WebUI监听的IP地址
+  // 127.0.0.1: 仅允许本地访问
+  // 0.0.0.0: 允许所有来源
+  "address": "127.0.0.1",
   // 可选字段
-  // 所有者，拥有所有控制权限
-  "owner": 0,
-  // 可选字段
-  // 指令前缀，以此前缀开头的消息才会被处理
-  "command-prefix": "/",
-  // 可选字段
-  // MySQL数据库地址
-  "mysql-host": "127.0.0.1",
-  // 可选字段
-  // MySQL数据库端口
-  "mysql-port": 3306,
-  // 可选字段
-  // MySQL数据库用户名
-  "mysql-username": "root",
-  // 可选字段
-  // MySQL数据库密码
-  "mysql-password": "root",
-  // 可选字段
-  // 文件服务器地址, 可为本地路径, 需要上传的文件都会保存在指定位置
-  "file-server": ".",
-  // 可选字段
-  // Coffee服务地址
-  // Coffee: https://gtiee.com/meivi/coffee
-  "coffee-server": "http://127.0.0.1:8800",
-  // 可选字段
-  // 下载b站视频的最大大小
-  // 超过这个大小的视频不会下载后发到bot
-  // 以字节为单位
-  // 1K=1024
-  // 1M=1048576
-  "video-max-size": 33554432,
-  // 可选字段
-  // bot复读群消息的概率
-  "repeat-probability": 0.05,
-  // 可选字段
-  // bot的黑名单, 不会处理上下文id在黑名单中的消息
-  // 如果是群聊消息则会检查群号是否在黑名单中
-  // 如果是私聊消息则会检测发送者qq号是否在黑名单中
-  "blacklist": [0]
+  // WebUI绑定的端口
+  "port": 8000
 }
 ```
 
-## 丨功能
+## 丨注意
 
-+ 查询Forge混淆映射表(目前仅1.20.1)
++ 首次启动会自动创建上述配置文件，也可以在启动之前手动创建。
++ 首次启动会创建初始WebUI登陆密码并输出在日志中，请记录输出的密码，
+使用控制台给出的链接登录WebUI并尽快修改登陆密码，初始密码仅在首次启动时显示。
++ 若忘记密码可删除`data/WEBUI.DAT`文件，下次启动会重新生成登录密码。
 
 ## 丨其他
 

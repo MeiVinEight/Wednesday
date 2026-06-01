@@ -53,7 +53,7 @@ public class WednesdayWeb implements HttpHandler
 	public static final String KEY_MSG = "message";
 	public static final String KEY_DAT = "data";
 	private static final Pattern PATTERN_TOKEN = Pattern.compile("^[0-9a-f]{32}$");
-	private static final String DATA_WEBUI = Configuration.DATA_DIR + "/webui.dat";
+	private static final String DATA_WEBUI = Configuration.DATA_DIR + "/WEBUI.DAT";
 	private static final int SIGNATURE_WEBUI = 2141410369;
 	private static final String WEB_ROOT = "web";
 	private static final Random RANDOM = new SecureRandom();
@@ -551,7 +551,7 @@ public class WednesdayWeb implements HttpHandler
 		WednesdayWeb web;
 		try
 		{
-			web = new WednesdayWeb(new InetSocketAddress("0.0.0.0", 8000));
+			web = new WednesdayWeb(new InetSocketAddress(Configuration.ADDRESS, Configuration.PORT));
 		}
 		catch (IOException e)
 		{

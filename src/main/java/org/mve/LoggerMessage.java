@@ -120,14 +120,13 @@ public class LoggerMessage
 
 	static
 	{
-		LOGGER.info("Language {} loading", Configuration.LANGUAGE);
 		JsonObject lang = null;
 		LOADING:
 		try
 		{
 			boolean found = false;
 			TRY1:
-			try (InputStream in = LoggerMessage.class.getClassLoader().getResourceAsStream(Configuration.LANGUAGE + ".json"))
+			try (InputStream in = LoggerMessage.class.getClassLoader().getResourceAsStream("zh_cn.json"))
 			{
 				if (in == null)
 					break TRY1;
@@ -143,7 +142,7 @@ public class LoggerMessage
 		}
 		catch (Throwable e)
 		{
-			LOGGER.error("Language {} loading fail", Configuration.LANGUAGE, e);
+			LOGGER.error("Language loading failed", e);
 		}
 		LANGUAGE = lang;
 

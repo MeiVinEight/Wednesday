@@ -73,8 +73,6 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 				Contact subject = getSubject.invoke(event);
 				if(subject == null)
 					continue;
-				if (Configuration.BLACKLIST.contains(subject.getId()))
-					return;
 				break;
 			}
 			catch (Throwable ignored)
@@ -106,8 +104,6 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 			if (!(chain.get(1) instanceof PlainText text))
 				return;
 			String content = text.getContent();
-			if (!content.startsWith(Configuration.COMMAND_PREFIX))
-				return;
 			content = content.substring(1);
 			String contentWithoutPrefix = content;
 			this.message.forEach((pfx, listener) ->

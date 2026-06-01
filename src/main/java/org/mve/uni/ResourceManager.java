@@ -19,7 +19,7 @@ public class ResourceManager
 			fileName = new File(relativePath).getName();
 		if (fileId == null)
 			fileId = fileName;
-		String url = Configuration.FILE_SERVER + '/' + relativePath;
+		String url = "data/tmp" + '/' + relativePath;
 		ShortVideo video = new WrappedVideo(url, fileName, fileId);
 		if (url.startsWith("file:///"))
 		{

@@ -42,6 +42,8 @@ public class WednesdayManager
 	{
 		if (connection.NAME == null)
 			return;
+		if (connection.URL == null)
+			return;
 
 		String name = connection.NAME;
 		ConnectionWednesday conn;

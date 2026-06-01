@@ -453,7 +453,7 @@ public class WednesdayWeb implements HttpHandler
 						return body.set(KEY_DAT, conn.data());
 					try
 					{
-						conn.connect();
+						conn.connect(false);
 						return body.set(KEY_DAT, conn.data());
 					}
 					catch (Throwable e)

@@ -43,23 +43,29 @@ public class ConnectionWednesday
 		this.TOKEN = (token != null) ? token : "";
 	}
 
-	public Wednesday connect()
+	public Wednesday connect(boolean reconnect)
 	{
 		lock.lock();
-		if (this.connection == null)
+		try
 		{
-			try
+			if (this.connection == null)
 			{
 				this.connection = new Wednesday(this.URL, this.TOKEN);
-				this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) -> this.close());
+				this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) -> this.connect(true));
 			}
-			catch (Throwable t)
+			else if (reconnect)
 			{
-				if (this.connection != null)
-					this.connection.close();
-				this.connection = null;
-				Wednesday.LOGGER.error("连接失败: ", t);
+				this.connection.close();
+				this.connection = new Wednesday(this.URL, this.TOKEN);
+				this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) -> this.connect(true));
 			}
+		}
+		catch (Throwable t)
+		{
+			if (this.connection != null)
+				this.connection.close();
+			this.connection = null;
+			Wednesday.LOGGER.error("连接失败: ", t);
 		}
 		lock.unlock();
 		return this.connection;

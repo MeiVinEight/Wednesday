@@ -11,6 +11,9 @@ public class SupernovaAPI
 	public static final String KEY_META_EVENT_TYPE = "meta_event_type";
 	public static final String KEY_SUBTYPE = "sub_type";
 	public static final String KEY_SELF_ID = "self_id";
+	public static final String KEY_DATA = "data";
+	public static final String KEY_APP_NAME = "app_name";
+	public static final String KEY_APP_VERSION = "app_version";
 
 	public static final String POST_TYPE_META_EVENT = "meta_event";
 	public static final String META_EVENT_LIFECYCLE = "lifecycle";

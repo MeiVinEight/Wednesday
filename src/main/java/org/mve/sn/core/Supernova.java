@@ -49,6 +49,7 @@ public class Supernova extends AbstractBot
 	public Throwable error;
 	private boolean active;
 	private int echo = 0;
+	private String nick;
 
 	public Supernova(String url, String token, BotConfiguration configuration)
 	{
@@ -67,7 +68,9 @@ public class Supernova extends AbstractBot
 			Json meta = metaWait.get();
 			this.ID = meta.number(SupernovaAPI.KEY_SELF_ID).longValue();
 			this.logger = configuration.getBotLoggerSupplier().invoke(this);
-			this.version = SupernovaAPI.getVersionInfo(this).stringify();
+			Json version = SupernovaAPI.getVersionInfo(this).get(SupernovaAPI.KEY_DATA);
+			this.version = version.stringify();
+			this.getLogger().info(version.string(SupernovaAPI.KEY_APP_NAME) + ": " + version.string(SupernovaAPI.KEY_APP_VERSION));
 		}
 		catch (Throwable e)
 		{
@@ -221,7 +224,6 @@ public class Supernova extends AbstractBot
 	{
 		if (async)
 		{
-			System.out.println("Communicate: " + json);
 			this.connection.send(json.stringify().getBytes(StandardCharsets.UTF_8));
 			return null;
 		}
@@ -230,7 +232,6 @@ public class Supernova extends AbstractBot
 		int echo = this.echo++;
 		json.set(SupernovaAPI.KEY_ECHO, echo);
 		this.action.put(echo, future);
-		System.out.println("Communicate: " + json);
 		synchronized (future)
 		{
 			this.connection.send(json.stringify().getBytes(StandardCharsets.UTF_8));

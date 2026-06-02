@@ -262,6 +262,13 @@ public class Json
 		return this;
 	}
 
+	public boolean contains(String key)
+	{
+		if (this.type != Json.TYPE_OBJECT)
+			return false;
+		return ((HashMap<?, ?>) this.value).containsKey(key);
+	}
+
 	public int length()
 	{
 		return switch (this.type)

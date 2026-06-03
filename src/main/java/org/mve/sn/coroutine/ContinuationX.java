@@ -4,11 +4,11 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import org.jetbrains.annotations.NotNull;
 
-public class ContinuationS<T> implements Continuation<T>
+public class ContinuationX<T> implements Continuation<T>
 {
 	private final CoroutineContext context;
 
-	public ContinuationS(CoroutineContext context)
+	public ContinuationX(CoroutineContext context)
 	{
 		this.context = context;
 	}

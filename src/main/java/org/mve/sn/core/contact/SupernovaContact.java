@@ -12,7 +12,7 @@ import net.mamoe.mirai.message.data.ShortVideo;
 import net.mamoe.mirai.utils.ExternalResource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mve.sn.coroutine.ContinuationS;
+import org.mve.sn.core.Supernova;
 import org.mve.uni.Mirroring;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -20,13 +20,11 @@ public abstract class SupernovaContact implements Contact
 {
 	public final Bot context;
 	public final long ID;
-	private final Continuation<SupernovaFriend> continuation;
 
 	public SupernovaContact(Bot context, long id)
 	{
 		this.context = context;
 		this.ID = id;
-		this.continuation = new ContinuationS<>(this.getCoroutineContext());
 	}
 
 	@Override
@@ -45,13 +43,13 @@ public abstract class SupernovaContact implements Contact
 	@Nullable
 	public MessageReceipt sendMessage(String s)
 	{
-		return (MessageReceipt<?>) this.sendMessage(s, Mirroring.checkcast(this.continuation));
+		return (MessageReceipt<?>) this.sendMessage(s, Mirroring.checkcast(Supernova.CONTINUATION));
 	}
 
 	@Nullable
 	public MessageReceipt sendMessage(Message s)
 	{
-		return (MessageReceipt<?>)  this.sendMessage(s, Mirroring.checkcast(this.continuation));
+		return (MessageReceipt<?>)  this.sendMessage(s, Mirroring.checkcast(Supernova.CONTINUATION));
 	}
 
 	@NotNull

@@ -1,5 +1,7 @@
 package org.mve.sn.core;
 
+import kotlin.Lazy;
+import kotlin.LazyKt;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
@@ -28,12 +30,12 @@ import org.mve.uni.CompletionWaiting;
 import org.mve.uni.Json;
 import org.mve.uni.Mirroring;
 import org.slf4j.Logger;
-import org.slf4j.helpers.NOPLogger;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 public class Supernova extends AbstractBot
@@ -49,12 +51,8 @@ public class Supernova extends AbstractBot
 	public Throwable error;
 	private boolean active;
 	private int echo = 0;
-	private String nick;
-
-	public Supernova(String url, String token, BotConfiguration configuration)
-	{
-		this(url, token, configuration, NOPLogger.NOP_LOGGER);
-	}
+	private final Lazy<String> nickname;
+	private final Lazy<ContactList<Friend>> friends;
 
 	public Supernova(String url, String token, BotConfiguration configuration, Logger wsLogger)
 	{
@@ -79,6 +77,22 @@ public class Supernova extends AbstractBot
 			// Reachable
 			throw new RuntimeException(e);
 		}
+		this.nickname = LazyKt.lazy(() -> SupernovaAPI.getLoginInfo(this).get(SupernovaAPI.KEY_DATA).string(SupernovaAPI.KEY_NICKNAME));
+		this.friends = LazyKt.lazy(() -> {
+			ContactList<Friend> list = new ContactList<>(new CopyOnWriteArraySet<>());
+			Json api = SupernovaAPI.getFriendList(this);
+			Json data = api.get(SupernovaAPI.KEY_DATA);
+			for (int i = 0; i < data.length(); i++)
+			{
+				Json friend = data.get(i);
+				long id = friend.number(SupernovaAPI.KEY_USER_ID).longValue();
+				String nick = friend.string(SupernovaAPI.KEY_NICKNAME);
+				String remark = friend.string(SupernovaAPI.KEY_REMARK);
+				FriendInfoW info = new FriendInfoW(id, 0, nick, remark);
+				list.add(Mirai.getInstance().newFriend(this, info));
+			}
+			return list;
+		});
 	}
 
 	@NotNull
@@ -142,7 +156,7 @@ public class Supernova extends AbstractBot
 	@Override
 	public ContactList<Friend> getFriends()
 	{
-		return null;
+		return this.friends.getValue();
 	}
 
 	@NotNull
@@ -177,7 +191,7 @@ public class Supernova extends AbstractBot
 	@Override
 	public String getNick()
 	{
-		return "";
+		return this.nickname.getValue();
 	}
 
 	@Override
@@ -191,6 +205,11 @@ public class Supernova extends AbstractBot
 	public CoroutineContext getCoroutineContext()
 	{
 		return Mirroring.checkcast(new CoroutineName("Supernova-QQ"));
+	}
+
+	public Friend friend(long id)
+	{
+		return this.getFriends().get(id);
 	}
 
 	public void open(ServerHandshake handshakedata)
@@ -235,7 +254,7 @@ public class Supernova extends AbstractBot
 		synchronized (future)
 		{
 			this.connection.send(json.stringify().getBytes(StandardCharsets.UTF_8));
-			return future.get(5, TimeUnit.SECONDS, false);
+			return future.get(11, TimeUnit.SECONDS, false);
 		}
 	}
 
@@ -244,6 +263,18 @@ public class Supernova extends AbstractBot
 		int echo = Integer.MIN_VALUE;
 		if (json.contains(SupernovaAPI.KEY_ECHO))
 			echo = json.number(SupernovaAPI.KEY_ECHO).intValue();
+		String failedMsg = null;
+		if (json.contains(SupernovaAPI.KEY_STATUS) && (new Json(SupernovaAPI.STATUS_FAILED)).equals(json.get(SupernovaAPI.KEY_STATUS)))
+		{
+			StringBuilder builder = new StringBuilder("FAILED ");
+			if (echo != Integer.MIN_VALUE)
+				builder.append('[').append(echo).append("]");
+			builder.append('[')
+				.append(json.number(SupernovaAPI.KEY_RETCODE))
+				.append("] ")
+				.append(failedMsg = json.string(SupernovaAPI.KEY_MESSAGE));
+			this.getLogger().error(builder.toString());
+		}
 		else if (SupernovaAPI.POST_TYPE_META_EVENT.equals(json.string(SupernovaAPI.KEY_POST_TYPE)))
 		{
 			String metaEvent = json.string(SupernovaAPI.KEY_META_EVENT_TYPE);
@@ -252,7 +283,11 @@ public class Supernova extends AbstractBot
 		}
 		CompletionWaiting<Json> waiting = this.action.remove(echo);
 		if (waiting != null)
+		{
+			if (failedMsg != null)
+				waiting.exception(new APIException(failedMsg));
 			waiting.complete(json);
+		}
 	}
 
 	static

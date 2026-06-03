@@ -1,4 +1,4 @@
-package org.mve.sn.core;
+package org.mve.sn.core.contact;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.User;

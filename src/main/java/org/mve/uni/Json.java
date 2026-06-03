@@ -342,6 +342,18 @@ public class Json
 	}
 
 	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj == this)
+			return true;
+		if (!(obj instanceof Json oth))
+			return false;
+		if (oth.type != this.type)
+			return false;
+		return this.value.equals(oth.value);
+	}
+
+	@Override
 	public String toString()
 	{
 		return this.stringify();

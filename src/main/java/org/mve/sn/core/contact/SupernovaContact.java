@@ -1,4 +1,4 @@
-package org.mve.sn.core;
+package org.mve.sn.core.contact;
 
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;

@@ -10,6 +10,7 @@ public class CompletionWaiting<T> implements Future<T>
 	private boolean completion = false;
 	private boolean cancelled = false;
 	private T value;
+	private Throwable exception;
 
 	@Override
 	public synchronized boolean cancel(boolean mayInterruptIfRunning)
@@ -72,6 +73,8 @@ public class CompletionWaiting<T> implements Future<T>
 				}
 			}
 		}
+		if (this.exception != null)
+			throw new CompletionException(this.exception);
 		return this.value;
 	}
 
@@ -82,5 +85,14 @@ public class CompletionWaiting<T> implements Future<T>
 		this.completion = true;
 		this.value = value;
 		this.notifyAll();
+	}
+
+	public synchronized void exception(Throwable t)
+	{
+		Throwable cause = t;
+		while (cause.getCause() != null)
+			cause = cause.getCause();
+		cause.initCause(this.exception);
+		this.exception = t;
 	}
 }

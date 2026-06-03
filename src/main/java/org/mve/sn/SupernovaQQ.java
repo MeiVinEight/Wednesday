@@ -31,8 +31,8 @@ import net.mamoe.mirai.message.data.UnsupportedMessage;
 import net.mamoe.mirai.utils.FileCacheStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mve.sn.core.SupernovaFriend;
-import org.mve.sn.core.SupernovaStranger;
+import org.mve.sn.core.contact.SupernovaFriend;
+import org.mve.sn.core.contact.SupernovaStranger;
 
 import java.util.List;
 
@@ -197,7 +197,7 @@ public class SupernovaQQ implements IMirai
 	@Override
 	public Friend newFriend(@NotNull Bot bot, @NotNull FriendInfo friendInfo)
 	{
-		return new SupernovaFriend(bot, friendInfo.getUin());
+		return new SupernovaFriend(bot, friendInfo);
 	}
 
 	@NotNull

@@ -1,4 +1,4 @@
-package org.mve.sn.core;
+package org.mve.sn.core.contact;
 
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;

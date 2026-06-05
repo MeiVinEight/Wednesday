@@ -13,6 +13,7 @@ import net.mamoe.mirai.message.data.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mve.sn.SupernovaAPI;
+import org.mve.sn.core.APIResponse;
 import org.mve.sn.core.Supernova;
 import org.mve.uni.Json;
 import org.mve.uni.LazyJVM;
@@ -26,8 +27,9 @@ public class SupernovaFriend extends SupernovaUser implements Friend
 	{
 		super(context, info.getUin());
 		LazyJVM<String> lazyJVM = new LazyJVM<>(() -> {
-			Json json = SupernovaAPI.getStrangerInfo((Supernova) (this.getBot()), this.getId(), true);
-			Json data = json.get(SupernovaAPI.KEY_DATA);
+			APIResponse response = SupernovaAPI.getStrangerInfo((Supernova) (this.getBot()), this.getId(), true);
+			response.checkValidation();
+			Json data = response.data;
 			return data.string(SupernovaAPI.KEY_NICKNAME);
 		});
 		lazyJVM.setValue(info.getNick());

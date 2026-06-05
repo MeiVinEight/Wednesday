@@ -1,5 +1,6 @@
 package org.mve.sn;
 
+import org.mve.sn.core.APIResponse;
 import org.mve.sn.core.Supernova;
 import org.mve.uni.Json;
 
@@ -25,6 +26,7 @@ public class SupernovaAPI
 
 	public static final String STATUS_OK = "ok";
 	public static final String STATUS_FAILED = "failed";
+	public static final String STATUS_ASYNC = "async";
 
 	public static final String POST_TYPE_META_EVENT = "meta_event";
 	public static final String META_EVENT_LIFECYCLE = "lifecycle";
@@ -40,21 +42,21 @@ public class SupernovaAPI
 		return "";
 	}
 
-	public static Json getVersionInfo(Supernova sn)
+	public static APIResponse getVersionInfo(Supernova sn)
 	{
 		Json json = new Json()
 			.set(KEY_ACTION, API_GET_VERSION_INFO);
 		return sn.communicate(json, false);
 	}
 
-	public static Json getFriendList(Supernova sn)
+	public static APIResponse getFriendList(Supernova sn)
 	{
 		Json json = new Json()
 			.set(KEY_ACTION, API_GET_FRIEND_LIST);
 		return sn.communicate(json, false);
 	}
 
-	public static Json getStrangerInfo(Supernova sn, long userId, boolean noCache)
+	public static APIResponse getStrangerInfo(Supernova sn, long userId, boolean noCache)
 	{
 		Json json = new Json()
 			.set(KEY_ACTION, API_GET_STRANGER_INFO)
@@ -65,7 +67,7 @@ public class SupernovaAPI
 		return sn.communicate(json, false);
 	}
 
-	public static Json getLoginInfo(Supernova sn)
+	public static APIResponse getLoginInfo(Supernova sn)
 	{
 		Json json = new Json()
 			.set(KEY_ACTION, API_GET_LOGIN_INFO);

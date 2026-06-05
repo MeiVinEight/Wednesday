@@ -87,6 +87,9 @@ public class Json
 
 	public Number number(String str)
 	{
+		Json json = this.get(str);
+		if (json == null)
+			return null;
 		return this.get(str).number();
 	}
 

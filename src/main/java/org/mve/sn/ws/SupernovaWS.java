@@ -37,7 +37,8 @@ public class SupernovaWS extends WebSocketClient
 	{
 		String log = "<-- " + message;
 		Json json = Json.resolve(message);
-		if (json.contains(SupernovaAPI.KEY_ECHO))
+		Json echoJson = json.get(SupernovaAPI.KEY_ECHO);
+		if (echoJson != null && echoJson.type == Json.TYPE_NUMBER)
 			log = "[" + json.get(SupernovaAPI.KEY_ECHO) + "] " + log;
 		this.logger.debug(log);
 		this.supernova.message(json);

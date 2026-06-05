@@ -5,10 +5,7 @@ import kotlin.LazyKt;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
-import kotlin.jvm.functions.Function3;
 import kotlin.jvm.functions.Function4;
-import kotlinx.coroutines.CoroutineName;
-import kotlinx.coroutines.Dispatchers;
 import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.Friend;
@@ -24,17 +21,20 @@ import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.internal.AbstractBot;
 import net.mamoe.mirai.utils.BotConfiguration;
 import net.mamoe.mirai.utils.MiraiLogger;
-import net.mamoe.mirai.utils.SimpleLogger;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mve.asm.*;
+import org.mve.asm.AccessFlag;
+import org.mve.asm.ClassWriter;
+import org.mve.asm.FieldWriter;
+import org.mve.asm.MethodWriter;
+import org.mve.asm.Opcodes;
 import org.mve.asm.attribute.CodeWriter;
 import org.mve.invoke.MagicAccessor;
 import org.mve.invoke.common.JavaVM;
 import org.mve.sn.SupernovaAPI;
 import org.mve.sn.coroutine.ContinuationX;
-import org.mve.sn.coroutine.CoroutineDispatcherX;
 import org.mve.sn.coroutine.CoroutineX;
 import org.mve.sn.data.FriendInfoW;
 import org.mve.sn.data.StrangerInfoW;
@@ -55,22 +55,38 @@ import java.util.concurrent.TimeUnit;
 
 public class Supernova extends AbstractBot
 {
-	public static final MiraiLogger NOP_LOGGER = new SimpleLogger(null, (a, b, c) -> null);
+	public static final MiraiLogger NOP_LOGGER = MiraiLogger.Factory.INSTANCE.create(Supernova.class, "0");
 	public static final int ECHO_META_LIFECYCLE_CONNECT = -1;
 	public static final CoroutineContext COROUTINE_CONTEXT = Mirroring.checkcast(new CoroutineX());
 	public static final Continuation<? super Object> CONTINUATION = new ContinuationX<>(Supernova.COROUTINE_CONTEXT);
-	private final Map<Integer, CompletionWaiting<Json>> action = new ConcurrentHashMap<>();
+	private final Map<Integer, CompletionWaiting<APIResponse>> action = new ConcurrentHashMap<>();
 	public final BotConfiguration configuration;
-	public final MiraiLogger logger;
-	private final SupernovaWS connection;
-	public final long ID;
-	public final String version;
+	private SupernovaWS connection;
+	public MiraiLogger logger;
+	public long ID;
+	public String version;
 	public Throwable error;
 	private boolean active;
 	private int echo = 0;
-	private final Lazy<String> nickname;
-	private final Lazy<ContactList<Friend>> friends;
-	private final Lazy<EventChannel<BotEvent>> channel;
+	private final Lazy<String> nickname = LazyKt.lazy(() -> SupernovaAPI.getLoginInfo(this).data.string(SupernovaAPI.KEY_NICKNAME));
+	private final Lazy<ContactList<Friend>> friends = LazyKt.lazy(() -> {
+		ContactList<Friend> list = new ContactList<>(new CopyOnWriteArraySet<>());
+		APIResponse api = SupernovaAPI.getFriendList(this);
+		api.checkValidation();
+		Json data = api.data;
+		for (int i = 0; i < data.length(); i++)
+		{
+			Json friend = data.get(i);
+			long id = friend.number(SupernovaAPI.KEY_USER_ID).longValue();
+			String nick = friend.string(SupernovaAPI.KEY_NICKNAME);
+			String remark = friend.string(SupernovaAPI.KEY_REMARK);
+			FriendInfoW info = new FriendInfoW(id, 0, nick, remark);
+			list.add(Mirai.getInstance().newFriend(this, info));
+		}
+		return list;
+	});
+	private final Lazy<EventChannel<BotEvent>> channel = LazyKt.lazy(() -> GlobalEventChannel.INSTANCE.filterIsInstance(BotEvent.class).filter(e -> e.getBot() == this));
+	private APIResponse failure = null;
 
 	public Supernova(String url, String token, BotConfiguration configuration, Logger wsLogger)
 	{
@@ -79,40 +95,29 @@ public class Supernova extends AbstractBot
 		{
 			this.connection = new SupernovaWS(this, new URI(url), token, wsLogger);
 			this.connection.connect();
-			CompletionWaiting<Json> metaWait = new CompletionWaiting<>();
+			CompletionWaiting<APIResponse> metaWait = new CompletionWaiting<>();
 			this.action.put(ECHO_META_LIFECYCLE_CONNECT, metaWait);
-			Json meta = metaWait.get();
+			APIResponse response = metaWait.get();
+			if (response.status != APIResponse.STATUS_OK)
+			{
+				this.failure = response;
+				this.close(response.message, null);
+				return;
+			}
+			this.active = true;
+			Json meta = response.origin;
 			this.ID = meta.number(SupernovaAPI.KEY_SELF_ID).longValue();
 			this.logger = configuration.getBotLoggerSupplier().invoke(this);
 			SupernovaManager.GLOBAL.broadcast(new BotOnlineEvent(this));
-			Json version = SupernovaAPI.getVersionInfo(this).get(SupernovaAPI.KEY_DATA);
+			Json version = SupernovaAPI.getVersionInfo(this).data;
 			this.version = version.stringify();
 			this.getLogger().info(version.string(SupernovaAPI.KEY_APP_NAME) + ": " + version.string(SupernovaAPI.KEY_APP_VERSION));
 		}
 		catch (Throwable e)
 		{
 			this.error = e;
-			Mirroring.thrown(e);
-			// Reachable
-			throw new RuntimeException(e);
+			this.close(e);
 		}
-		this.nickname = LazyKt.lazy(() -> SupernovaAPI.getLoginInfo(this).get(SupernovaAPI.KEY_DATA).string(SupernovaAPI.KEY_NICKNAME));
-		this.friends = LazyKt.lazy(() -> {
-			ContactList<Friend> list = new ContactList<>(new CopyOnWriteArraySet<>());
-			Json api = SupernovaAPI.getFriendList(this);
-			Json data = api.get(SupernovaAPI.KEY_DATA);
-			for (int i = 0; i < data.length(); i++)
-			{
-				Json friend = data.get(i);
-				long id = friend.number(SupernovaAPI.KEY_USER_ID).longValue();
-				String nick = friend.string(SupernovaAPI.KEY_NICKNAME);
-				String remark = friend.string(SupernovaAPI.KEY_REMARK);
-				FriendInfoW info = new FriendInfoW(id, 0, nick, remark);
-				list.add(Mirai.getInstance().newFriend(this, info));
-			}
-			return list;
-		});
-		this.channel = LazyKt.lazy(() -> GlobalEventChannel.INSTANCE.filterIsInstance(BotEvent.class).filter(e -> e.getBot() == this));
 	}
 
 	@NotNull
@@ -203,8 +208,7 @@ public class Supernova extends AbstractBot
 	@Override
 	public void close(@Nullable Throwable throwable)
 	{
-		this.error(throwable);
-		this.connection.close();
+		this.close(null, throwable);
 	}
 
 	@NotNull
@@ -227,9 +231,21 @@ public class Supernova extends AbstractBot
 		return Supernova.COROUTINE_CONTEXT;
 	}
 
+	public void close(String msg, Throwable throwable)
+	{
+		if (throwable != null)
+		{
+			this.error(throwable);
+			if (msg == null)
+				msg = throwable.toString();
+		}
+		if (msg == null)
+			msg = "主动断开";
+		this.connection.close(CloseFrame.NORMAL, msg);
+	}
+
 	public void open(ServerHandshake handshakedata)
 	{
-		this.active = true;
 		synchronized (this)
 		{
 			this.notifyAll();
@@ -238,23 +254,57 @@ public class Supernova extends AbstractBot
 
 	public void message(Json json)
 	{
-		this.complete(json);
+		if (!json.contains(SupernovaAPI.KEY_POST_TYPE))
+		{
+			this.complete(json);
+			return;
+		}
+
+		String postType = json.string(SupernovaAPI.KEY_POST_TYPE);
+		if (SupernovaAPI.POST_TYPE_META_EVENT.equals(postType))
+		{
+			String metaEventType = json.string(SupernovaAPI.KEY_META_EVENT_TYPE);
+			if (SupernovaAPI.META_EVENT_LIFECYCLE.equals(metaEventType))
+			{
+				String subType = json.string(SupernovaAPI.KEY_SUBTYPE);
+				if (SupernovaAPI.LIFECYCLE_CONNECT.equals(subType))
+				{
+					json.set(SupernovaAPI.KEY_ECHO, ECHO_META_LIFECYCLE_CONNECT)
+						.set(SupernovaAPI.KEY_STATUS, SupernovaAPI.STATUS_OK);
+					this.complete(json);
+				}
+			}
+		}
 	}
 
 	public void error(Throwable ex)
 	{
 		if (ex != null)
-			this.connection.logger.error("未知错误", ex);
+			this.getLogger().error("未知错误", ex);
 		this.error = ex;
 	}
 
 	public void close(int code, String reason, boolean remote)
 	{
-		System.out.println("Close: code=" + code + " reason=" + reason + " remote=" + remote);
+		if (this.failure != null && this.failure.message != null)
+			reason = this.failure.message;
+		if (reason == null && remote)
+			reason = "远程连接断开";
+		if (reason == null)
+			reason = "未知原因";
+		this.getLogger().info("[" + code + "] 服务器连接因 " + reason + " 已关闭");
 		this.active = false;
+		this.action.forEach((echo, waiting) -> {
+			waiting.complete(new APIResponse(new Json()
+				.set(SupernovaAPI.KEY_STATUS, SupernovaAPI.STATUS_FAILED)
+				.set(SupernovaAPI.KEY_RETCODE, 1200)
+				.set(SupernovaAPI.KEY_ECHO, echo.intValue())
+				.set(SupernovaAPI.KEY_MESSAGE, "连接已断开")
+			));
+		});
 	}
 
-	public Json communicate(Json json, boolean async)
+	public APIResponse communicate(Json json, boolean async)
 	{
 		if (async)
 		{
@@ -262,7 +312,7 @@ public class Supernova extends AbstractBot
 			return null;
 		}
 
-		CompletionWaiting<Json> future = new CompletionWaiting<>();
+		CompletionWaiting<APIResponse> future = new CompletionWaiting<>();
 		int echo = this.echo++;
 		json.set(SupernovaAPI.KEY_ECHO, echo);
 		this.action.put(echo, future);
@@ -273,16 +323,17 @@ public class Supernova extends AbstractBot
 		}
 	}
 
-	public void complete(Json json)
+	private void complete(Json json)
 	{
-		int echo = Integer.MIN_VALUE;
-		if (json.contains(SupernovaAPI.KEY_ECHO))
-			echo = json.number(SupernovaAPI.KEY_ECHO).intValue();
+		this.failure = null;
+		APIResponse response = new APIResponse(json);
+		Number echo = response.echo;
 		String failedMsg = null;
-		if (json.contains(SupernovaAPI.KEY_STATUS) && (new Json(SupernovaAPI.STATUS_FAILED)).equals(json.get(SupernovaAPI.KEY_STATUS)))
+		if (response.status == APIResponse.STATUS_FAILED)
 		{
+			this.failure = response;
 			StringBuilder builder = new StringBuilder("FAILED ");
-			if (echo != Integer.MIN_VALUE)
+			if (echo != null)
 				builder.append('[').append(echo).append("]");
 			builder.append('[')
 				.append(json.number(SupernovaAPI.KEY_RETCODE))
@@ -290,18 +341,14 @@ public class Supernova extends AbstractBot
 				.append(failedMsg = json.string(SupernovaAPI.KEY_MESSAGE));
 			this.getLogger().error(builder.toString());
 		}
-		else if (SupernovaAPI.POST_TYPE_META_EVENT.equals(json.string(SupernovaAPI.KEY_POST_TYPE)))
-		{
-			String metaEvent = json.string(SupernovaAPI.KEY_META_EVENT_TYPE);
-			if (SupernovaAPI.META_EVENT_LIFECYCLE.equals(metaEvent) && SupernovaAPI.LIFECYCLE_CONNECT.equals(json.string(SupernovaAPI.KEY_SUBTYPE)))
-				echo = -1;
-		}
-		CompletionWaiting<Json> waiting = this.action.remove(echo);
+		if (echo == null)
+			return;
+		CompletionWaiting<APIResponse> waiting = this.action.remove(echo.intValue());
 		if (waiting != null)
 		{
 			if (failedMsg != null)
 				waiting.exception(new APIException(failedMsg));
-			waiting.complete(json);
+			waiting.complete(response);
 		}
 	}
 

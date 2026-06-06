@@ -8,6 +8,7 @@ public class LazyJVM<T> implements Lazy<T>
 {
 	private final Supplier<T> supplier;
 	private Object value;
+	private boolean complete = false;
 
 	public LazyJVM(Supplier<T> supplier)
 	{
@@ -18,14 +19,14 @@ public class LazyJVM<T> implements Lazy<T>
 	public T getValue()
 	{
 		if (!this.isInitialized())
-			this.value = this.supplier.get();
+			this.setValue(this.supplier.get());
 		return Mirroring.checkcast(this.value);
 	}
 
 	@Override
 	public boolean isInitialized()
 	{
-		return this.value != null;
+		return this.complete;
 	}
 
 	public boolean setValue(T value)
@@ -33,6 +34,7 @@ public class LazyJVM<T> implements Lazy<T>
 		if (this.isInitialized())
 			return false;
 		this.value = value;
+		this.complete = true;
 		return true;
 	}
 }

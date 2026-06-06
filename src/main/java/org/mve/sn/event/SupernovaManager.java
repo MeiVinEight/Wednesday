@@ -88,7 +88,13 @@ public class SupernovaManager<T extends Event> extends EventChannel<T>
 					//for (Listener<? super Event> listener : orDefault)
 					for (Iterator<Listener<? super Event>> it = orDefault.iterator(); it.hasNext(); )
 					{
-						ListeningStatus status = (ListeningStatus) it.next().onEvent(e, Supernova.CONTINUATION);
+						Listener<? super Event> listener = it.next();
+						if (listener.isCancelled())
+						{
+							it.remove();
+							continue;
+						}
+						ListeningStatus status = (ListeningStatus) listener.onEvent(e, Supernova.CONTINUATION);
 						if (status == ListeningStatus.STOPPED)
 							it.remove();
 					}

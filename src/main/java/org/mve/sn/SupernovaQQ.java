@@ -31,14 +31,18 @@ import net.mamoe.mirai.message.data.UnsupportedMessage;
 import net.mamoe.mirai.utils.FileCacheStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mve.sn.core.Supernova;
 import org.mve.sn.core.contact.SupernovaFriend;
 import org.mve.sn.core.contact.SupernovaStranger;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SupernovaQQ implements IMirai
 {
 	public static final SupernovaQQ SUPERNOVA = new SupernovaQQ();
+	public static final Map<Long, Supernova> BOT = new ConcurrentHashMap<>();
 
 	@NotNull
 	@Override

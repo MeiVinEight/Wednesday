@@ -108,6 +108,13 @@ public class Supernova extends AbstractBot
 			Json meta = response.origin;
 			this.ID = meta.number(SupernovaAPI.KEY_SELF_ID).longValue();
 			this.logger = configuration.getBotLoggerSupplier().invoke(this);
+			Supernova old = SupernovaQQ.BOT.get(this.ID);
+			if (old != null && old.isOnline())
+			{
+				this.close("重复连接相同账号", null);
+				return;
+			}
+			SupernovaQQ.BOT.put(this.ID, this);
 			SupernovaManager.GLOBAL.broadcast(new BotOnlineEvent(this));
 			Json version = SupernovaAPI.getVersionInfo(this).data;
 			this.version = version.stringify();

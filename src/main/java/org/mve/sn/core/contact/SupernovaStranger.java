@@ -30,18 +30,4 @@ public class SupernovaStranger extends SupernovaUser implements Stranger
 	{
 		return null;
 	}
-
-	@NotNull
-	@Override
-	public String getRemark()
-	{
-		return "";
-	}
-
-	@NotNull
-	@Override
-	public String getNick()
-	{
-		return "";
-	}
 }

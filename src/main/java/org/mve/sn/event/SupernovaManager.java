@@ -37,17 +37,23 @@ import org.mve.sn.core.Supernova;
 import org.mve.uni.LazyJVM;
 import org.mve.uni.Mirroring;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class SupernovaManager<T extends Event> extends EventChannel<T>
+public class SupernovaManager<T extends Event> extends EventChannel<T> implements Runnable
 {
 	public static final MiraiLogger LOGGER = MiraiLogger.Factory.INSTANCE.create(SupernovaManager.class, "SupernovaManager");
 	public static final SupernovaManager<Event> GLOBAL = new SupernovaManager<>(Event.class);
 	public final MutableSharedFlow<T> flow = SharedFlowKt.MutableSharedFlow(0, 1, BufferOverflow.DROP_OLDEST);
 	private final Map<Class<?>, ConcurrentLinkedQueue<Listener<? super Event>>> listeners = new ConcurrentHashMap<>();
 	private final Class<T> type;
+	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 
 	public SupernovaManager(Class<T> type)
 	{
@@ -82,43 +88,55 @@ public class SupernovaManager<T extends Event> extends EventChannel<T>
 		return new SubscribeEvent<>(context.get(Mirroring.checkcast(Job.Key)), context, Mirroring.checkcast(function2), concurrencyKind);
 	}
 
-	public synchronized void broadcast(Event e)
+	@Override
+	public void run()
 	{
-		Set<Class<?>> set = new HashSet<>();
-		Stack<Class<?>> stack = new Stack<>();
-		stack.push(e.getClass());
-		while (!stack.empty())
+		while (true)
 		{
-			Class<?> clazz = stack.pop();
-			if (clazz == null)
+			Event e = this.queue.poll();
+			if (e == null)
 				continue;
-			if (!set.contains(clazz))
+			Set<Class<?>> set = new HashSet<>();
+			Stack<Class<?>> stack = new Stack<>();
+			stack.push(e.getClass());
+			while (!stack.empty())
 			{
-				set.add(clazz);
-				ConcurrentLinkedQueue<Listener<? super Event>> orDefault = this.listeners.getOrDefault(clazz, null);
-				if (orDefault != null)
+				Class<?> clazz = stack.pop();
+				if (clazz == null)
+					continue;
+				if (!set.contains(clazz))
 				{
-					//for (Listener<? super Event> listener : orDefault)
-					for (Iterator<Listener<? super Event>> it = orDefault.iterator(); it.hasNext(); )
+					set.add(clazz);
+					ConcurrentLinkedQueue<Listener<? super Event>> orDefault = this.listeners.getOrDefault(clazz, null);
+					if (orDefault != null)
 					{
-						Listener<? super Event> listener = it.next();
-						if (listener.isCancelled())
+						//for (Listener<? super Event> listener : orDefault)
+						for (Iterator<Listener<? super Event>> it = orDefault.iterator(); it.hasNext(); )
 						{
-							it.remove();
-							continue;
+							Listener<? super Event> listener = it.next();
+							if (listener.isCancelled())
+							{
+								it.remove();
+								continue;
+							}
+							ListeningStatus status = (ListeningStatus) listener.onEvent(e, Supernova.CONTINUATION);
+							if (status == ListeningStatus.STOPPED)
+								it.remove();
 						}
-						ListeningStatus status = (ListeningStatus) listener.onEvent(e, Supernova.CONTINUATION);
-						if (status == ListeningStatus.STOPPED)
-							it.remove();
 					}
 				}
+				if (clazz.getSuperclass() != null)
+					stack.push(clazz.getSuperclass());
+				Class<?>[] interfaces = clazz.getInterfaces();
+				for (Class<?> i : interfaces)
+					stack.push(i);
 			}
-			if (clazz.getSuperclass() != null)
-				stack.push(clazz.getSuperclass());
-			Class<?>[] interfaces = clazz.getInterfaces();
-			for (Class<?> i : interfaces)
-				stack.push(i);
 		}
+	}
+
+	public synchronized void broadcast(Event e)
+	{
+		this.queue.add(e);
 	}
 
 	public static <E extends Event> ConcurrentLinkedQueue<Listener<? super E>> queue(Class<?> c)

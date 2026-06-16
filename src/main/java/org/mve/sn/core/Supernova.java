@@ -5,7 +5,7 @@ import kotlin.LazyKt;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
-import kotlin.jvm.functions.Function4;
+import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.Friend;
@@ -13,32 +13,27 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.OtherClient;
 import net.mamoe.mirai.contact.Stranger;
 import net.mamoe.mirai.contact.friendgroup.FriendGroups;
-import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.EventChannel;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.BotEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
-import net.mamoe.mirai.internal.AbstractBot;
+import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.utils.BotConfiguration;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mve.asm.AccessFlag;
-import org.mve.asm.ClassWriter;
-import org.mve.asm.FieldWriter;
-import org.mve.asm.MethodWriter;
-import org.mve.asm.Opcodes;
-import org.mve.asm.attribute.CodeWriter;
-import org.mve.invoke.MagicAccessor;
-import org.mve.invoke.common.JavaVM;
 import org.mve.sn.SupernovaAPI;
 import org.mve.sn.coroutine.ContinuationX;
 import org.mve.sn.coroutine.CoroutineX;
 import org.mve.sn.data.FriendInfoW;
+import org.mve.sn.data.SourceFromFriend;
 import org.mve.sn.data.StrangerInfoW;
+import org.mve.sn.event.PostingEvent;
+import org.mve.sn.event.PostingMessageEvent;
 import org.mve.sn.event.SupernovaManager;
+import org.mve.sn.message.SupernovaMessage;
 import org.mve.sn.ws.SupernovaWS;
 import org.mve.uni.CompletionWaiting;
 import org.mve.uni.Json;
@@ -53,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
-public class Supernova extends AbstractBot
+public class Supernova implements Bot
 {
 	public static final MiraiLogger NOP_LOGGER = MiraiLogger.Factory.INSTANCE.create(Supernova.class, "0");
 	public static final int ECHO_META_LIFECYCLE_CONNECT = -1;
@@ -69,28 +64,30 @@ public class Supernova extends AbstractBot
 	private boolean active;
 	private int echo = 0;
 	private final Lazy<String> nickname = LazyKt.lazy(() -> SupernovaAPI.getLoginInfo(this).data.string(SupernovaAPI.KEY_NICKNAME));
-	private final Lazy<ContactList<Friend>> friends = LazyKt.lazy(() -> {
-		ContactList<Friend> list = new ContactList<>(new CopyOnWriteArraySet<>());
-		APIResponse api = SupernovaAPI.getFriendList(this);
-		api.checkValidation();
-		Json data = api.data;
-		for (int i = 0; i < data.length(); i++)
-		{
-			Json friend = data.get(i);
-			long id = friend.number(SupernovaAPI.KEY_USER_ID).longValue();
-			String nick = friend.string(SupernovaAPI.KEY_NICKNAME);
-			String remark = friend.string(SupernovaAPI.KEY_REMARK);
-			FriendInfoW info = new FriendInfoW(id, 0, nick, remark);
-			list.add(Mirai.getInstance().newFriend(this, info));
-		}
-		return list;
-	});
+	private final Lazy<CopyOnWriteArraySet<Friend>> friends;
 	private final Lazy<EventChannel<BotEvent>> channel = LazyKt.lazy(() -> GlobalEventChannel.INSTANCE.filterIsInstance(BotEvent.class).filter(e -> e.getBot() == this));
 	private APIResponse failure = null;
+	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new FriendInfoW(this.getId(), 0, null, null)));
 
 	public Supernova(String url, String token, BotConfiguration configuration, Logger wsLogger)
 	{
 		this.configuration = configuration;
+		this.friends = LazyKt.lazy(() -> {
+			CopyOnWriteArraySet<Friend> list = new CopyOnWriteArraySet<>();
+			APIResponse api = SupernovaAPI.getFriendList(this);
+			api.checkValidation();
+			Json data = api.data;
+			for (int i = 0; i < data.length(); i++)
+			{
+				Json friend = data.get(i);
+				long id = friend.number(SupernovaAPI.KEY_USER_ID).longValue();
+				String nick = friend.string(SupernovaAPI.KEY_NICKNAME);
+				String remark = friend.string(SupernovaAPI.KEY_REMARK);
+				FriendInfoW info = new FriendInfoW(id, 0, nick, remark);
+				list.add(Mirai.getInstance().newFriend(this, info));
+			}
+			return list;
+		});
 		try
 		{
 			this.connection = new SupernovaWS(this, new URI(url), token, wsLogger);
@@ -108,13 +105,13 @@ public class Supernova extends AbstractBot
 			Json meta = response.origin;
 			this.ID = meta.number(SupernovaAPI.KEY_SELF_ID).longValue();
 			this.logger = configuration.getBotLoggerSupplier().invoke(this);
-			Supernova old = SupernovaQQ.BOT.get(this.ID);
+			Supernova old = SupernovaAPI.BOT.get(this.ID);
 			if (old != null && old.isOnline())
 			{
 				this.close("重复连接相同账号", null);
 				return;
 			}
-			SupernovaQQ.BOT.put(this.ID, this);
+			SupernovaAPI.BOT.put(this.ID, this);
 			SupernovaManager.GLOBAL.broadcast(new BotOnlineEvent(this));
 			Json version = SupernovaAPI.getVersionInfo(this).data;
 			this.version = version.stringify();
@@ -131,7 +128,7 @@ public class Supernova extends AbstractBot
 	@Override
 	public Friend getAsFriend()
 	{
-		return Mirai.getInstance().newFriend(this, new FriendInfoW(this.getId(), 0, null, null));
+		return this.friend.getValue();
 	}
 
 	@NotNull
@@ -188,7 +185,7 @@ public class Supernova extends AbstractBot
 	@Override
 	public ContactList<Friend> getFriends()
 	{
-		return this.friends.getValue();
+		return new ContactList<>(this.friends.getValue());
 	}
 
 	@NotNull
@@ -282,6 +279,8 @@ public class Supernova extends AbstractBot
 				}
 			}
 		}
+		if (postType != null)
+			SupernovaManager.GLOBAL.broadcast(new PostingEvent(this, json.stringify()));
 	}
 
 	public void error(Throwable ex)
@@ -363,7 +362,7 @@ public class Supernova extends AbstractBot
 	{
 		try
 		{
-			Class.forName("org.mve.sn.SupernovaQQ");
+			Class.forName("org.mve.sn.SupernovaAPI");
 		}
 		catch (ClassNotFoundException e)
 		{

@@ -85,4 +85,17 @@ public class SupernovaFriend extends SupernovaUser implements Friend
 		System.out.println("sendMessage: " + message);
 		return null;
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof SupernovaFriend that)) return false;
+		return this.getId() == that.getId();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return (int) this.getId();
+	}
 }

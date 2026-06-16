@@ -370,89 +370,32 @@ public class Supernova extends AbstractBot
 			Mirroring.thrown(e);
 		}
 
-		LazyJVM<EventChannel<Event>> lazy = new LazyJVM<>(() -> SupernovaManager.GLOBAL);
-		Mirroring.set(GlobalEventChannel.class, "instance$delegate", Lazy.class, lazy);
 
-		//net/mamoe/mirai/event/EventChannel$subscribeOnce$2
-
-
-		Function4<String, String, String, Integer, Unit> sub = (typeName, fieldName, fieldDesc, type) -> {
-			ClassWriter cw = new ClassWriter()
-				.set(Opcodes.version(8), AccessFlag.PUBLIC, typeName, "java/lang/Object", "kotlin/jvm/functions/Function2")
-				.field(new FieldWriter()
-					.set(AccessFlag.PRIVATE | AccessFlag.FINAL, fieldName, fieldDesc)
-				)
-				.method(new MethodWriter()
-					.set(AccessFlag.PUBLIC, "<init>", "(Ljava/util/function/Consumer;Lkotlin/coroutines/Continuation;)V")
-					.attribute(new CodeWriter()
-						.instruction(Opcodes.ALOAD_0)
-						.method(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
-						.instruction(Opcodes.ALOAD_0)
-						.instruction(Opcodes.ALOAD_1)
-						.field(Opcodes.PUTFIELD, typeName, fieldName, fieldDesc)
-						.instruction(Opcodes.RETURN)
-						.stack(2)
-						.local(3)
-					)
-				)
-				.method(new MethodWriter()
-					.set(AccessFlag.PUBLIC, "invoke", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
-					.attribute(new CodeWriter()
-						.instruction(Opcodes.ALOAD_0)
-						.field(Opcodes.GETFIELD, typeName, fieldName, fieldDesc)
-						.instruction(Opcodes.ALOAD_1)
-						.method(Opcodes.INVOKEINTERFACE, "java/util/function/Consumer", "accept", "(Ljava/lang/Object;)V", true)
-						.field(Opcodes.GETSTATIC, "net/mamoe/mirai/event/ListeningStatus", (type == 0) ? "LISTENING" : "STOPPED", "Lnet/mamoe/mirai/event/ListeningStatus;")
-						.instruction(Opcodes.ARETURN)
-						.stack(2)
-						.local(3)
-					)
-				);
-			byte[] bytes = cw.toByteArray();
-			MagicAccessor.accessor.defineClass(Supernova.class.getClassLoader(), bytes);
-			return null;
-		};
-		String typeName = "net/mamoe/mirai/event/EventChannel$subscribeAlways$2";
-		String fieldName = JavaVM.random();
-		String fieldDesc = "Ljava/util/function/Consumer;";
-		sub.invoke(typeName, fieldName, fieldDesc, 0);
-		typeName = "net/mamoe/mirai/event/EventChannel$subscribeOnce$2";
-		sub.invoke(typeName, fieldName, fieldDesc, 1);
-		typeName = "net/mamoe/mirai/event/EventChannel$subscribe$2";
-		fieldDesc = "Ljava/util/function/Function;";
-		ClassWriter cw = new ClassWriter()
-			.set(Opcodes.version(8), AccessFlag.PUBLIC, typeName, "java/lang/Object", "kotlin/jvm/functions/Function2")
-			.field(new FieldWriter()
-				.set(AccessFlag.PRIVATE | AccessFlag.FINAL, fieldName, fieldDesc)
-			)
-			.method(new MethodWriter()
-				.set(AccessFlag.PUBLIC, "<init>", "(Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)V")
-				.attribute(new CodeWriter()
-					.instruction(Opcodes.ALOAD_0)
-					.method(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
-					.instruction(Opcodes.ALOAD_0)
-					.instruction(Opcodes.ALOAD_1)
-					.field(Opcodes.PUTFIELD, typeName, fieldName, fieldDesc)
-					.instruction(Opcodes.RETURN)
-					.stack(2)
-					.local(3)
-				)
-			)
-			.method(new MethodWriter()
-				.set(AccessFlag.PUBLIC, "invoke", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
-				.attribute(new CodeWriter()
-					.instruction(Opcodes.ALOAD_0)
-					.field(Opcodes.GETFIELD, typeName, fieldName, fieldDesc)
-					.instruction(Opcodes.ALOAD_1)
-					.method(Opcodes.INVOKEINTERFACE, "java/util/function/Function", "apply", "(Ljava/lang/Object;)Ljava/lang/Object;", true)
-					.instruction(Opcodes.ARETURN)
-					.stack(2)
-					.local(3)
-				)
-			);
-		byte[] bytes = cw.toByteArray();
-		MagicAccessor.accessor.defineClass(Supernova.class.getClassLoader(), bytes);
 		//Mirroring.set(Dispatchers.class, "IO", new CoroutineDispatcherX());
 		//Dispatchers.getIO()
+
+		SupernovaManager.GLOBAL.subscribeAlways(PostingEvent.class, (e) ->
+		{
+			String postType = e.type;
+			if (SupernovaAPI.POST_TYPE_MESSAGE.equals(postType))
+			{
+				SupernovaManager.GLOBAL.broadcast(new PostingMessageEvent(e.context, e.text));
+				return;
+			}
+		});
+		SupernovaManager.GLOBAL.subscribeAlways(PostingMessageEvent.class, e -> {
+			if (SupernovaAPI.MESSAGE_TYPE_PRIVATE.equals(e.type))
+			{
+				long fid = e.origin.get(SupernovaAPI.KEY_SENDER).number(SupernovaAPI.KEY_USER_ID).longValue();
+				Friend friend = e.getBot().getFriend(fid);
+				if (friend == null)
+					friend = Mirai.getInstance().newFriend(e.getBot(), new FriendInfoW(fid, 0, null, null));
+				SupernovaManager.GLOBAL.broadcast(new FriendMessageEvent(
+					friend,
+					new SourceFromFriend(e.context, e.text).plus(new SupernovaMessage(e.context, e.text).message())/**/,
+					(int) e.time
+				));
+			}
+		});
 	}
 }

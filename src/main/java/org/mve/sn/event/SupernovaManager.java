@@ -1,10 +1,13 @@
 package org.mve.sn.event;
 
+import kotlin.Lazy;
+import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 import kotlin.jvm.JvmClassMappingKt;
 import kotlin.jvm.functions.Function2;
+import kotlin.jvm.functions.Function4;
 import kotlin.jvm.internal.Reflection;
 import kotlin.reflect.KClass;
 import kotlinx.coroutines.Job;
@@ -17,11 +20,21 @@ import net.mamoe.mirai.event.ConcurrencyKind;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.EventChannel;
 import net.mamoe.mirai.event.EventPriority;
+import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.event.ListeningStatus;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.jetbrains.annotations.NotNull;
+import org.mve.asm.AccessFlag;
+import org.mve.asm.ClassWriter;
+import org.mve.asm.FieldWriter;
+import org.mve.asm.MethodWriter;
+import org.mve.asm.Opcodes;
+import org.mve.asm.attribute.CodeWriter;
+import org.mve.invoke.MagicAccessor;
+import org.mve.invoke.common.JavaVM;
 import org.mve.sn.core.Supernova;
+import org.mve.uni.LazyJVM;
 import org.mve.uni.Mirroring;
 
 import java.util.*;
@@ -123,5 +136,123 @@ public class SupernovaManager<T extends Event> extends EventChannel<T>
 		{
 			throw new ExceptionInInitializerError(e);
 		}
+
+		Function4<String, String, String, Integer, Unit> sub = (typeName, fieldName, fieldDesc, type) -> {
+			ClassWriter cw = new ClassWriter()
+				.set(Opcodes.version(8), AccessFlag.PUBLIC, typeName, "java/lang/Object", "kotlin/jvm/functions/Function2")
+				.field(new FieldWriter()
+					.set(AccessFlag.PRIVATE | AccessFlag.FINAL, fieldName, fieldDesc)
+				)
+				.method(new MethodWriter()
+					.set(AccessFlag.PUBLIC, "<init>", "(Ljava/util/function/Consumer;Lkotlin/coroutines/Continuation;)V")
+					.attribute(new CodeWriter()
+						.instruction(Opcodes.ALOAD_0)
+						.method(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+						.instruction(Opcodes.ALOAD_0)
+						.instruction(Opcodes.ALOAD_1)
+						.field(Opcodes.PUTFIELD, typeName, fieldName, fieldDesc)
+						.instruction(Opcodes.RETURN)
+						.stack(2)
+						.local(3)
+					)
+				)
+				.method(new MethodWriter()
+					.set(AccessFlag.PUBLIC, "invoke", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
+					.attribute(new CodeWriter()
+						.instruction(Opcodes.ALOAD_0)
+						.field(Opcodes.GETFIELD, typeName, fieldName, fieldDesc)
+						.instruction(Opcodes.ALOAD_1)
+						.method(Opcodes.INVOKEINTERFACE, "java/util/function/Consumer", "accept", "(Ljava/lang/Object;)V", true)
+						.field(Opcodes.GETSTATIC, "net/mamoe/mirai/event/ListeningStatus", (type == 0) ? "LISTENING" : "STOPPED", "Lnet/mamoe/mirai/event/ListeningStatus;")
+						.instruction(Opcodes.ARETURN)
+						.stack(2)
+						.local(3)
+					)
+				);
+			byte[] bytes = cw.toByteArray();
+			MagicAccessor.accessor.defineClass(SupernovaManager.class.getClassLoader(), bytes);
+			return null;
+		};
+		String typeName = "net/mamoe/mirai/event/EventChannel$subscribeAlways$2";
+		String fieldName = JavaVM.random();
+		String fieldDesc = "Ljava/util/function/Consumer;";
+		sub.invoke(typeName, fieldName, fieldDesc, 0);
+		typeName = "net/mamoe/mirai/event/EventChannel$subscribeOnce$2";
+		sub.invoke(typeName, fieldName, fieldDesc, 1);
+		typeName = "net/mamoe/mirai/event/EventChannel$subscribe$2";
+		fieldDesc = "Ljava/util/function/Function;";
+		ClassWriter cw = new ClassWriter()
+			.set(Opcodes.version(8), AccessFlag.PUBLIC, typeName, "java/lang/Object", "kotlin/jvm/functions/Function2")
+			.field(new FieldWriter()
+				.set(AccessFlag.PRIVATE | AccessFlag.FINAL, fieldName, fieldDesc)
+			)
+			.method(new MethodWriter()
+				.set(AccessFlag.PUBLIC, "<init>", "(Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)V")
+				.attribute(new CodeWriter()
+					.instruction(Opcodes.ALOAD_0)
+					.method(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+					.instruction(Opcodes.ALOAD_0)
+					.instruction(Opcodes.ALOAD_1)
+					.field(Opcodes.PUTFIELD, typeName, fieldName, fieldDesc)
+					.instruction(Opcodes.RETURN)
+					.stack(2)
+					.local(3)
+				)
+			)
+			.method(new MethodWriter()
+				.set(AccessFlag.PUBLIC, "invoke", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
+				.attribute(new CodeWriter()
+					.instruction(Opcodes.ALOAD_0)
+					.field(Opcodes.GETFIELD, typeName, fieldName, fieldDesc)
+					.instruction(Opcodes.ALOAD_1)
+					.method(Opcodes.INVOKEINTERFACE, "java/util/function/Function", "apply", "(Ljava/lang/Object;)Ljava/lang/Object;", true)
+					.instruction(Opcodes.ARETURN)
+					.stack(2)
+					.local(3)
+				)
+			);
+		byte[] bytes = cw.toByteArray();
+		MagicAccessor.accessor.defineClass(SupernovaManager.class.getClassLoader(), bytes);
+
+		typeName = "net/mamoe/mirai/event/EventChannel$filter$1";
+		fieldDesc = "Lkotlin/jvm/functions/Function1;";
+		cw = new ClassWriter()
+			.set(Opcodes.version(8), AccessFlag.PUBLIC, typeName, "java/lang/Object", "kotlin/jvm/functions/Function2")
+			.field(new FieldWriter()
+				.set(AccessFlag.PRIVATE | AccessFlag.FINAL, fieldName, fieldDesc)
+			)
+			.method(new MethodWriter()
+				.set(AccessFlag.PUBLIC, "<init>", "(Lnet/mamoe/mirai/event/EventChannel;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)V")
+				.attribute(new CodeWriter()
+					.instruction(Opcodes.ALOAD_0)
+					.method(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+					.instruction(Opcodes.ALOAD_0)
+					.instruction(Opcodes.ALOAD_2)
+					.field(Opcodes.PUTFIELD, typeName, fieldName, fieldDesc)
+					.instruction(Opcodes.RETURN)
+					.stack(2)
+					.local(4)
+				)
+			)
+			.method(new MethodWriter()
+				.set(AccessFlag.PUBLIC, "invoke", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
+				.attribute(new CodeWriter()
+					.instruction(Opcodes.ALOAD_0)
+					.field(Opcodes.GETFIELD, typeName, fieldName, fieldDesc)
+					.instruction(Opcodes.ALOAD_1)
+					.method(Opcodes.INVOKEINTERFACE, "kotlin/jvm/functions/Function1", "invoke", "(Ljava/lang/Object;)Ljava/lang/Object;", true)
+					.instruction(Opcodes.ARETURN)
+					.stack(2)
+					.local(3)
+				)
+			);
+		bytes = cw.toByteArray();
+		MagicAccessor.accessor.defineClass(SupernovaManager.class.getClassLoader(), bytes);
+
+		LazyJVM<EventChannel<Event>> lazy = new LazyJVM<>(() -> SupernovaManager.GLOBAL);
+		Mirroring.set(GlobalEventChannel.class, "instance$delegate", Lazy.class, lazy);
+		Thread t = new Thread(SupernovaManager.GLOBAL, "SupernovaManager");
+		t.setDaemon(true);
+		t.start();
 	}
 }

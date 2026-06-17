@@ -28,10 +28,6 @@ public class Configuration
 	public static final String ADDRESS;
 	public static final int PORT;
 
-	public static void save()
-	{
-	}
-
 	static
 	{
 		File configFile = new File(CONFIG_FILE);

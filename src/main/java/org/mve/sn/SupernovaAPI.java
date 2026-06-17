@@ -9,6 +9,7 @@ import net.mamoe.mirai.IMirai;
 import net.mamoe.mirai._MiraiInstance;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Friend;
+import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.OtherClientInfo;
 import net.mamoe.mirai.contact.Stranger;
 import net.mamoe.mirai.data.FriendInfo;
@@ -36,6 +37,7 @@ import org.mve.sn.core.Supernova;
 import org.mve.sn.core.contact.SupernovaFriend;
 import org.mve.sn.core.contact.SupernovaStranger;
 import org.mve.sn.data.SupernovaMessageSource;
+import org.mve.sn.event.SupernovaManager;
 import org.mve.uni.Json;
 
 import java.util.List;
@@ -70,6 +72,9 @@ public class SupernovaAPI implements IMirai
 	public static final String KEY_SENDER = "sender";
 	public static final String KEY_RAW_MESSAGE = "raw_message";
 	public static final String KEY_TARGET_ID = "target_id";
+	public static final String KEY_GROUP_ID = "group_id";
+	public static final String KEY_CARD = "card";
+	public static final String KEY_ROLE = "role";
 
 	public static final String STATUS_OK = "ok";
 	public static final String STATUS_FAILED = "failed";
@@ -84,11 +89,17 @@ public class SupernovaAPI implements IMirai
 	public static final String MESSAGE_FORMAT_ARRAY = "array";
 
 	public static final String MESSAGE_TYPE_PRIVATE = "private";
+	public static final String MESSAGE_TYPE_GROUP = "group";
 
 	public static final String API_GET_VERSION_INFO = "get_version_info";
 	public static final String API_GET_FRIEND_LIST = "get_friend_list";
 	public static final String API_GET_STRANGER_INFO = "get_stranger_info";
 	public static final String API_GET_LOGIN_INFO = "get_login_info";
+	public static final String API_GET_GROUP_MEMBER_INFO = "get_group_member_info";
+
+	public static final String ROLE_OWNER = "owner";
+	public static final String ROLE_MEMBER = "member";
+	public static final String ROLE_ADMIN = "admin";
 
 	public static final Map<Long, Supernova> BOT = new ConcurrentHashMap<>();
 
@@ -127,6 +138,29 @@ public class SupernovaAPI implements IMirai
 		Json json = new Json()
 			.set(KEY_ACTION, API_GET_LOGIN_INFO);
 		return sn.communicate(json, false);
+	}
+
+	public static APIResponse getGroupMemberInfo(Supernova sn, long groupId, long memberId, boolean noCache)
+	{
+		Json json = new Json()
+			.set(KEY_ACTION, API_GET_GROUP_MEMBER_INFO)
+			.set(KEY_PARAMS, new Json()
+				.set(KEY_GROUP_ID, groupId)
+				.set(KEY_USER_ID, memberId)
+				.set(KEY_NO_CACHE, noCache)
+			);
+		return sn.communicate(json, false);
+	}
+
+	public static MemberPermission permission(String role)
+	{
+		if (ROLE_MEMBER.equals(role))
+			return MemberPermission.MEMBER;
+		if (ROLE_ADMIN.equals(role))
+			return MemberPermission.ADMINISTRATOR;
+		if (ROLE_OWNER.equals(role))
+			return MemberPermission.OWNER;
+		return null;
 	}
 
 	@NotNull
@@ -272,6 +306,7 @@ public class SupernovaAPI implements IMirai
 	@Override
 	public Object broadcastEvent(@NotNull Event event, @NotNull Continuation<? super Unit> continuation)
 	{
+		SupernovaManager.GLOBAL.broadcast(event);
 		return null;
 	}
 

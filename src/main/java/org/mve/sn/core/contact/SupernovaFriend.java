@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class SupernovaFriend extends SupernovaUser implements Friend
 {
-
 	public SupernovaFriend(Bot context, FriendInfo info)
 	{
 		super(context, info.getUin());

@@ -10,6 +10,7 @@ import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.OtherClient;
 import net.mamoe.mirai.contact.Stranger;
 import net.mamoe.mirai.contact.friendgroup.FriendGroups;
@@ -18,6 +19,9 @@ import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.BotEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageSource;
 import net.mamoe.mirai.utils.BotConfiguration;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.java_websocket.framing.CloseFrame;
@@ -25,10 +29,13 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mve.sn.SupernovaAPI;
+import org.mve.sn.core.contact.SupernovaGroup;
+import org.mve.sn.core.contact.SupernovaMember;
 import org.mve.sn.coroutine.ContinuationX;
 import org.mve.sn.coroutine.CoroutineX;
 import org.mve.sn.data.FriendInfoW;
 import org.mve.sn.data.SourceFromFriend;
+import org.mve.sn.data.SourceFromGroup;
 import org.mve.sn.data.StrangerInfoW;
 import org.mve.sn.event.PostingEvent;
 import org.mve.sn.event.PostingMessageEvent;
@@ -67,7 +74,7 @@ public class Supernova implements Bot
 	private final Lazy<CopyOnWriteArraySet<Friend>> friends;
 	private final Lazy<EventChannel<BotEvent>> channel = LazyKt.lazy(() -> GlobalEventChannel.INSTANCE.filterIsInstance(BotEvent.class).filter(e -> e.getBot() == this));
 	private APIResponse failure = null;
-	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new FriendInfoW(this.getId(), 0, null, null)));
+	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new FriendInfoW(this.getId(), 0, this.nickname.getValue(), null)));
 
 	public Supernova(String url, String token, BotConfiguration configuration, Logger wsLogger)
 	{
@@ -174,6 +181,13 @@ public class Supernova implements Bot
 		return Mirai.getInstance().newStranger(this, new StrangerInfoW(this.getId(), 0, null, null));
 	}
 
+	@Nullable
+	@Override
+	public Stranger getStranger(long id)
+	{
+		return Mirai.getInstance().newStranger(this, new StrangerInfoW(id, 0, null, null));
+	}
+
 	@NotNull
 	@Override
 	public ContactList<Stranger> getStrangers()
@@ -200,6 +214,13 @@ public class Supernova implements Bot
 	public ContactList<Group> getGroups()
 	{
 		return null;
+	}
+
+	@NotNull
+	@Override
+	public Group getGroup(long id)
+	{
+		return new SupernovaGroup(this, id);
 	}
 
 	@Nullable
@@ -394,6 +415,26 @@ public class Supernova implements Bot
 					new SourceFromFriend(e.context, e.text).plus(new SupernovaMessage(e.context, e.text).message())/**/,
 					(int) e.time
 				));
+			}
+			if (SupernovaAPI.MESSAGE_TYPE_GROUP.equals(e.type))
+			{
+				Json sender = e.origin.get(SupernovaAPI.KEY_SENDER);
+				String role = sender.string(SupernovaAPI.KEY_ROLE);
+				MemberPermission perm = SupernovaAPI.permission(role);
+				if (perm == null)
+				{
+					e.getBot().getLogger().warning("未知的群成员类型: " + role);
+					return;
+				}
+				long fid = e.origin.number(SupernovaAPI.KEY_USER_ID).longValue();
+				String card = sender.string(SupernovaAPI.KEY_CARD);
+				if (card == null || card.isEmpty())
+					card = sender.string(SupernovaAPI.KEY_NICKNAME);
+				long gid = e.origin.number(SupernovaAPI.KEY_GROUP_ID).longValue();
+				MessageSource source = new SourceFromGroup(e.context, e.text);
+				MessageChain chain = source.plus(new SupernovaMessage(e.context, e.text).message());
+				SupernovaMember member = new SupernovaMember(e.context, fid, gid, perm);
+				SupernovaManager.GLOBAL.broadcast(new GroupMessageEvent(card, perm, member, chain, (int) e.time));
 			}
 		});
 	}

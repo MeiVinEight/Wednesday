@@ -1,16 +1,17 @@
 package org.mve.sn.message;
 
-import net.mamoe.mirai.message.data.*;
+import net.mamoe.mirai.message.data.Message;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
+import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.SingleMessage;
 import org.jetbrains.annotations.NotNull;
 import org.mve.sn.SupernovaAPI;
 import org.mve.sn.core.Supernova;
 import org.mve.uni.Json;
 
-import java.util.Map;
-
 public class SupernovaMessage implements Message, SingleMessage
 {
-	public static final Map<String, MessageSourceKind> KIND_MAP;
 	public static final String KEY_TYPE = "type";
 	public static final String KEY_DATA = "data";
 	public static final String KEY_TEXT = "text";
@@ -65,10 +66,5 @@ public class SupernovaMessage implements Message, SingleMessage
 	public String toString()
 	{
 		return this.contentToString();
-	}
-
-	static
-	{
-		KIND_MAP = Map.of(SupernovaAPI.MESSAGE_TYPE_PRIVATE, MessageSourceKind.FRIEND);
 	}
 }

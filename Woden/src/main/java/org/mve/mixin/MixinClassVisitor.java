@@ -61,7 +61,6 @@ public class MixinClassVisitor extends ClassVisitor
 						exce = mn.exceptions.toArray(String[]::new);
 					MethodVisitor mv = this.visitMethod(mn.access, mn.name, mn.desc, mn.signature, exce);
 					mn.accept(mv);
-					this.visitSource();
 				}
 			}
 		}

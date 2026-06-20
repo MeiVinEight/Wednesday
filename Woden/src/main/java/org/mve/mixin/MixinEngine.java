@@ -7,10 +7,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.net.URL;
@@ -98,9 +95,7 @@ public class MixinEngine extends URLClassLoader
 				}
 				ClassNode classNode = new ClassNode();
 				new ClassReader(classBytes).accept(classNode, ClassReader.EXPAND_FRAMES);
-				if (classNode.visibleAnnotations == null)
-					 throw new RuntimeException("@Mixin Annotation Not Found: " + className);
-				AnnotationNode anno = this.getAnnotation.apply(classNode, "Lorg/mve/mixin/Mixin;");
+				AnnotationNode anno = MixinEngine.annotation(classNode.visibleAnnotations, "Lorg/mve/mixin/Mixin;");
 				if (anno == null)
 					throw new RuntimeException("@Mixin Annotation Not Found: " + className);
 				int annoArgNum = (anno.values == null) ? 0 : anno.values.size();
@@ -214,6 +209,11 @@ public class MixinEngine extends URLClassLoader
 				ClassReader cr = new ClassReader(classData);
 				cr.accept(mcv, ClassReader.SKIP_FRAMES);
 				classData = writer.toByteArray();
+				try (FileOutputStream tmp = new FileOutputStream(node.name.substring(node.name.lastIndexOf('/') + 1) + ".class"))
+				{
+					tmp.write(classData);
+					tmp.flush();
+				}
 			}
 
 			CodeSigner[] signers = entry.getCodeSigners();
@@ -273,6 +273,16 @@ public class MixinEngine extends URLClassLoader
 			}
 		}
 		return new ResourceEnumeration(res.toArray(String[]::new));
+	}
+
+	public static AnnotationNode annotation(List<AnnotationNode> annos, String annoName)
+	{
+		if (annos == null)
+			return null;
+		for (AnnotationNode annoNode : annos)
+			if (annoNode.desc.equals(annoName))
+				return annoNode;
+		return null;
 	}
 
 	static

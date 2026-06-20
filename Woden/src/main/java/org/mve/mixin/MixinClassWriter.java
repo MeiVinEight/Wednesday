@@ -13,7 +13,7 @@ public class MixinClassWriter extends ClassWriter
 	}
 
 	@Override
-	protected ClassLoader getClassLoader()
+	public ClassLoader getClassLoader()
 	{
 		return this.engine;
 		// return super.getClassLoader();

@@ -7,7 +7,6 @@ import org.objectweb.asm.tree.MethodNode;
 
 public class MixinInjection
 {
-	public static int mixinNameId = 0;
 	public final MixinInfo info;
 	public final MethodNode node;
 	public final String target;
@@ -15,7 +14,6 @@ public class MixinInjection
 	public final String method;
 	public final int ordinal;
 	public final int shift;
-	public final String shadowName;
 	public int instruction = 0;
 	public int index = 0;
 	public boolean applied = false;
@@ -29,20 +27,10 @@ public class MixinInjection
 		this.method = method;
 		this.ordinal = ordinal;
 		this.shift = shift;
-		this.shadowName = "mixin$" + methodNode.name + '$' + (mixinNameId++);
 	}
 
 	public void preapply(MixinClassVisitor mcv)
 	{
-		ClassVisitor vis = mcv.visitor();
-		MethodVisitor mv = vis.visitMethod(
-			this.node.access,
-			this.shadowName,
-			this.node.desc,
-			this.node.signature,
-			this.node.exceptions.toArray(String[]::new)
-		);
-		this.node.accept(mv);
 	}
 
 	public void visit(MixinMethodVisitor visitor, AbstractInsnNode node, int shift)
@@ -123,7 +111,7 @@ public class MixinInjection
 		int opc = Opcodes.INVOKEVIRTUAL;
 		if (isStatic == 1)
 			opc = Opcodes.INVOKESTATIC;
-		mv.visitMethodInsn(opc, this.info.target, this.shadowName, this.node.desc, false);
+		mv.visitMethodInsn(opc, this.info.target, this.node.name, this.node.desc, false);
 		Type returnType = Type.getReturnType(visitor.descriptor);
 		Label label = new Label();
 		mv.visitVarInsn(Opcodes.ALOAD, visitor.variable.length);

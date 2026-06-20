@@ -3,27 +3,62 @@ package org.mve.mixin;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MixinInfo
 {
 	public final ClassNode node;
 	public final String target;
+	public final Map<Object, Object> mapping;
 
 	public MixinInfo(ClassNode node, String target)
 	{
 		this.node = node;
 		this.target = target;
-	}
-
-	public void shadow(MixinClassVisitor mcv)
-	{
-
+		this.mapping = new HashMap<>();
+		if (this.node.fields != null)
+		{
+			for (Iterator<FieldNode> it = this.node.fields.iterator(); it.hasNext();)
+			{
+				FieldNode fn = it.next();
+				String name = fn.name;
+				if (MixinEngine.annotation(fn.visibleAnnotations, "Lorg/mve/mixin/Shadow;") == null)
+					name = "mixin$" + name + '$' + UUID.randomUUID().toString().toUpperCase().replace("-", "");
+				else
+					it.remove();
+				MethodRef key = new MethodRef(node.name, fn.name, fn.desc);
+				MethodRef val = new MethodRef(this.target, name, fn.desc);
+				this.mapping.put(key, val);
+				fn.name = name;
+			}
+		}
+		if (this.node.methods != null)
+		{
+			for (Iterator<MethodNode> it = this.node.methods.iterator(); it.hasNext();)
+			{
+				MethodNode mn = it.next();
+				if ("<init>".equals(mn.name))
+				{
+					it.remove();
+					continue;
+				}
+				if (MixinEngine.annotation(mn.visibleAnnotations, "Lorg/mve/mixin/Shadow;") != null)
+				{
+					it.remove();
+					continue;
+				}
+				String name = mn.name;
+				if (MixinEngine.annotation(mn.visibleAnnotations, "Lorg/mve/mixin/Overwrite;") == null)
+					name = "mixin$" + name + "$" + UUID.randomUUID().toString().toUpperCase().replace("-", "");
+				MethodRef key = new MethodRef(node.name, mn.name, mn.desc);
+				MethodRef val = new MethodRef(this.target, name, mn.desc);
+				this.mapping.put(key, val);
+				mn.name = name;
+			}
+		}
 	}
 
 	public MixinInjection[] injection(String name, String desc)
@@ -36,7 +71,7 @@ public class MixinInfo
 				continue;
 
 			int at = Inject.AT_HEAD;
-			String invokeMethod = null;
+			String invokeMethod;
 			int ordinal = 0;
 			int shift = Inject.SHIFT_BEFORE;
 			for (AnnotationNode anno : method.visibleAnnotations)
@@ -57,8 +92,7 @@ public class MixinInfo
 				if (annoNum != null)
 					at = annoNum.intValue();
 
-				invokeMethod = (String) values.get("method");
-				invokeMethod = invokeMethod == null ? "" : invokeMethod;
+				invokeMethod = (String) values.getOrDefault("method", "");
 
 				annoNum = (Number) values.get("ordinal");
 				if (annoNum != null)

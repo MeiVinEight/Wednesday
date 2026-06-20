@@ -1,7 +1,10 @@
 {
 	"mixins":
 	[
-		"org.mve.mixin.IAdaptorMixin",
-		"org.mve.mixin.MiraiLoggerFactoryImplementationBridgeMixin"
+		"org.mve.sn.mixin.FaceMixin",
+		"org.mve.sn.mixin.LinearMessageChainImplMixin",
+		"org.mve.sn.mixin.PlainTextMixin",
+		"org.mve.sn.mixin.EventChannel$filter$1Mixin",
+		"org.mve.sn.mixin.EventChannel$subscribe$2Mixin"
 	]
 }

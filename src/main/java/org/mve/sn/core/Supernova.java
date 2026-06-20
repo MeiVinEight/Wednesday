@@ -431,7 +431,7 @@ public class Supernova implements Bot
 				if (card == null || card.isEmpty())
 					card = sender.string(SupernovaAPI.KEY_NICKNAME);
 				long gid = e.origin.number(SupernovaAPI.KEY_GROUP_ID).longValue();
-				MessageSource source = new SourceFromGroup(e.context, e.text);
+				MessageSource source = new SourceFromGroup(e.context, e.text, gid, fid);
 				MessageChain chain = source.plus(new SupernovaMessage(e.context, e.text).message());
 				SupernovaMember member = new SupernovaMember(e.context, fid, gid, perm);
 				SupernovaManager.GLOBAL.broadcast(new GroupMessageEvent(card, perm, member, chain, (int) e.time));

@@ -1,5 +1,6 @@
 package org.mve.sn.message;
 
+import net.mamoe.mirai.message.data.Face;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
@@ -16,8 +17,11 @@ public class SupernovaMessage implements Message, SingleMessage
 	public static final String KEY_DATA = "data";
 	public static final String KEY_TEXT = "text";
 	public static final String KEY_FILE = "file";
+	public static final String KEY_ID = "id";
+	public static final String KEY_SUMMARY = "summary";
 	public static final String TYPE_TEXT = "text";
 	public static final String TYPE_IMAGE = "image";
+	public static final String TYPE_FACE = "face";
 	public final Supernova context;
 	public final String message;
 	public final String content;
@@ -50,6 +54,11 @@ public class SupernovaMessage implements Message, SingleMessage
 				SupernovaImage img = new SupernovaImage(data.string(KEY_FILE));
 				img.raw = data.stringify();
 				builder.add(img);
+			}
+			if (TYPE_FACE.equals(type))
+			{
+				Face face = new Face(Integer.parseInt(data.string(KEY_ID)));
+				builder.add(face);
 			}
 		}
 		return builder.build();

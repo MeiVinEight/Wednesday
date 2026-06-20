@@ -75,6 +75,7 @@ public class SupernovaAPI implements IMirai
 	public static final String KEY_GROUP_ID = "group_id";
 	public static final String KEY_CARD = "card";
 	public static final String KEY_ROLE = "role";
+	public static final String KEY_AUTO_ESCAPE = "auto_escape";
 
 	public static final String STATUS_OK = "ok";
 	public static final String STATUS_FAILED = "failed";
@@ -91,6 +92,7 @@ public class SupernovaAPI implements IMirai
 	public static final String MESSAGE_TYPE_PRIVATE = "private";
 	public static final String MESSAGE_TYPE_GROUP = "group";
 
+	public static final String API_SEND_GROUP_MSG = "send_group_msg";
 	public static final String API_GET_VERSION_INFO = "get_version_info";
 	public static final String API_GET_FRIEND_LIST = "get_friend_list";
 	public static final String API_GET_STRANGER_INFO = "get_stranger_info";
@@ -148,6 +150,18 @@ public class SupernovaAPI implements IMirai
 				.set(KEY_GROUP_ID, groupId)
 				.set(KEY_USER_ID, memberId)
 				.set(KEY_NO_CACHE, noCache)
+			);
+		return sn.communicate(json, false);
+	}
+
+	public static APIResponse sendGroupMessage(Supernova sn, long groupId, Json message, boolean rawText)
+	{
+		Json json = new Json()
+			.set(KEY_ACTION, API_SEND_GROUP_MSG)
+			.set(KEY_PARAMS, new Json()
+				.set(KEY_GROUP_ID, groupId)
+				.set(KEY_MESSAGE, message)
+				.set(KEY_AUTO_ESCAPE, rawText)
 			);
 		return sn.communicate(json, false);
 	}

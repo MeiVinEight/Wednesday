@@ -197,6 +197,8 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 		sub.invoke(typeName, fieldName, fieldDesc, 0);
 		typeName = "net/mamoe/mirai/event/EventChannel$subscribeOnce$2";
 		sub.invoke(typeName, fieldName, fieldDesc, 1);
+
+		/*
 		typeName = "net/mamoe/mirai/event/EventChannel$subscribe$2";
 		fieldDesc = "Ljava/util/function/Function;";
 		ClassWriter cw = new ClassWriter()
@@ -231,7 +233,9 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 			);
 		byte[] bytes = cw.toByteArray();
 		MagicAccessor.accessor.defineClass(SupernovaManager.class.getClassLoader(), bytes);
+		*/
 
+		/*
 		typeName = "net/mamoe/mirai/event/EventChannel$filter$1";
 		fieldDesc = "Lkotlin/jvm/functions/Function1;";
 		cw = new ClassWriter()
@@ -266,6 +270,7 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 			);
 		bytes = cw.toByteArray();
 		MagicAccessor.accessor.defineClass(SupernovaManager.class.getClassLoader(), bytes);
+		*/
 
 		LazyJVM<EventChannel<Event>> lazy = new LazyJVM<>(() -> SupernovaManager.GLOBAL);
 		Mirroring.set(GlobalEventChannel.class, "instance$delegate", Lazy.class, lazy);

@@ -55,6 +55,7 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 	private final Map<Class<?>, ConcurrentLinkedQueue<Listener<? super Event>>> listeners = new ConcurrentHashMap<>();
 	private final Class<T> type;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
+	private boolean running = true;
 
 	private SupernovaManager(Class<T> type)
 	{
@@ -92,7 +93,7 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 	@Override
 	public void run()
 	{
-		while (true)
+		while (this.running)
 		{
 			Event e = this.queue.poll();
 			if (e == null)
@@ -144,6 +145,12 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 	public synchronized void broadcast(Event e)
 	{
 		this.queue.add(e);
+		this.notify();
+	}
+
+	public synchronized void shutdown()
+	{
+		this.running = false;
 		this.notify();
 	}
 
@@ -283,7 +290,7 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 		LazyJVM<EventChannel<Event>> lazy = new LazyJVM<>(() -> SupernovaManager.GLOBAL);
 		Mirroring.set(GlobalEventChannel.class, "instance$delegate", Lazy.class, lazy);
 		Thread t = new Thread(SupernovaManager.GLOBAL, "SupernovaManager");
-		t.setDaemon(true);
+		t.setDaemon(false);
 		t.start();
 	}
 }

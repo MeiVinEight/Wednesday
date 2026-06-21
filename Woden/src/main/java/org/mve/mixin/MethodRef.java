@@ -15,6 +15,11 @@ public class MethodRef
 		this.type = type;
 	}
 
+	public String nameAndType()
+	{
+		return this.name + this.type;
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{

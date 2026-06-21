@@ -4,10 +4,17 @@ import org.mve.woden.ResourceEnumeration;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.MethodNode;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.net.URL;
@@ -197,7 +204,7 @@ public class MixinEngine extends URLClassLoader
 			}
 
 			ClassNode node = new ClassNode();
-			new ClassReader(classData).accept(node, ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+			new ClassReader(classData).accept(node, 0);
 			if (this.getAnnotation.apply(node, "Lorg/mve/mixin/Mixin;") != null)
 				throw new RuntimeException("Loading class with @Mixin Annotation");
 
@@ -205,9 +212,7 @@ public class MixinEngine extends URLClassLoader
 			if (infos != null && !infos.isEmpty())
 			{
 				MixinClassWriter writer = new MixinClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, this);
-				MixinClassVisitor mcv = new MixinClassVisitor(writer, infos.toArray(MixinInfo[]::new));
-				ClassReader cr = new ClassReader(classData);
-				cr.accept(mcv, ClassReader.SKIP_FRAMES);
+				MixinClassVisitor mcv = new MixinClassVisitor(writer, infos.toArray(MixinInfo[]::new), node);
 				classData = writer.toByteArray();
 				try (FileOutputStream tmp = new FileOutputStream(node.name.substring(node.name.lastIndexOf('/') + 1) + ".class"))
 				{

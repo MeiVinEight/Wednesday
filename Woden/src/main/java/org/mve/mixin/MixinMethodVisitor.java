@@ -1,6 +1,7 @@
 package org.mve.mixin;
 
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -9,9 +10,11 @@ import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class MixinMethodVisitor extends MethodVisitor
 {
+	public final MixinClassVisitor clazz;
 	public final int access;
 	public final String name;
 	public final String descriptor;
@@ -19,18 +22,25 @@ public class MixinMethodVisitor extends MethodVisitor
 	public final String[] exceptions;
 	public final MixinInjection[] injection;
 	public final Map<Object, Object> mapping;
+	public final int lineNumber;
 	public int[] variable = new int[0];
 
-	public MixinMethodVisitor(MethodVisitor methodVisitor, int access, String name, String descriptor, String signature, String[] exceptions, MixinInjection[] injection, Map<Object, Object> mapping)
+	public MixinMethodVisitor(MixinClassVisitor clazz, MethodVisitor methodVisitor, int access, String name, String descriptor, String signature, String[] exceptions)
 	{
 		super(Opcodes.ASM9, methodVisitor);
+		this.clazz = clazz;
 		this.access = access;
 		this.name = name;
 		this.descriptor = descriptor;
 		this.signature = signature;
 		this.exceptions = exceptions;
-		this.injection = injection;
-		this.mapping = mapping;
+		this.injection = Stream.of(clazz.mixin)
+			.map(mi -> mi.injection(name, descriptor))
+			.flatMap(Stream::of)
+			.peek(mi -> mi.preapply(clazz))
+			.toArray(MixinInjection[]::new);
+		this.mapping = clazz.mapping;
+		this.lineNumber = clazz.lineNumber;
 		int locals = Type.getArgumentCount(descriptor);
 		if ((access & Opcodes.ACC_STATIC) == 0)
 			locals++;
@@ -135,6 +145,12 @@ public class MixinMethodVisitor extends MethodVisitor
 
 		for (MixinInjection inj : this.injection)
 			inj.visit(this, new InvokeDynamicInsnNode(name, descriptor, boot, args), Inject.SHIFT_AFTER);
+	}
+
+	@Override
+	public void visitLineNumber(int line, Label start)
+	{
+		super.visitLineNumber(line + this.lineNumber, start);
 	}
 
 	public MethodVisitor mv()

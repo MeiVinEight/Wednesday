@@ -34,6 +34,7 @@ import org.mve.asm.attribute.CodeWriter;
 import org.mve.invoke.MagicAccessor;
 import org.mve.invoke.common.JavaVM;
 import org.mve.sn.core.Supernova;
+import org.mve.uni.Concurrency;
 import org.mve.uni.LazyJVM;
 import org.mve.uni.Mirroring;
 
@@ -55,7 +56,7 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 	private final Class<T> type;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 
-	public SupernovaManager(Class<T> type)
+	private SupernovaManager(Class<T> type)
 	{
 		super(Mirroring.checkcast(Reflection.getOrCreateKotlinClass(type)), EmptyCoroutineContext.INSTANCE);
 		this.type = type;
@@ -95,7 +96,13 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 		{
 			Event e = this.queue.poll();
 			if (e == null)
+			{
+				synchronized (this)
+				{
+					Concurrency.wait(this, -1, false);
+				}
 				continue;
+			}
 			Set<Class<?>> set = new HashSet<>();
 			Stack<Class<?>> stack = new Stack<>();
 			stack.push(e.getClass());
@@ -137,6 +144,7 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 	public synchronized void broadcast(Event e)
 	{
 		this.queue.add(e);
+		this.notify();
 	}
 
 	public static <E extends Event> ConcurrentLinkedQueue<Listener<? super E>> queue(Class<?> c)

@@ -46,9 +46,6 @@ public class MixinClassVisitor extends ClassVisitor
 				fn.accept(this);
 			for (MethodNode mn : info.node.methods)
 			{
-				if (MixinEngine.annotation(mn.visibleAnnotations, "Lorg/mve/mixin/Inject;") != null)
-					continue;
-
 				String[] exce = null;
 				if (mn.exceptions != null)
 					exce = mn.exceptions.toArray(String[]::new);

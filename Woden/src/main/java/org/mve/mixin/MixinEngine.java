@@ -290,6 +290,20 @@ public class MixinEngine extends URLClassLoader
 		return null;
 	}
 
+	public static int maxLines(ClassNode node, int offset)
+	{
+		int max = 0;
+		for (MethodNode mn : node.methods)
+		{
+			for (AbstractInsnNode insn : mn.instructions)
+			{
+				if (insn instanceof LineNumberNode lnn)
+					max = Math.max(max, lnn.line += offset);
+			}
+		}
+		return max;
+	}
+
 	static
 	{
 		try

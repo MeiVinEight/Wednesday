@@ -24,12 +24,18 @@ public class MethodRef
 	public boolean equals(Object o)
 	{
 		if (!(o instanceof MethodRef methodRef)) return false;
-		return Objects.equals(clazz, methodRef.clazz) && Objects.equals(name, methodRef.name) && Objects.equals(type, methodRef.type);
+		return Objects.equals(this.clazz, methodRef.clazz) && Objects.equals(this.name, methodRef.name) && Objects.equals(this.type, methodRef.type);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(clazz, name, type);
+		return Objects.hash(this.clazz, this.name, this.type);
+	}
+
+	@Override
+	public String toString()
+	{
+		return this.clazz + "." + this.name + ":" + this.type;
 	}
 }

@@ -37,6 +37,7 @@ public class SupernovaMessage implements Message, SingleMessage
 	public static final String TYPE_RECORD = "record";
 	public static final String TYPE_DICE = "dice";
 	public static final String TYPE_RPS = "rps";
+	public static final String TYPE_POKE = "poke";
 	public final Supernova context;
 	public final String message;
 	public final String content;
@@ -146,6 +147,14 @@ public class SupernovaMessage implements Message, SingleMessage
 		return RockPaperScissors.values()[result - 1];
 	}
 
+	public static PokeMessage poke(Supernova context, Json val)
+	{
+		Json data = val.get(KEY_DATA);
+		int id = Integer.parseInt(data.string(SupernovaMessage.KEY_ID));
+		int type = Integer.parseInt(data.string(SupernovaMessage.KEY_TYPE));
+		return new PokeMessage("", type, id);
+	}
+
 	public static UnknownMessage unknown(Supernova context, Json val)
 	{
 		return new UnknownMessage(val);
@@ -167,5 +176,6 @@ public class SupernovaMessage implements Message, SingleMessage
 		register(TYPE_RECORD, SupernovaMessage::record);
 		register(TYPE_DICE, SupernovaMessage::dice);
 		register(TYPE_RPS, SupernovaMessage::rps);
+		register(TYPE_POKE, SupernovaMessage::poke);
 	}
 }

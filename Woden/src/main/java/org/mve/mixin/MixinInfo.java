@@ -1,9 +1,12 @@
 package org.mve.mixin;
 
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.*;
@@ -19,6 +22,7 @@ public class MixinInfo
 		this.node = node;
 		this.target = target;
 		this.mapping = new HashMap<>();
+		List<InvokeDynamicInsnNode> dynamics = new LinkedList<>();
 		if (this.node.fields != null)
 		{
 			for (Iterator<FieldNode> it = this.node.fields.iterator(); it.hasNext();)
@@ -57,6 +61,32 @@ public class MixinInfo
 				MethodRef val = new MethodRef(this.target, name, mn.desc);
 				this.mapping.put(key, val);
 				mn.name = name;
+				for (AbstractInsnNode insn : mn.instructions)
+				{
+					if (insn instanceof InvokeDynamicInsnNode dynamic)
+						dynamics.add(dynamic);
+				}
+			}
+		}
+		for (InvokeDynamicInsnNode dyn : dynamics)
+		{
+			Handle boot = dyn.bsm;
+			Object[] args = dyn.bsmArgs;
+			if ("java/lang/invoke/LambdaMetafactory".equals(boot.getOwner()) &&
+				"metafactory".equals(boot.getName()) &&
+				("(Ljava/lang/invoke/MethodHandles$Lookup;" +
+					"Ljava/lang/String;" +
+					"Ljava/lang/invoke/MethodType;" +
+					"Ljava/lang/invoke/MethodType;" +
+					"Ljava/lang/invoke/MethodHandle;" +
+					"Ljava/lang/invoke/MethodType;" +
+					")Ljava/lang/invoke/CallSite;").equals(boot.getDesc()))
+			{
+				Handle handle = (Handle) args[1];
+				MethodRef ref = new MethodRef(handle.getOwner(), handle.getName(), handle.getDesc());
+				ref = (MethodRef) this.mapping.getOrDefault(ref, ref);
+				args[1] = new Handle(handle.getTag(), ref.clazz, ref.name, ref.type, handle.isInterface());
+				dyn.desc = dyn.desc.replaceAll('L' + this.node.name + ';', 'L' + this.target + ';');
 			}
 		}
 	}

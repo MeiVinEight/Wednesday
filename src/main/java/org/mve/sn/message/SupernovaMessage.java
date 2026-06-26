@@ -1,17 +1,7 @@
 package org.mve.sn.message;
 
 import kotlin.Lazy;
-import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.AtAll;
-import net.mamoe.mirai.message.data.Face;
-import net.mamoe.mirai.message.data.LightApp;
-import net.mamoe.mirai.message.data.Message;
-import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.MessageSource;
-import net.mamoe.mirai.message.data.PlainText;
-import net.mamoe.mirai.message.data.QuoteReply;
-import net.mamoe.mirai.message.data.SingleMessage;
+import net.mamoe.mirai.message.data.*;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.jetbrains.annotations.NotNull;
 import org.mve.sn.SupernovaAPI;
@@ -37,6 +27,7 @@ public class SupernovaMessage implements Message, SingleMessage
 	public static final String KEY_SUMMARY = "summary";
 	public static final String KEY_QQ = "qq";
 	public static final String KEY_URL = "url";
+	public static final String KEY_RESULT = "result";
 	public static final String TYPE_TEXT = "text";
 	public static final String TYPE_IMAGE = "image";
 	public static final String TYPE_FACE = "face";
@@ -44,6 +35,8 @@ public class SupernovaMessage implements Message, SingleMessage
 	public static final String TYPE_AT = "at";
 	public static final String TYPE_REPLY = "reply";
 	public static final String TYPE_RECORD = "record";
+	public static final String TYPE_DICE = "dice";
+	public static final String TYPE_RPS = "rps";
 	public final Supernova context;
 	public final String message;
 	public final String content;
@@ -139,6 +132,20 @@ public class SupernovaMessage implements Message, SingleMessage
 		return audio;
 	}
 
+	public static Dice dice(Supernova context, Json val)
+	{
+		Json data = val.get(KEY_DATA);
+		int result = Integer.parseInt(data.string(SupernovaMessage.KEY_RESULT));
+		return new Dice(result);
+	}
+
+	public static RockPaperScissors rps(Supernova context, Json val)
+	{
+		Json data = val.get(KEY_DATA);
+		int result = Integer.parseInt(data.string(SupernovaMessage.KEY_RESULT));
+		return RockPaperScissors.values()[result - 1];
+	}
+
 	public static UnknownMessage unknown(Supernova context, Json val)
 	{
 		return new UnknownMessage(val);
@@ -158,5 +165,7 @@ public class SupernovaMessage implements Message, SingleMessage
 		register(TYPE_AT, SupernovaMessage::at);
 		register(TYPE_REPLY, SupernovaMessage::reply);
 		register(TYPE_RECORD, SupernovaMessage::record);
+		register(TYPE_DICE, SupernovaMessage::dice);
+		register(TYPE_RPS, SupernovaMessage::rps);
 	}
 }

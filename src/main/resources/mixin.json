@@ -10,6 +10,8 @@
 		"org.mve.sn.mixin.FilterEventChannelMixin",
 		"org.mve.sn.mixin.EventChannel$subscribeAlways$2Mixin",
 		"org.mve.sn.mixin.EventChannel$subscribeOnce$2Mixin",
-		"org.mve.sn.mixin.LightAppMixin"
+		"org.mve.sn.mixin.LightAppMixin",
+		"org.mve.sn.mixin.AtMixin",
+		"org.mve.sn.mixin.ReplyMixin"
 	]
 }

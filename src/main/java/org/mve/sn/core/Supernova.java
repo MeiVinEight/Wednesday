@@ -20,6 +20,7 @@ import net.mamoe.mirai.event.events.BotEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageSource;
 import net.mamoe.mirai.utils.BotConfiguration;
@@ -75,6 +76,7 @@ public class Supernova implements Bot
 	private final Lazy<EventChannel<BotEvent>> channel = LazyKt.lazy(() -> GlobalEventChannel.INSTANCE.filterIsInstance(BotEvent.class).filter(e -> e.getBot() == this));
 	private APIResponse failure = null;
 	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new FriendInfoW(this.getId(), 0, this.nickname.getValue(), null)));
+	private final MessageArray message = new MessageArray();
 
 	public Supernova(String url, String token, BotConfiguration configuration, Logger wsLogger)
 	{
@@ -129,6 +131,7 @@ public class Supernova implements Bot
 			this.error = e;
 			this.close(e);
 		}
+		this.getEventChannel().subscribeAlways(MessageEvent.class, this.message);
 	}
 
 	@NotNull
@@ -348,6 +351,11 @@ public class Supernova implements Bot
 			this.connection.send(json.stringify().getBytes(StandardCharsets.UTF_8));
 			return future.get(11, TimeUnit.SECONDS, false);
 		}
+	}
+
+	public MessageSource source(int id)
+	{
+		return this.message.get(id);
 	}
 
 	private void complete(Json json)

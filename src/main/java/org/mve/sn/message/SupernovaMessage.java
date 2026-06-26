@@ -2,6 +2,7 @@ package org.mve.sn.message;
 
 import kotlin.Lazy;
 import net.mamoe.mirai.message.data.At;
+import net.mamoe.mirai.message.data.AtAll;
 import net.mamoe.mirai.message.data.Face;
 import net.mamoe.mirai.message.data.LightApp;
 import net.mamoe.mirai.message.data.Message;
@@ -107,10 +108,13 @@ public class SupernovaMessage implements Message, SingleMessage
 		return new LightApp(data.string(KEY_DATA));
 	}
 
-	public static At at(Supernova context, Json val)
+	public static SingleMessage at(Supernova context, Json val)
 	{
 		Json data = val.get(KEY_DATA);
-		return new At(Long.parseLong(data.string(SupernovaMessage.KEY_QQ)));
+		String qq = data.string(SupernovaMessage.KEY_QQ);
+		if ("all".equals(qq))
+			return AtAll.INSTANCE;
+		return new At(Long.parseLong(qq));
 	}
 
 	public static QuoteReply reply(Supernova context, Json val)

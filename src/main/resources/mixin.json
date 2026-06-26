@@ -9,6 +9,7 @@
 		"org.mve.sn.mixin.FilterEventChannel$intercept$1Mixin",
 		"org.mve.sn.mixin.FilterEventChannelMixin",
 		"org.mve.sn.mixin.EventChannel$subscribeAlways$2Mixin",
-		"org.mve.sn.mixin.EventChannel$subscribeOnce$2Mixin"
+		"org.mve.sn.mixin.EventChannel$subscribeOnce$2Mixin",
+		"org.mve.sn.mixin.LightAppMixin"
 	]
 }

@@ -163,7 +163,7 @@ public class SupernovaMessage implements Message, SingleMessage
 		String file = data.string(SupernovaMessage.KEY_FILE);
 		String fileId = data.string(SupernovaMessage.KEY_FILE_ID);
 		String url = data.string(SupernovaMessage.KEY_URL);
-		return new WrappedFileMessage(fileId, fileId, url);
+		return new WrappedFileMessage(fileId, file, url);
 	}
 
 	public static UnknownMessage unknown(Supernova context, Json val)

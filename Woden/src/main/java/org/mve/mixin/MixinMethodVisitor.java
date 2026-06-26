@@ -6,6 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
@@ -129,6 +130,18 @@ public class MixinMethodVisitor extends MethodVisitor
 
 		for (MixinInjection inj : this.injection)
 			inj.visit(this, new InvokeDynamicInsnNode(name, descriptor, boot, args), Inject.SHIFT_AFTER);
+	}
+
+	@Override
+	public void visitInsn(int opcode)
+	{
+		for (MixinInjection inj : this.injection)
+			inj.visit(this, new InsnNode(opcode), Inject.SHIFT_BEFORE);
+
+		super.visitInsn(opcode);
+
+		for (MixinInjection inj : this.injection)
+			inj.visit(this, new InsnNode(opcode), Inject.SHIFT_AFTER);
 	}
 
 	@Override

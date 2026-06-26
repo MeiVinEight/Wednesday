@@ -1,7 +1,11 @@
 package org.mve.mixin;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -46,7 +50,7 @@ public class MixinInjection
 				if (node == null)
 					apply = true;
 			}
-			else if (this.at == Inject.AT_INVOKE)
+			if (this.at == Inject.AT_INVOKE)
 			{
 				if (!(node instanceof MethodInsnNode mnode))
 					break APPLY_COND;
@@ -59,6 +63,19 @@ public class MixinInjection
 				if (idx != this.ordinal)
 					break APPLY_COND;
 				apply = true;
+			}
+			if (this.at == Inject.AT_RETURN)
+			{
+				if (this.shift != shift)
+					break APPLY_COND;
+				if (!(node instanceof InsnNode insn))
+					return;
+				apply = insn.getOpcode() == Opcodes.RETURN;
+				apply |= insn.getOpcode() == Opcodes.IRETURN;
+				apply |= insn.getOpcode() == Opcodes.LRETURN;
+				apply |= insn.getOpcode() == Opcodes.FRETURN;
+				apply |= insn.getOpcode() == Opcodes.DRETURN;
+				apply |= insn.getOpcode() == Opcodes.ARETURN;
 			}
 		}
 

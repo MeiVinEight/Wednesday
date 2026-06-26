@@ -28,6 +28,7 @@ public class SupernovaMessage implements Message, SingleMessage
 	public static final String KEY_QQ = "qq";
 	public static final String KEY_URL = "url";
 	public static final String KEY_RESULT = "result";
+	public static final String KEY_FILE_ID = "file_id";
 	public static final String TYPE_TEXT = "text";
 	public static final String TYPE_IMAGE = "image";
 	public static final String TYPE_FACE = "face";
@@ -38,6 +39,7 @@ public class SupernovaMessage implements Message, SingleMessage
 	public static final String TYPE_DICE = "dice";
 	public static final String TYPE_RPS = "rps";
 	public static final String TYPE_POKE = "poke";
+	public static final String TYPE_FILE = "file";
 	public final Supernova context;
 	public final String message;
 	public final String content;
@@ -155,6 +157,15 @@ public class SupernovaMessage implements Message, SingleMessage
 		return new PokeMessage("", type, id);
 	}
 
+	public static FileMessage file(Supernova context, Json val)
+	{
+		Json data = val.get(KEY_DATA);
+		String file = data.string(SupernovaMessage.KEY_FILE);
+		String fileId = data.string(SupernovaMessage.KEY_FILE_ID);
+		String url = data.string(SupernovaMessage.KEY_URL);
+		return new WrappedFileMessage(fileId, fileId, url);
+	}
+
 	public static UnknownMessage unknown(Supernova context, Json val)
 	{
 		return new UnknownMessage(val);
@@ -177,5 +188,6 @@ public class SupernovaMessage implements Message, SingleMessage
 		register(TYPE_DICE, SupernovaMessage::dice);
 		register(TYPE_RPS, SupernovaMessage::rps);
 		register(TYPE_POKE, SupernovaMessage::poke);
+		register(TYPE_FILE, SupernovaMessage::file);
 	}
 }

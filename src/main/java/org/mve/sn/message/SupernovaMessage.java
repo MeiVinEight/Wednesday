@@ -36,12 +36,14 @@ public class SupernovaMessage implements Message, SingleMessage
 	public static final String KEY_ID = "id";
 	public static final String KEY_SUMMARY = "summary";
 	public static final String KEY_QQ = "qq";
+	public static final String KEY_URL = "url";
 	public static final String TYPE_TEXT = "text";
 	public static final String TYPE_IMAGE = "image";
 	public static final String TYPE_FACE = "face";
 	public static final String TYPE_JSON = "json";
 	public static final String TYPE_AT = "at";
 	public static final String TYPE_REPLY = "reply";
+	public static final String TYPE_RECORD = "record";
 	public final Supernova context;
 	public final String message;
 	public final String content;
@@ -127,6 +129,16 @@ public class SupernovaMessage implements Message, SingleMessage
 		return new QuoteReply(source);
 	}
 
+	public static WrappedAudio record(Supernova context, Json val)
+	{
+		Json data = val.get(KEY_DATA);
+		String file = data.string(SupernovaMessage.KEY_FILE);
+		String url = data.string(SupernovaMessage.KEY_URL);
+		WrappedAudio audio = new WrappedAudio(context, file, url);
+		audio.message = val.stringify();
+		return audio;
+	}
+
 	public static UnknownMessage unknown(Supernova context, Json val)
 	{
 		return new UnknownMessage(val);
@@ -145,5 +157,6 @@ public class SupernovaMessage implements Message, SingleMessage
 		register(TYPE_JSON, SupernovaMessage::app);
 		register(TYPE_AT, SupernovaMessage::at);
 		register(TYPE_REPLY, SupernovaMessage::reply);
+		register(TYPE_RECORD, SupernovaMessage::record);
 	}
 }

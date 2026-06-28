@@ -15,7 +15,11 @@ public class LinearMessageChainImplMixin implements MessageJson
 	{
 		Json json = new Json(Json.TYPE_ARRAY);
 		LinearMessageChainImpl chain = (LinearMessageChainImpl) (Object) this;
-		chain.stream().filter(e -> e instanceof MessageJson).forEach(s -> json.add(((MessageJson) s).json()));
+		chain.forEach(s ->
+		{
+			if (s instanceof MessageJson)
+				json.add(((MessageJson) s).json());
+		});
 		return json;
 	}
 }

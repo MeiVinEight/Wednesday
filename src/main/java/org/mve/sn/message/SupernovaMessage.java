@@ -1,22 +1,41 @@
 package org.mve.sn.message;
 
 import kotlin.Lazy;
-import net.mamoe.mirai.message.data.*;
+import net.mamoe.mirai.message.data.At;
+import net.mamoe.mirai.message.data.AtAll;
+import net.mamoe.mirai.message.data.Dice;
+import net.mamoe.mirai.message.data.Face;
+import net.mamoe.mirai.message.data.FileMessage;
+import net.mamoe.mirai.message.data.LightApp;
+import net.mamoe.mirai.message.data.Message;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
+import net.mamoe.mirai.message.data.MessageSource;
+import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.PokeMessage;
+import net.mamoe.mirai.message.data.QuoteReply;
+import net.mamoe.mirai.message.data.RockPaperScissors;
+import net.mamoe.mirai.message.data.SingleMessage;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.jetbrains.annotations.NotNull;
 import org.mve.sn.SupernovaAPI;
 import org.mve.sn.core.Supernova;
 import org.mve.sn.data.SourceOffline;
+import org.mve.sn.message.app.ILightApp;
+import org.mve.sn.message.app.MiniApp;
+import org.mve.sn.message.app.UnknownApp;
 import org.mve.uni.Json;
 import org.mve.uni.LazyJVM;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class SupernovaMessage implements Message, SingleMessage
 {
 	private static final Map<String, BiFunction<Supernova, Json, SingleMessage>> DESERIALIZERS = new HashMap<>();
+	private static final Map<String, Function<String, ILightApp>> LIGHT_APP = new HashMap<>();
 	private static final Lazy<BiFunction<Supernova, Json, SingleMessage>> UNKNOWN_MESSAGE = new LazyJVM<>(() -> SupernovaMessage::unknown);
 	public static final Lazy<MiraiLogger> LOGGER = new LazyJVM<>(() -> MiraiLogger.Factory.INSTANCE.create(SupernovaMessage.class));
 	public static final String KEY_TYPE = "type";
@@ -171,23 +190,34 @@ public class SupernovaMessage implements Message, SingleMessage
 		return new UnknownMessage(val);
 	}
 
-	public static void register(String type, BiFunction<Supernova, Json, SingleMessage> deserializer)
+	public static ILightApp resolveApp(String type, String content)
+	{
+		return LIGHT_APP.getOrDefault(type, UnknownApp::new).apply(content);
+	}
+
+	public static void registerMessage(String type, BiFunction<Supernova, Json, SingleMessage> deserializer)
 	{
 		DESERIALIZERS.put(type, deserializer);
 	}
 
+	public static void registerApp(String type, Function<String, ILightApp> app)
+	{
+		LIGHT_APP.put(type, app);
+	}
+
 	static
 	{
-		register(TYPE_TEXT, SupernovaMessage::text);
-		register(TYPE_IMAGE, SupernovaMessage::image);
-		register(TYPE_FACE, SupernovaMessage::face);
-		register(TYPE_JSON, SupernovaMessage::app);
-		register(TYPE_AT, SupernovaMessage::at);
-		register(TYPE_REPLY, SupernovaMessage::reply);
-		register(TYPE_RECORD, SupernovaMessage::record);
-		register(TYPE_DICE, SupernovaMessage::dice);
-		register(TYPE_RPS, SupernovaMessage::rps);
-		register(TYPE_POKE, SupernovaMessage::poke);
-		register(TYPE_FILE, SupernovaMessage::file);
+		registerMessage(TYPE_TEXT, SupernovaMessage::text);
+		registerMessage(TYPE_IMAGE, SupernovaMessage::image);
+		registerMessage(TYPE_FACE, SupernovaMessage::face);
+		registerMessage(TYPE_JSON, SupernovaMessage::app);
+		registerMessage(TYPE_AT, SupernovaMessage::at);
+		registerMessage(TYPE_REPLY, SupernovaMessage::reply);
+		registerMessage(TYPE_RECORD, SupernovaMessage::record);
+		registerMessage(TYPE_DICE, SupernovaMessage::dice);
+		registerMessage(TYPE_RPS, SupernovaMessage::rps);
+		registerMessage(TYPE_POKE, SupernovaMessage::poke);
+		registerMessage(TYPE_FILE, SupernovaMessage::file);
+		registerApp(ILightApp.APP_MINIAPP01, MiniApp::resolve);
 	}
 }

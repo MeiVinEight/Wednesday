@@ -38,6 +38,7 @@ import org.mve.sn.data.FriendInfoW;
 import org.mve.sn.data.SourceFromFriend;
 import org.mve.sn.data.SourceFromGroup;
 import org.mve.sn.data.StrangerInfoW;
+import org.mve.sn.event.HeartbeatEvent;
 import org.mve.sn.event.PostingEvent;
 import org.mve.sn.event.PostingMessageEvent;
 import org.mve.sn.event.SupernovaManager;
@@ -301,6 +302,11 @@ public class Supernova implements Bot
 						.set(SupernovaAPI.KEY_STATUS, SupernovaAPI.STATUS_OK);
 					this.complete(json);
 				}
+			}
+			if (SupernovaAPI.META_EVENT_HEARTBEAT.equals(metaEventType))
+			{
+				HeartbeatEvent event = new HeartbeatEvent(this, json);
+				SupernovaManager.GLOBAL.broadcast(event);
 			}
 		}
 		if (postType != null)

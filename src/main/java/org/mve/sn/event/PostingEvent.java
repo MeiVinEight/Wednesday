@@ -1,13 +1,14 @@
 package org.mve.sn.event;
 
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.event.AbstractEvent;
 import net.mamoe.mirai.event.events.BotPassiveEvent;
 import org.jetbrains.annotations.NotNull;
 import org.mve.sn.SupernovaAPI;
 import org.mve.sn.core.Supernova;
 import org.mve.uni.Json;
 
-public class PostingEvent implements BotPassiveEvent
+public class PostingEvent extends AbstractEvent implements BotPassiveEvent
 {
 	public final Supernova context;
 	public final String text;

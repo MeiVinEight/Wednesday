@@ -76,6 +76,8 @@ public class SupernovaAPI implements IMirai
 	public static final String KEY_CARD = "card";
 	public static final String KEY_ROLE = "role";
 	public static final String KEY_AUTO_ESCAPE = "auto_escape";
+	public static final String KEY_ONLINE = "online";
+	public static final String KEY_GOOD = "good";
 
 	public static final String STATUS_OK = "ok";
 	public static final String STATUS_FAILED = "failed";
@@ -85,6 +87,7 @@ public class SupernovaAPI implements IMirai
 	public static final String POST_TYPE_MESSAGE = "message";
 
 	public static final String META_EVENT_LIFECYCLE = "lifecycle";
+	public static final String META_EVENT_HEARTBEAT = "heartbeat";
 	public static final String LIFECYCLE_CONNECT = "connect";
 
 	public static final String MESSAGE_FORMAT_ARRAY = "array";

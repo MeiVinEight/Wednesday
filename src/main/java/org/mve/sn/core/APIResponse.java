@@ -60,6 +60,6 @@ public class APIResponse
 	public void checkValidation()
 	{
 		if (this.status != STATUS_OK)
-			throw new IllegalStateException(this.message);
+			throw new APIException(this);
 	}
 }

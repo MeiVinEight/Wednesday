@@ -2,8 +2,11 @@ package org.mve.sn.core;
 
 public class APIException extends RuntimeException
 {
-	public APIException(String message)
+	public final APIResponse response;
+
+	public APIException(APIResponse response)
 	{
-		super(message);
+		super(response.message);
+		this.response = response;
 	}
 }

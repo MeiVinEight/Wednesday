@@ -369,7 +369,6 @@ public class Supernova implements Bot
 		this.failure = null;
 		APIResponse response = new APIResponse(json);
 		Number echo = response.echo;
-		String failedMsg = null;
 		if (response.status == APIResponse.STATUS_FAILED)
 		{
 			this.failure = response;
@@ -377,20 +376,16 @@ public class Supernova implements Bot
 			if (echo != null)
 				builder.append('[').append(echo).append("]");
 			builder.append('[')
-				.append(json.number(SupernovaAPI.KEY_RETCODE))
+				.append(response.code)
 				.append("] ")
-				.append(failedMsg = json.string(SupernovaAPI.KEY_MESSAGE));
+				.append(response.message);
 			this.getLogger().error(builder.toString());
 		}
 		if (echo == null)
 			return;
 		CompletionWaiting<APIResponse> waiting = this.action.remove(echo.intValue());
 		if (waiting != null)
-		{
-			if (failedMsg != null)
-				waiting.exception(new APIException(failedMsg));
 			waiting.complete(response);
-		}
 	}
 
 	static

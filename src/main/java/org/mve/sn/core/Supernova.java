@@ -78,6 +78,7 @@ public class Supernova implements Bot
 	private APIResponse failure = null;
 	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new WrappedFriendInfo(this.getId(), 0, this.nickname.getValue(), null)));
 	private final MessageArray message = new MessageArray();
+	private final Map<Long, Group> group = new ConcurrentHashMap<>();
 
 	public Supernova(String url, String token, BotConfiguration configuration, Logger wsLogger)
 	{
@@ -224,7 +225,10 @@ public class Supernova implements Bot
 	@Override
 	public Group getGroup(long id)
 	{
-		return new SupernovaGroup(this, id);
+		Group grp = this.group.get(id);
+		if (grp == null)
+			this.group.putIfAbsent(id, grp = new SupernovaGroup(this, id));
+		return grp;
 	}
 
 	@Nullable

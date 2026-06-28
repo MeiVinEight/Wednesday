@@ -34,10 +34,10 @@ import org.mve.sn.core.contact.SupernovaGroup;
 import org.mve.sn.core.contact.SupernovaMember;
 import org.mve.sn.coroutine.ContinuationX;
 import org.mve.sn.coroutine.CoroutineX;
-import org.mve.sn.data.FriendInfoW;
+import org.mve.sn.data.WrappedFriendInfo;
 import org.mve.sn.data.SourceFromFriend;
 import org.mve.sn.data.SourceFromGroup;
-import org.mve.sn.data.StrangerInfoW;
+import org.mve.sn.data.WrappedStrangerInfo;
 import org.mve.sn.event.HeartbeatEvent;
 import org.mve.sn.event.PostingEvent;
 import org.mve.sn.event.PostingMessageEvent;
@@ -76,7 +76,7 @@ public class Supernova implements Bot
 	private final Lazy<CopyOnWriteArraySet<Friend>> friends;
 	private final Lazy<EventChannel<BotEvent>> channel = LazyKt.lazy(() -> GlobalEventChannel.INSTANCE.filterIsInstance(BotEvent.class).filter(e -> e.getBot() == this));
 	private APIResponse failure = null;
-	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new FriendInfoW(this.getId(), 0, this.nickname.getValue(), null)));
+	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new WrappedFriendInfo(this.getId(), 0, this.nickname.getValue(), null)));
 	private final MessageArray message = new MessageArray();
 
 	public Supernova(String url, String token, BotConfiguration configuration, Logger wsLogger)
@@ -93,7 +93,7 @@ public class Supernova implements Bot
 				long id = friend.number(SupernovaAPI.KEY_USER_ID).longValue();
 				String nick = friend.string(SupernovaAPI.KEY_NICKNAME);
 				String remark = friend.string(SupernovaAPI.KEY_REMARK);
-				FriendInfoW info = new FriendInfoW(id, 0, nick, remark);
+				WrappedFriendInfo info = new WrappedFriendInfo(id, 0, nick, remark);
 				list.add(Mirai.getInstance().newFriend(this, info));
 			}
 			return list;
@@ -182,14 +182,14 @@ public class Supernova implements Bot
 	@Override
 	public Stranger getAsStranger()
 	{
-		return Mirai.getInstance().newStranger(this, new StrangerInfoW(this.getId(), 0, null, null));
+		return Mirai.getInstance().newStranger(this, new WrappedStrangerInfo(this.getId(), 0, null, null));
 	}
 
 	@Nullable
 	@Override
 	public Stranger getStranger(long id)
 	{
-		return Mirai.getInstance().newStranger(this, new StrangerInfoW(id, 0, null, null));
+		return Mirai.getInstance().newStranger(this, new WrappedStrangerInfo(id, 0, null, null));
 	}
 
 	@NotNull
@@ -423,7 +423,7 @@ public class Supernova implements Bot
 				long fid = e.origin.get(SupernovaAPI.KEY_SENDER).number(SupernovaAPI.KEY_USER_ID).longValue();
 				Friend friend = e.getBot().getFriend(fid);
 				if (friend == null)
-					friend = Mirai.getInstance().newFriend(e.getBot(), new FriendInfoW(fid, 0, null, null));
+					friend = Mirai.getInstance().newFriend(e.getBot(), new WrappedFriendInfo(fid, 0, null, null));
 				SupernovaManager.GLOBAL.broadcast(new FriendMessageEvent(
 					friend,
 					new SourceFromFriend(e.context, e.text).plus(new SupernovaMessage(e.context, e.text).message())/**/,

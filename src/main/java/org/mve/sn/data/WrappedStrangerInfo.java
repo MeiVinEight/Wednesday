@@ -2,9 +2,9 @@ package org.mve.sn.data;
 
 import net.mamoe.mirai.data.StrangerInfo;
 
-public class StrangerInfoW extends UserW implements StrangerInfo
+public class WrappedStrangerInfo extends WrappedUser implements StrangerInfo
 {
-	public StrangerInfoW(long ID, int group, String nick, String remark)
+	public WrappedStrangerInfo(long ID, int group, String nick, String remark)
 	{
 		super(ID, group, nick, remark);
 	}

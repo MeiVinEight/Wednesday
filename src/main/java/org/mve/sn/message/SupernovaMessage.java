@@ -105,10 +105,10 @@ public class SupernovaMessage implements Message, SingleMessage
 		return new PlainText(data.string(KEY_TEXT));
 	}
 
-	public static SupernovaImage image(Supernova context, Json val)
+	public static WrappedImage image(Supernova context, Json val)
 	{
 		Json data = val.get(KEY_DATA);
-		SupernovaImage img = new SupernovaImage(data.string(KEY_FILE));
+		WrappedImage img = new WrappedImage(data.string(KEY_FILE));
 		img.raw = data.stringify();
 		return img;
 	}

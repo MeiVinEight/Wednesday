@@ -54,7 +54,7 @@ public class WrappedFileMessage implements FileMessage, MessageJson
 	@Override
 	public AbsoluteFile toAbsoluteFile(@NotNull FileSupported fileSupported, @NotNull Continuation<? super AbsoluteFile> continuation)
 	{
-		return null;
+		return fileSupported.getFiles().getRoot().resolveFileById(this.getId());
 	}
 
 	@NotNull

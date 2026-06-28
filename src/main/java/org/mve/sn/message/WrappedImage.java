@@ -6,14 +6,14 @@ import org.jetbrains.annotations.NotNull;
 import org.mve.uni.Json;
 import org.mve.uni.LazyJVM;
 
-public class SupernovaImage implements Image, MessageJson
+public class WrappedImage implements Image, MessageJson
 {
 	public String raw;
 	public final LazyJVM<Json> message;
 	public final String file;
 	public final LazyJVM<String> summary;
 
-	public SupernovaImage(String file)
+	public WrappedImage(String file)
 	{
 		this.file = file;
 		this.message = new LazyJVM<>(() -> {

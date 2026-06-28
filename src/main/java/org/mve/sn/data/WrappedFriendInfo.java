@@ -2,9 +2,9 @@ package org.mve.sn.data;
 
 import net.mamoe.mirai.data.FriendInfo;
 
-public class FriendInfoW extends UserW implements FriendInfo
+public class WrappedFriendInfo extends WrappedUser implements FriendInfo
 {
-	public FriendInfoW(long ID, int group, String nick, String remark)
+	public WrappedFriendInfo(long ID, int group, String nick, String remark)
 	{
 		super(ID, group, nick, remark);
 	}

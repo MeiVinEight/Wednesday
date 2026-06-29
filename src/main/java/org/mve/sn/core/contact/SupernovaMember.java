@@ -72,7 +72,13 @@ public class SupernovaMember extends SupernovaUser implements NormalMember
 	@Override
 	public int getMuteTimeRemaining()
 	{
-		return 0;
+		APIResponse response = SupernovaAPI.getGroupMemberInfo(this.context, this.group, this.getId(), false);
+		response.checkValidation();
+		int time = response.data.number(SupernovaAPI.KEY_SHUT_UP_TIMESTAMP).intValue();
+		int now = Math.toIntExact(System.currentTimeMillis() / 1000);
+		if (now > time)
+			return 0;
+		return time - now;
 	}
 
 	@Override

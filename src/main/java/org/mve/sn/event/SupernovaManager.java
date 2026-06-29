@@ -104,48 +104,54 @@ public class SupernovaManager<T extends Event> extends EventChannel<T> implement
 				}
 				continue;
 			}
-			Set<Class<?>> set = new HashSet<>();
-			Stack<Class<?>> stack = new Stack<>();
-			stack.push(e.getClass());
-			while (!stack.empty())
-			{
-				Class<?> clazz = stack.pop();
-				if (clazz == null)
-					continue;
-				if (!set.contains(clazz))
-				{
-					set.add(clazz);
-					ConcurrentLinkedQueue<Listener<? super Event>> orDefault = this.listeners.getOrDefault(clazz, null);
-					if (orDefault != null)
-					{
-						//for (Listener<? super Event> listener : orDefault)
-						for (Iterator<Listener<? super Event>> it = orDefault.iterator(); it.hasNext(); )
-						{
-							Listener<? super Event> listener = it.next();
-							if (listener.isCancelled())
-							{
-								it.remove();
-								continue;
-							}
-							ListeningStatus status = (ListeningStatus) listener.onEvent(e, Supernova.CONTINUATION);
-							if (status == ListeningStatus.STOPPED)
-								it.remove();
-						}
-					}
-				}
-				if (clazz.getSuperclass() != null)
-					stack.push(clazz.getSuperclass());
-				Class<?>[] interfaces = clazz.getInterfaces();
-				for (Class<?> i : interfaces)
-					stack.push(i);
-			}
+			this.broadcast(e, true);
 		}
 	}
 
-	public synchronized void broadcast(Event e)
+	public synchronized void broadcast(Event e, boolean now)
 	{
-		this.queue.add(e);
-		this.notify();
+		if (!now)
+		{
+			this.queue.add(e);
+			this.notify();
+			return;
+		}
+
+		Set<Class<?>> set = new HashSet<>();
+		Stack<Class<?>> stack = new Stack<>();
+		stack.push(e.getClass());
+		while (!stack.empty())
+		{
+			Class<?> clazz = stack.pop();
+			if (clazz == null)
+				continue;
+			if (!set.contains(clazz))
+			{
+				set.add(clazz);
+				ConcurrentLinkedQueue<Listener<? super Event>> orDefault = this.listeners.getOrDefault(clazz, null);
+				if (orDefault != null)
+				{
+					//for (Listener<? super Event> listener : orDefault)
+					for (Iterator<Listener<? super Event>> it = orDefault.iterator(); it.hasNext(); )
+					{
+						Listener<? super Event> listener = it.next();
+						if (listener.isCancelled())
+						{
+							it.remove();
+							continue;
+						}
+						ListeningStatus status = (ListeningStatus) listener.onEvent(e, Supernova.CONTINUATION);
+						if (status == ListeningStatus.STOPPED)
+							it.remove();
+					}
+				}
+			}
+			if (clazz.getSuperclass() != null)
+				stack.push(clazz.getSuperclass());
+			Class<?>[] interfaces = clazz.getInterfaces();
+			for (Class<?> i : interfaces)
+				stack.push(i);
+		}
 	}
 
 	public synchronized void shutdown()

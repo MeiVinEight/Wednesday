@@ -2,6 +2,7 @@ package org.mve.sn.core.contact;
 
 import kotlin.Lazy;
 import kotlin.coroutines.Continuation;
+import net.mamoe.mirai.contact.BotIsBeingMutedException;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.GroupSettings;
@@ -11,25 +12,46 @@ import net.mamoe.mirai.contact.announcement.Announcements;
 import net.mamoe.mirai.contact.essence.Essences;
 import net.mamoe.mirai.contact.file.RemoteFiles;
 import net.mamoe.mirai.contact.roaming.RoamingMessages;
+import net.mamoe.mirai.event.events.EventCancelledException;
+import net.mamoe.mirai.event.events.GroupMessagePostSendEvent;
+import net.mamoe.mirai.event.events.GroupMessagePreSendEvent;
 import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.data.Message;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.MessageSource;
+import net.mamoe.mirai.message.data.OnlineMessageSource;
 import net.mamoe.mirai.utils.RemoteFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mve.sn.SupernovaAPI;
+import org.mve.sn.core.APIResponse;
 import org.mve.sn.core.Supernova;
+import org.mve.sn.data.SourceToGroup;
+import org.mve.sn.event.SupernovaManager;
+import org.mve.sn.message.MessageJson;
+import org.mve.uni.Json;
 import org.mve.uni.LazyJVM;
 
 public class SupernovaGroup extends SupernovaContact implements Group
 {
 	private final Supernova context;
 	private final Lazy<GroupActive> active;
+	private final Lazy<Json> info;
+	private final Lazy<String> name;
 
 	public SupernovaGroup(Supernova context, long id)
 	{
 		super(context, id);
 		this.context = context;
 		this.active = new LazyJVM<>(() -> new GroupActiveWrapper(SupernovaGroup.this.context, SupernovaGroup.this.getId()));
+		this.info = new LazyJVM<>(() ->
+		{
+			APIResponse response = SupernovaAPI.getGroupInfo(this.context, this.getId(), false);
+			response.checkValidation();
+			return response.data;
+		});
+		this.name = new LazyJVM<>(() -> this.info.getValue().string(SupernovaAPI.KEY_GROUP_NAME));
 	}
 
 	@NotNull
@@ -43,7 +65,7 @@ public class SupernovaGroup extends SupernovaContact implements Group
 	@Override
 	public String getName()
 	{
-		return "";
+		return this.name.getValue();
 	}
 
 	@Override
@@ -69,7 +91,7 @@ public class SupernovaGroup extends SupernovaContact implements Group
 	@Override
 	public NormalMember getBotAsMember()
 	{
-		return null;
+		return new SupernovaMember(this.context, this.context.getId(), this.getId());
 	}
 
 	@NotNull
@@ -111,7 +133,33 @@ public class SupernovaGroup extends SupernovaContact implements Group
 	@SuppressWarnings("rawtypes")
 	public MessageReceipt sendMessage(@NotNull Message message, @NotNull Continuation continuation)
 	{
-		return null;
+		GroupMessagePreSendEvent preSend = new GroupMessagePreSendEvent(this, message);
+		SupernovaManager.GLOBAL.broadcast(preSend, true);
+		if (preSend.isCancelled())
+			throw new EventCancelledException();
+		if (this.getBotAsMember().isMuted())
+			throw new BotIsBeingMutedException(this, message);
+		message = preSend.getMessage();
+
+		if (!(message instanceof MessageChain))
+			message = new MessageChainBuilder().append(message).build();
+		Json msg = ((MessageJson) message).json();
+		int time = (int) (System.currentTimeMillis() / 1000);
+		APIResponse response = SupernovaAPI.sendGroupMessage(this.context, this.getId(), msg, false);
+		try
+		{
+			response.checkValidation();
+		}
+		catch (Throwable e)
+		{
+			SupernovaManager.GLOBAL.broadcast(new GroupMessagePostSendEvent(this, (MessageChain) message, e, null), false);
+			throw e;
+		}
+		int id = response.data.number(SupernovaAPI.KEY_MESSAGE_ID).intValue();
+		OnlineMessageSource.Outgoing outgoing = new SourceToGroup(this.context, this, id, time, (MessageChain) message);
+		MessageReceipt<Group> receipt = new MessageReceipt<>(outgoing, this);
+		SupernovaManager.GLOBAL.broadcast(new GroupMessagePostSendEvent(this, (MessageChain) message, null, receipt), false);
+		return receipt;
 	}
 
 	@Nullable

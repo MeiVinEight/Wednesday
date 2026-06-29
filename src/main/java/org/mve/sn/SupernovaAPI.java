@@ -78,6 +78,8 @@ public class SupernovaAPI implements IMirai
 	public static final String KEY_AUTO_ESCAPE = "auto_escape";
 	public static final String KEY_ONLINE = "online";
 	public static final String KEY_GOOD = "good";
+	public static final String KEY_GROUP_NAME = "group_name";
+	public static final String KEY_SHUT_UP_TIMESTAMP = "shut_up_timestamp";
 
 	public static final String STATUS_OK = "ok";
 	public static final String STATUS_FAILED = "failed";
@@ -101,6 +103,7 @@ public class SupernovaAPI implements IMirai
 	public static final String API_GET_STRANGER_INFO = "get_stranger_info";
 	public static final String API_GET_LOGIN_INFO = "get_login_info";
 	public static final String API_GET_GROUP_MEMBER_INFO = "get_group_member_info";
+	public static final String API_GET_GROUP_INFO = "get_group_info";
 
 	public static final String ROLE_OWNER = "owner";
 	public static final String ROLE_MEMBER = "member";
@@ -165,6 +168,17 @@ public class SupernovaAPI implements IMirai
 				.set(KEY_GROUP_ID, groupId)
 				.set(KEY_MESSAGE, message)
 				.set(KEY_AUTO_ESCAPE, rawText)
+			);
+		return sn.communicate(json, false);
+	}
+
+	public static APIResponse getGroupInfo(Supernova sn, long groupId, boolean noCache)
+	{
+		Json json = new Json()
+			.set(KEY_ACTION, API_GET_GROUP_INFO)
+			.set(KEY_PARAMS, new Json()
+				.set(KEY_GROUP_ID, groupId)
+				.set(KEY_NO_CACHE, noCache)
 			);
 		return sn.communicate(json, false);
 	}
@@ -323,7 +337,7 @@ public class SupernovaAPI implements IMirai
 	@Override
 	public Object broadcastEvent(@NotNull Event event, @NotNull Continuation<? super Unit> continuation)
 	{
-		SupernovaManager.GLOBAL.broadcast(event);
+		SupernovaManager.GLOBAL.broadcast(event, false);
 		return null;
 	}
 

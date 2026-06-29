@@ -123,7 +123,7 @@ public class Supernova implements Bot
 				return;
 			}
 			SupernovaAPI.BOT.put(this.ID, this);
-			SupernovaManager.GLOBAL.broadcast(new BotOnlineEvent(this));
+			SupernovaManager.GLOBAL.broadcast(new BotOnlineEvent(this), false);
 			Json version = SupernovaAPI.getVersionInfo(this).data;
 			this.version = version.stringify();
 			this.getLogger().info(version.string(SupernovaAPI.KEY_APP_NAME) + ": " + version.string(SupernovaAPI.KEY_APP_VERSION));
@@ -310,11 +310,11 @@ public class Supernova implements Bot
 			if (SupernovaAPI.META_EVENT_HEARTBEAT.equals(metaEventType))
 			{
 				HeartbeatEvent event = new HeartbeatEvent(this, json);
-				SupernovaManager.GLOBAL.broadcast(event);
+				SupernovaManager.GLOBAL.broadcast(event, false);
 			}
 		}
 		if (postType != null)
-			SupernovaManager.GLOBAL.broadcast(new PostingEvent(this, json.stringify()));
+			SupernovaManager.GLOBAL.broadcast(new PostingEvent(this, json.stringify()), false);
 	}
 
 	public void error(Throwable ex)
@@ -412,7 +412,7 @@ public class Supernova implements Bot
 			String postType = e.type;
 			if (SupernovaAPI.POST_TYPE_MESSAGE.equals(postType))
 			{
-				SupernovaManager.GLOBAL.broadcast(new PostingMessageEvent(e.context, e.text));
+				SupernovaManager.GLOBAL.broadcast(new PostingMessageEvent(e.context, e.text), false);
 				return;
 			}
 		});
@@ -427,7 +427,7 @@ public class Supernova implements Bot
 					friend,
 					new SourceFromFriend(e.context, e.text).plus(new SupernovaMessage(e.context, e.text).message())/**/,
 					(int) e.time
-				));
+				), false);
 			}
 			if (SupernovaAPI.MESSAGE_TYPE_GROUP.equals(e.type))
 			{
@@ -447,7 +447,7 @@ public class Supernova implements Bot
 				MessageSource source = new SourceFromGroup(e.context, e.text, gid, fid);
 				MessageChain chain = source.plus(new SupernovaMessage(e.context, e.text).message());
 				SupernovaMember member = new SupernovaMember(e.context, fid, gid, perm);
-				SupernovaManager.GLOBAL.broadcast(new GroupMessageEvent(card, perm, member, chain, (int) e.time));
+				SupernovaManager.GLOBAL.broadcast(new GroupMessageEvent(card, perm, member, chain, (int) e.time), false);
 			}
 		});
 	}

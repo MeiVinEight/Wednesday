@@ -12,7 +12,6 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
@@ -214,11 +213,6 @@ public class MixinEngine extends URLClassLoader
 				MixinClassWriter writer = new MixinClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, this);
 				MixinClassVisitor mcv = new MixinClassVisitor(writer, infos.toArray(MixinInfo[]::new), node);
 				classData = writer.toByteArray();
-				try (FileOutputStream tmp = new FileOutputStream(node.name.substring(node.name.lastIndexOf('/') + 1) + ".class"))
-				{
-					tmp.write(classData);
-					tmp.flush();
-				}
 			}
 
 			CodeSigner[] signers = entry.getCodeSigners();

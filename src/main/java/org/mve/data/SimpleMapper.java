@@ -559,16 +559,4 @@ public class SimpleMapper<T> extends Mapper<T>
 		}
 		return columnName;
 	}
-
-	static
-	{
-		try
-		{
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		}
-		catch (Throwable e)
-		{
-			Wednesday.LOGGER.error(e);
-		}
-	}
 }

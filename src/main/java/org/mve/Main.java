@@ -1,26 +1,28 @@
 package org.mve;
 
-import net.mamoe.mirai.event.events.NudgeEvent;
+import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
+import net.mamoe.mirai.message.data.SingleMessage;
+import net.mamoe.mirai.utils.BotConfiguration;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerLazy;
 import org.mve.logging.LoggerManager;
-import org.mve.service.NudgeFacing;
+import org.mve.sn.core.Supernova;
+import org.mve.sn.event.SupernovaManager;
+import org.mve.sn.message.MessageJson;
+import org.mve.sn.message.app.ILightApp;
+import org.mve.sn.message.app.MessageLightApp;
+import org.mve.uni.CompletionWaiting;
 import org.mve.uni.Mirroring;
-import org.mve.web.WednesdayWeb;
-import top.mrxiaom.overflow.internal.message.data.WrappedImage;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Main implements Consumer<String[]>
 {
-	public static void main(String[] args)
-	{
-		new Main().accept(args);
-	}
-
-	@Override
-	public void accept(String[] strings)
+	public static void main(String[] args) throws Throwable
 	{
 		System.setErr(System.out);
 		LoggerManager.register(FileLogger.INSTANCE);
@@ -38,8 +40,8 @@ public class Main implements Consumer<String[]>
 		{
 			Class.forName("org.sqlite.JDBC");
 			Class.forName("org.mve.service.NudgeFacing");
-			Wednesday.SUBSCRIBE.register(NudgeEvent.class, NudgeFacing::nudge);
-			Wednesday.SUBSCRIBE.register(WrappedImage.class, NudgeFacing::capture);
+			//Wednesday.SUBSCRIBE.register(NudgeEvent.class, NudgeFacing::nudge);
+			//Wednesday.SUBSCRIBE.register(WrappedImage.class, NudgeFacing::capture);
 
 			/*
 			wednesday.SUBSCRIBE.register("woden", new EchoingMessage(wednesday));
@@ -53,7 +55,7 @@ public class Main implements Consumer<String[]>
 			*/
 
 			// wednesday.join();
-			WednesdayWeb.main(strings);
+			//WednesdayWeb.main(strings);
 		}
 		catch (Throwable e)
 		{

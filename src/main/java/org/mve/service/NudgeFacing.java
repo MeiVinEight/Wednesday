@@ -11,7 +11,6 @@ import org.mve.uni.Json;
 import org.mve.data.SimpleMapper;
 import org.mve.Wednesday;
 import org.mve.vo.Facing;
-import top.mrxiaom.overflow.internal.message.data.WrappedImage;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,81 +26,82 @@ public class NudgeFacing
 	private static final Random RANDOM = new Random();
 	private static final String IMAGE_DIR = "data/facing";
 
-	public static void capture(MessageEvent event, WrappedImage wimg)
-	{
-		if (event.getSender().getId() == event.getBot().getId())
-			return;
-		if (wimg.getRawJson() == null)
-			return;
-		Json data = Json.resolve(wimg.getRawJson().toString());
-		Wednesday.LOGGER.debug(data.stringify());
-		String summary = data.string("summary");
-		if (summary == null || summary.isEmpty())
-			return;
 
-		String fileName = data.string("file");
-		Facing fac = new Facing();
-		fac.NAME = fileName;
-		if (FACING.count(fac) > 0)
-			return;
-
-
-		try
-		{
-			String urlTxt = data.string("url");
-			if (urlTxt == null)
-				return;
-
-			URL url = new URL(urlTxt);
-			URLConnection conn = url.openConnection();
-			File tmpFile = new File(IMAGE_DIR, fileName);
-			try (InputStream in = conn.getInputStream(); FileOutputStream tmpOut = new FileOutputStream(tmpFile))
-			{
-				in.transferTo(tmpOut);
-			}
-
-			fac.ID = FACING.count(Facing.TABLE);
-			if (fac.ID < 0)
-				return;
-			/*
-			String url = data.string("url");
-			String urlText = Configuration.COFFEE_SERVER + "/upload";
-			URL uploadUrl = new URL(urlText);
-			HttpURLConnection conn = (HttpURLConnection) uploadUrl.openConnection();
-			conn.setRequestProperty("Download-From", url);
-			conn.setRequestProperty("Download-To", "image/" + fileName);
-
-			int respCode = conn.getResponseCode();
-			if (respCode != HttpURLConnection.HTTP_OK)
-			{
-				Wednesday.LOGGER.error("{}: {}", urlText, conn.getResponseMessage());
-				return;
-			}
-
-			Json body;
-			try (InputStream in = conn.getInputStream())
-			{
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				in.transferTo(out);
-				body = Json.resolve(out.toString());
-			}
-
-			respCode = body.number("code").intValue();
-			String message = body.string("message");
-			if (respCode != 0 && respCode != 5)
-			{
-				Wednesday.LOGGER.warn("{}: {}", respCode, message);
-				return;
-			}
-			*/
-			FACING.insert(fac);
-		}
-		catch (IOException e)
-		{
-			Wednesday.LOGGER.error(e);
-			event.getSubject().sendMessage("表情下载失败: " + e.getLocalizedMessage());
-		}
-	}
+//	public static void capture(MessageEvent event, WrappedImage wimg)
+//	{
+//		if (event.getSender().getId() == event.getBot().getId())
+//			return;
+//		if (wimg.getRawJson() == null)
+//			return;
+//		Json data = Json.resolve(wimg.getRawJson().toString());
+//		Wednesday.LOGGER.debug(data.stringify());
+//		String summary = data.string("summary");
+//		if (summary == null || summary.isEmpty())
+//			return;
+//
+//		String fileName = data.string("file");
+//		Facing fac = new Facing();
+//		fac.NAME = fileName;
+//		if (FACING.count(fac) > 0)
+//			return;
+//
+//
+//		try
+//		{
+//			String urlTxt = data.string("url");
+//			if (urlTxt == null)
+//				return;
+//
+//			URL url = new URL(urlTxt);
+//			URLConnection conn = url.openConnection();
+//			File tmpFile = new File(IMAGE_DIR, fileName);
+//			try (InputStream in = conn.getInputStream(); FileOutputStream tmpOut = new FileOutputStream(tmpFile))
+//			{
+//				in.transferTo(tmpOut);
+//			}
+//
+//			fac.ID = FACING.count(Facing.TABLE);
+//			if (fac.ID < 0)
+//				return;
+//			/*
+//			String url = data.string("url");
+//			String urlText = Configuration.COFFEE_SERVER + "/upload";
+//			URL uploadUrl = new URL(urlText);
+//			HttpURLConnection conn = (HttpURLConnection) uploadUrl.openConnection();
+//			conn.setRequestProperty("Download-From", url);
+//			conn.setRequestProperty("Download-To", "image/" + fileName);
+//
+//			int respCode = conn.getResponseCode();
+//			if (respCode != HttpURLConnection.HTTP_OK)
+//			{
+//				Wednesday.LOGGER.error("{}: {}", urlText, conn.getResponseMessage());
+//				return;
+//			}
+//
+//			Json body;
+//			try (InputStream in = conn.getInputStream())
+//			{
+//				ByteArrayOutputStream out = new ByteArrayOutputStream();
+//				in.transferTo(out);
+//				body = Json.resolve(out.toString());
+//			}
+//
+//			respCode = body.number("code").intValue();
+//			String message = body.string("message");
+//			if (respCode != 0 && respCode != 5)
+//			{
+//				Wednesday.LOGGER.warn("{}: {}", respCode, message);
+//				return;
+//			}
+//			*/
+//			FACING.insert(fac);
+//		}
+//		catch (IOException e)
+//		{
+//			Wednesday.LOGGER.error(e);
+//			event.getSubject().sendMessage("表情下载失败: " + e.getLocalizedMessage());
+//		}
+//	}
 
 	public static void nudge(NudgeEvent nudge)
 	{

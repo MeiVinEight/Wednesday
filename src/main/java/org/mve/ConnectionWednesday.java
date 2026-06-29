@@ -45,6 +45,7 @@ public class ConnectionWednesday
 
 	public Wednesday connect(boolean reconnect)
 	{
+		/*
 		lock.lock();
 		try
 		{
@@ -68,6 +69,7 @@ public class ConnectionWednesday
 			Wednesday.LOGGER.error("连接失败: ", t);
 		}
 		lock.unlock();
+		*/
 		return this.connection;
 	}
 
@@ -90,6 +92,7 @@ public class ConnectionWednesday
 	public Json data()
 	{
 		Json json = new Json();
+		/*
 		json.set(KEY_NAME, this.NAME);
 		json.set(KEY_URL, this.URL);
 		json.set(KEY_TOKEN, this.TOKEN);
@@ -122,6 +125,8 @@ public class ConnectionWednesday
 			info.set("groups", groups);
 			json.set("info", info);
 		}
+
+		*/
 		return json;
 	}
 

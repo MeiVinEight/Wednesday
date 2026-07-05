@@ -227,29 +227,8 @@ public class WednesdayWeb implements HttpHandler
 	{
 		String requestPath = exchange.getRequestURI().getPath();
 
-		// Try web file
-		TRY_RESPONSE_FILE:
-		{
-			File file = new File(WEB_ROOT, requestPath);
-			if (!file.isFile())
-				break TRY_RESPONSE_FILE;
-			return file;
-		}
-
 		switch (requestPath)
 		{
-			case "/" ->
-			{
-				Redirection redirection = new Redirection();
-				redirection.location = "/login";
-				if (!this.authenticate(exchange))
-					return redirection;
-				return new File(WEB_ROOT, "index.html");
-			}
-			case "/login" ->
-			{
-				return new File(WEB_ROOT, "login.html");
-			}
 			case "/api/v1/login" ->
 			{
 				Json body = new Json();

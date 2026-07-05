@@ -1,20 +1,20 @@
 {
 	"mixins":
 	[
-		"org.mve.sn.mixin.FaceMixin",
-		"org.mve.sn.mixin.LinearMessageChainImplMixin",
-		"org.mve.sn.mixin.PlainTextMixin",
-		"org.mve.sn.mixin.EventChannel$filter$1Mixin",
-		"org.mve.sn.mixin.EventChannel$subscribe$2Mixin",
-		"org.mve.sn.mixin.FilterEventChannel$intercept$1Mixin",
-		"org.mve.sn.mixin.FilterEventChannelMixin",
-		"org.mve.sn.mixin.EventChannel$subscribeAlways$2Mixin",
-		"org.mve.sn.mixin.EventChannel$subscribeOnce$2Mixin",
-		"org.mve.sn.mixin.LightAppMixin",
-		"org.mve.sn.mixin.AtMixin",
-		"org.mve.sn.mixin.ReplyMixin",
-		"org.mve.sn.mixin.DiceMixin",
-		"org.mve.sn.mixin.RockPaperScissorsMixin",
-		"org.mve.sn.mixin.PokeMessageMixin"
+		"org.mve.orange.mixin.FaceMixin",
+		"org.mve.orange.mixin.LinearMessageChainImplMixin",
+		"org.mve.orange.mixin.PlainTextMixin",
+		"org.mve.orange.mixin.EventChannel$filter$1Mixin",
+		"org.mve.orange.mixin.EventChannel$subscribe$2Mixin",
+		"org.mve.orange.mixin.FilterEventChannel$intercept$1Mixin",
+		"org.mve.orange.mixin.FilterEventChannelMixin",
+		"org.mve.orange.mixin.EventChannel$subscribeAlways$2Mixin",
+		"org.mve.orange.mixin.EventChannel$subscribeOnce$2Mixin",
+		"org.mve.orange.mixin.LightAppMixin",
+		"org.mve.orange.mixin.AtMixin",
+		"org.mve.orange.mixin.ReplyMixin",
+		"org.mve.orange.mixin.DiceMixin",
+		"org.mve.orange.mixin.RockPaperScissorsMixin",
+		"org.mve.orange.mixin.PokeMessageMixin"
 	]
 }

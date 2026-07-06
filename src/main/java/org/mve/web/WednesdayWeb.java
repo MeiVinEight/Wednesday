@@ -5,16 +5,18 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.mve.Configuration;
+import org.mve.ConnectionManager;
 import org.mve.logging.FileLogger;
 import org.mve.logging.WednesdayLogger;
+import org.mve.orange.event.OrangeEvent;
 import org.mve.uni.Array;
 import org.mve.uni.Cookie;
+import org.mve.uni.HTTP;
 import org.mve.uni.Hexadecimal;
 import org.mve.uni.Json;
 import org.mve.uni.MD5;
 import org.mve.uni.Mirroring;
-import org.mve.web.service.ChangeToken;
-import org.mve.web.service.StopWeb;
+import org.mve.web.service.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -40,31 +42,32 @@ import java.util.regex.Pattern;
 public class WednesdayWeb implements HttpHandler, WebService
 {
 	public static final WednesdayLogger LOGGER = new WednesdayLogger("WEB", Configuration.LOG_LEVEL);
-	public static final Map<String, WebService> SERVICE = new HashMap<>();
+	public static final Map<String, Map<String, WebService>> API = new HashMap<>();
 	private static final Pattern PATTERN_TOKEN = Pattern.compile("^[0-9A-F]{32}$");
 	private static final String DATA_WEBUI = Configuration.DATA_DIR + "/WEBUI.DAT";
+	private static final String DATA_CONN = Configuration.DATA_DIR + "/CONNECTION.DB";
 	private static final int SIGNATURE_WEBUI = 2141410369;
 	public static final Random RANDOM = new SecureRandom();
 	public static final byte[] WEBUI_TOKEN = new byte[32];
 	public static final byte[] JSESSIONID = new byte[32];
-	public static WednesdayWeb web = null;
 	private final HttpServer server;
+	public final ConnectionManager connection;
 	private boolean handling = false;
 	private boolean stop = false;
 
 	public WednesdayWeb(InetSocketAddress address) throws IOException
 	{
-		synchronized (WednesdayWeb.class)
-		{
-			if (WednesdayWeb.web != null)
-				throw new IllegalStateException("Web service already exists");
-			WednesdayWeb.web = this;
-		}
-		WednesdayWeb.SERVICE.put(WebAPI.API_LOGIN, this);
 		this.server = HttpServer.create(address, 0);
 		server.createContext("/", this);
 		server.start();
 		WednesdayWeb.LOGGER.info("Web API start at http://{}:{}", address.getHostString(), address.getPort());
+		this.connection = new ConnectionManager(WednesdayWeb.DATA_CONN);
+		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_LOGIN, this);
+		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_STOP, new StopWeb(this));
+		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_CONN, new ConnGet(this.connection));
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_CONN, new ConnPost(this.connection));
+		WednesdayWeb.registerAPI(HTTP.METHOD_CONN, WebAPI.API_CONN, new ConnConn(this.connection));
+		WednesdayWeb.registerAPI(HTTP.METHOD_DISCONN, WebAPI.API_CONN, new ConnDisconn(this.connection));
 	}
 
 	@Override
@@ -82,7 +85,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 		}
 		this.handling = false;
 		if (this.stop)
-			this.server.stop(0);
+			this.close();
 	}
 
 	@Override
@@ -138,7 +141,10 @@ public class WednesdayWeb implements HttpHandler, WebService
 		WEB_SERVICE:
 		try
 		{
-			WebService service = SERVICE.get(requestURI.getPath());
+			WebService service = null;
+			Map<String, WebService> serviceMap = WednesdayWeb.API.get(exchange.getRequestMethod());
+			if (serviceMap != null)
+				service = serviceMap.get(requestURI.getPath());
 			if (service == null)
 			{
 				bodyObject = WebAPI.code(new Json(), WebAPI.CODE_NOT_FOUND);
@@ -229,8 +235,15 @@ public class WednesdayWeb implements HttpHandler, WebService
 	public void close()
 	{
 		this.stop = true;
-		if (!this.handling)
-			this.server.stop(0);
+		if (this.handling)
+			return;
+		this.server.stop(0);
+		OrangeEvent.GLOBAL.shutdown();
+	}
+
+	public static void registerAPI(String method, String api, WebService service)
+	{
+		WednesdayWeb.API.computeIfAbsent(method, e -> new HashMap<>()).put(api, service);
 	}
 
 	public static void token(String token)
@@ -324,7 +337,6 @@ public class WednesdayWeb implements HttpHandler, WebService
 			throw new RuntimeException(e);
 		}
 
-		SERVICE.put(WebAPI.API_TOKEN, new ChangeToken());
-		SERVICE.put(WebAPI.API_STOP, new StopWeb());
+		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_TOKEN, new ChangeToken());
 	}
 }

@@ -1,17 +1,12 @@
 package org.mve;
 
-import net.mamoe.mirai.contact.Group;
-import net.mamoe.mirai.event.events.GroupMessageEvent;
-import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
-import net.mamoe.mirai.utils.BotConfiguration;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerLazy;
 import org.mve.logging.LoggerManager;
-import org.mve.uni.CompletionWaiting;
 import org.mve.uni.Mirroring;
+import org.mve.web.WednesdayWeb;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Main implements Consumer<String[]>
@@ -49,7 +44,7 @@ public class Main implements Consumer<String[]>
 			*/
 
 			// wednesday.join();
-			//WednesdayWeb.main(strings);
+			WednesdayWeb.main(args);
 		}
 		catch (Throwable e)
 		{

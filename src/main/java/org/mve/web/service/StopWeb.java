@@ -7,10 +7,17 @@ import org.mve.web.WednesdayWeb;
 
 public class StopWeb implements WebService
 {
+	private final WednesdayWeb web;
+
+	public StopWeb(WednesdayWeb web)
+	{
+		this.web = web;
+	}
+
 	@Override
 	public Object service(Json body)
 	{
-		WednesdayWeb.web.close();
+		this.web.close();
 		return WebAPI.code(new Json(), WebAPI.CODE_OK);
 	}
 }

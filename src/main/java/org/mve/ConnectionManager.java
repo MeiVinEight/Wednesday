@@ -7,18 +7,17 @@ import org.mve.data.SimpleMapper;
 import org.mve.logging.LoggerManager;
 import org.slf4j.Logger;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WednesdayManager
+public class ConnectionManager
 {
 	private static final Logger LOGGER = LoggerManager.create("Manager");
 	public final Map<String, ConnectionWednesday> connection = new ConcurrentHashMap<>();
 	private final SimpleMapper<ConnectionWednesday> data;
 
-	public WednesdayManager(String path)
+	public ConnectionManager(String path)
 	{
 		path = "jdbc:sqlite:" + path;
 		this.data = new SimpleMapper<>(new Database(path, null, null), ConnectionWednesday.class);

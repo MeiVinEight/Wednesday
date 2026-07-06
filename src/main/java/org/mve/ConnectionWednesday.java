@@ -2,7 +2,11 @@ package org.mve;
 
 import net.mamoe.mirai.contact.AvatarSpec;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
+import net.mamoe.mirai.utils.BotConfiguration;
+import org.mve.logging.LoggerManager;
+import org.mve.orange.core.Orange;
 import org.mve.uni.Json;
+import org.slf4j.Logger;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
@@ -21,7 +25,7 @@ public class ConnectionWednesday
 	public String URL;
 	public String TOKEN;
 	@Column(exclude = true)
-	public Wednesday connection;
+	public Orange connection;
 	@Column(exclude = true)
 	private final ReentrantLock lock = new ReentrantLock();
 
@@ -43,23 +47,27 @@ public class ConnectionWednesday
 		this.TOKEN = (token != null) ? token : "";
 	}
 
-	public Wednesday connect(boolean reconnect)
+	public Orange connect(boolean reconnect)
 	{
-		/*
-		lock.lock();
+		Orange conn = this.connection;
+		if (conn != null)
+			return conn;
+		this.lock.lock();
 		try
 		{
+			BotConfiguration configuration = new BotConfiguration();
+			configuration.setBotLoggerSupplier(b -> LoggerManager.create(String.valueOf(b.getId()), Configuration.LOG_LEVEL));
+			Logger logger = LoggerManager.create("WS", Configuration.LOG_LEVEL);
 			if (this.connection == null)
 			{
-				this.connection = new Wednesday(this.URL, this.TOKEN);
-				this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) -> this.connect(true));
+				this.connection = new Orange(this.URL, this.TOKEN, configuration, logger);
 			}
 			else if (reconnect)
 			{
 				this.connection.close();
-				this.connection = new Wednesday(this.URL, this.TOKEN);
-				this.connection.QQ.getEventChannel().subscribeAlways(BotOfflineEvent.class, (event) -> this.connect(true));
+				this.connection = new Orange(this.URL, this.TOKEN, configuration, logger);
 			}
+			this.connection.getEventChannel().subscribeAlways(BotOfflineEvent.class, e -> this.close());
 		}
 		catch (Throwable t)
 		{
@@ -68,8 +76,7 @@ public class ConnectionWednesday
 			this.connection = null;
 			Wednesday.LOGGER.error("连接失败: ", t);
 		}
-		lock.unlock();
-		*/
+		this.lock.unlock();
 		return this.connection;
 	}
 
@@ -92,19 +99,18 @@ public class ConnectionWednesday
 	public Json data()
 	{
 		Json json = new Json();
-		/*
 		json.set(KEY_NAME, this.NAME);
 		json.set(KEY_URL, this.URL);
 		json.set(KEY_TOKEN, this.TOKEN);
-		Wednesday conn = this.connection;
+		Orange conn = this.connection;
 		if (conn != null)
 		{
 			Json info = new Json();
-			info.set("id", this.connection.QQ.getId());
-			info.set("name", this.connection.QQ.getNick());
-			info.set("avatar", this.connection.QQ.getAvatarUrl(AvatarSpec.ORIGINAL));
+			info.set("id", conn.getId());
+			info.set("name", conn.getNick());
+			info.set("avatar", conn.getAvatarUrl(AvatarSpec.ORIGINAL));
 			Json friends = new Json(Json.TYPE_ARRAY);
-			conn.QQ.getFriends().forEach(f ->
+			conn.getFriends().forEach(f ->
 			{
 				Json friend = new Json();
 				friend.set("id", f.getId());
@@ -114,7 +120,7 @@ public class ConnectionWednesday
 			});
 			info.set("friends", friends);
 			Json groups = new Json(Json.TYPE_ARRAY);
-			conn.QQ.getGroups().forEach(g ->
+			conn.getGroups().forEach(g ->
 			{
 				Json group = new Json();
 				group.set("id", g.getId());
@@ -126,7 +132,6 @@ public class ConnectionWednesday
 			json.set("info", info);
 		}
 
-		*/
 		return json;
 	}
 

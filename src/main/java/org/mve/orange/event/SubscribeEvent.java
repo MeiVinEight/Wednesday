@@ -66,7 +66,7 @@ public class SubscribeEvent<E extends Event> implements Listener<E>, CoroutineCo
 				return ListeningStatus.LISTENING;
 			}
 
-			OrangeManager.LOGGER.error("未处理的异常", t);
+			OrangeEvent.LOGGER.error("未处理的异常", t);
 		}
 		return ListeningStatus.LISTENING;
 	}

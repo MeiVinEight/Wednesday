@@ -16,6 +16,8 @@ import org.mve.orange.core.Orange;
 import org.mve.uni.Json;
 import org.mve.uni.LazyJVM;
 
+import java.util.Arrays;
+
 public class MemberX extends UserX implements NormalMember
 {
 	private final Orange context;
@@ -156,5 +158,18 @@ public class MemberX extends UserX implements NormalMember
 	public Object mute(int i, @NotNull Continuation<? super Unit> continuation)
 	{
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof MemberX memberX)) return false;
+		return this.group == memberX.group && this.getId() == memberX.getId();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Arrays.hashCode(new long[]{this.group, this.getId()});
 	}
 }

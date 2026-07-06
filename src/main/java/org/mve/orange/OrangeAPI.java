@@ -37,7 +37,7 @@ import org.mve.orange.core.Orange;
 import org.mve.orange.core.contact.FriendX;
 import org.mve.orange.core.contact.StrangerX;
 import org.mve.orange.data.SupernovaMessageSource;
-import org.mve.orange.event.OrangeManager;
+import org.mve.orange.event.OrangeEvent;
 import org.mve.uni.Json;
 
 import java.util.List;
@@ -80,6 +80,9 @@ public class OrangeAPI implements IMirai
 	public static final String KEY_GOOD = "good";
 	public static final String KEY_GROUP_NAME = "group_name";
 	public static final String KEY_SHUT_UP_TIMESTAMP = "shut_up_timestamp";
+	public static final String KEY_EXT_INFO = "extInfo";
+	public static final String KEY_GROUP_OWNER_ID = "groupOwnerId";
+	public static final String KEY_MEMBER_UIN = "memberUin";
 
 	public static final String STATUS_OK = "ok";
 	public static final String STATUS_FAILED = "failed";
@@ -104,6 +107,9 @@ public class OrangeAPI implements IMirai
 	public static final String API_GET_LOGIN_INFO = "get_login_info";
 	public static final String API_GET_GROUP_MEMBER_INFO = "get_group_member_info";
 	public static final String API_GET_GROUP_INFO = "get_group_info";
+	public static final String API_GET_GROUP_INFO_EX = "get_group_info_ex";
+	public static final String API_GET_GROUP_MEMBER_LIST = "get_group_member_list";
+	public static final String API_GET_GROUP_LIST = "get_group_list";
 
 	public static final String ROLE_OWNER = "owner";
 	public static final String ROLE_MEMBER = "member";
@@ -180,6 +186,34 @@ public class OrangeAPI implements IMirai
 				.set(KEY_GROUP_ID, groupId)
 				.set(KEY_NO_CACHE, noCache)
 			);
+		return sn.communicate(json, false);
+	}
+
+	public static APIResponse getGroupInfoEx(Orange sn, long groupId)
+	{
+		Json json = new Json()
+			.set(KEY_ACTION, API_GET_GROUP_INFO_EX)
+			.set(KEY_PARAMS, new Json()
+				.set(KEY_GROUP_ID, groupId)
+			);
+		return sn.communicate(json, false);
+	}
+
+	public static APIResponse getGroupMemberList(Orange sn, long groupId, boolean noCache)
+	{
+		Json json = new Json()
+			.set(KEY_ACTION, API_GET_GROUP_MEMBER_LIST)
+			.set(KEY_PARAMS, new Json()
+				.set(KEY_GROUP_ID, groupId)
+				.set(KEY_NO_CACHE, noCache)
+			);
+		return sn.communicate(json, false);
+	}
+
+	public static APIResponse getGroupList(Orange sn)
+	{
+		Json json = new Json()
+			.set(KEY_ACTION, API_GET_GROUP_LIST);
 		return sn.communicate(json, false);
 	}
 
@@ -337,7 +371,7 @@ public class OrangeAPI implements IMirai
 	@Override
 	public Object broadcastEvent(@NotNull Event event, @NotNull Continuation<? super Unit> continuation)
 	{
-		OrangeManager.GLOBAL.broadcast(event, false);
+		OrangeEvent.GLOBAL.broadcast(event, false);
 		return null;
 	}
 

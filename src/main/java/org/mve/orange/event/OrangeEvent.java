@@ -37,17 +37,17 @@ import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class OrangeManager<T extends Event> extends EventChannel<T> implements Runnable
+public class OrangeEvent<T extends Event> extends EventChannel<T> implements Runnable
 {
-	public static final MiraiLogger LOGGER = MiraiLogger.Factory.INSTANCE.create(OrangeManager.class, "SupernovaManager");
-	public static final OrangeManager<Event> GLOBAL = new OrangeManager<>(Event.class);
+	public static final MiraiLogger LOGGER = MiraiLogger.Factory.INSTANCE.create(OrangeEvent.class, "SupernovaManager");
+	public static final OrangeEvent<Event> GLOBAL = new OrangeEvent<>(Event.class);
 	public final MutableSharedFlow<T> flow = SharedFlowKt.MutableSharedFlow(0, 1, BufferOverflow.DROP_OLDEST);
 	private final Map<Class<?>, ConcurrentLinkedQueue<Listener<? super Event>>> listeners = new ConcurrentHashMap<>();
 	private final Class<T> type;
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 	private boolean running = true;
 
-	private OrangeManager(Class<T> type)
+	private OrangeEvent(Class<T> type)
 	{
 		super(Mirroring.checkcast(Reflection.getOrCreateKotlinClass(type)), EmptyCoroutineContext.INSTANCE);
 		this.type = type;
@@ -70,7 +70,7 @@ public class OrangeManager<T extends Event> extends EventChannel<T> implements R
 	@Override
 	public <E extends Event> void registerListener(@NotNull KClass<? extends E> kClass, @NotNull Listener<? super E> listener)
 	{
-		this.listeners.computeIfAbsent(JvmClassMappingKt.getJavaClass(kClass), OrangeManager::queue).add(Mirroring.checkcast(listener));
+		this.listeners.computeIfAbsent(JvmClassMappingKt.getJavaClass(kClass), OrangeEvent::queue).add(Mirroring.checkcast(listener));
 	}
 
 	@NotNull
@@ -166,9 +166,9 @@ public class OrangeManager<T extends Event> extends EventChannel<T> implements R
 			throw new ExceptionInInitializerError(e);
 		}
 
-		LazyJVM<EventChannel<Event>> lazy = new LazyJVM<>(() -> OrangeManager.GLOBAL);
+		LazyJVM<EventChannel<Event>> lazy = new LazyJVM<>(() -> OrangeEvent.GLOBAL);
 		Mirroring.set(GlobalEventChannel.class, "instance$delegate", Lazy.class, lazy);
-		Thread t = new Thread(OrangeManager.GLOBAL, "SupernovaManager");
+		Thread t = new Thread(OrangeEvent.GLOBAL, "SupernovaManager");
 		t.setDaemon(false);
 		t.start();
 	}

@@ -6,6 +6,7 @@ import net.mamoe.mirai.contact.BotIsBeingMutedException;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.GroupSettings;
+import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.contact.active.GroupActive;
 import net.mamoe.mirai.contact.announcement.Announcements;
@@ -28,10 +29,12 @@ import org.mve.orange.OrangeAPI;
 import org.mve.orange.core.APIResponse;
 import org.mve.orange.core.Orange;
 import org.mve.orange.data.SourceToGroup;
-import org.mve.orange.event.OrangeManager;
+import org.mve.orange.event.OrangeEvent;
 import org.mve.orange.message.MessageJson;
 import org.mve.uni.Json;
 import org.mve.uni.LazyJVM;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GroupX extends ContactX implements Group
 {
@@ -39,6 +42,8 @@ public class GroupX extends ContactX implements Group
 	private final Lazy<GroupActive> active;
 	private final Lazy<Json> info;
 	private final Lazy<String> name;
+	private final Lazy<NormalMember> owner;
+	private final Lazy<ConcurrentHashMap<Long, NormalMember>> members;
 
 	public GroupX(Orange context, long id)
 	{
@@ -52,6 +57,37 @@ public class GroupX extends ContactX implements Group
 			return response.data;
 		});
 		this.name = new LazyJVM<>(() -> this.info.getValue().string(OrangeAPI.KEY_GROUP_NAME));
+		this.owner = new LazyJVM<>(() ->
+		{
+			APIResponse response = OrangeAPI.getGroupInfoEx(this.context, this.getId());
+			if (response.status == APIResponse.STATUS_OK)
+			{
+				long ownerId = response.data
+					.get(OrangeAPI.KEY_EXT_INFO)
+					.get(OrangeAPI.KEY_GROUP_OWNER_ID)
+					.number(OrangeAPI.KEY_MEMBER_UIN)
+					.longValue();
+				return new MemberX(this.context, ownerId, this.getId());
+			}
+			for (NormalMember mem : this.getMembers())
+				if (mem.getPermission() == MemberPermission.OWNER)
+					return mem;
+			return null;
+		});
+		this.members = new LazyJVM<>(() ->
+		{
+			APIResponse response = OrangeAPI.getGroupMemberList(this.context, this.getId(), false);
+			response.checkValidation();
+			ConcurrentHashMap<Long, NormalMember> members1 = new ConcurrentHashMap<>();
+			for (int i = 0; i < response.data.length(); i++)
+			{
+				Json minfo = response.data.get(i);
+				MemberPermission perm = OrangeAPI.permission(minfo.string(OrangeAPI.KEY_ROLE));
+				long userId = minfo.number(OrangeAPI.KEY_USER_ID).longValue();
+				members1.put(userId, new MemberX(this.context, userId, this.getId(), perm));
+			}
+			return members1;
+		});
 	}
 
 	@NotNull
@@ -84,7 +120,7 @@ public class GroupX extends ContactX implements Group
 	@Override
 	public NormalMember getOwner()
 	{
-		return null;
+		return this.owner.getValue();
 	}
 
 	@NotNull
@@ -98,7 +134,7 @@ public class GroupX extends ContactX implements Group
 	@Override
 	public ContactList<NormalMember> getMembers()
 	{
-		return null;
+		return new ContactList<>(this.members.getValue().values());
 	}
 
 	@NotNull
@@ -112,13 +148,13 @@ public class GroupX extends ContactX implements Group
 	@Override
 	public NormalMember get(long l)
 	{
-		return null;
+		return this.members.getValue().get(l);
 	}
 
 	@Override
 	public boolean contains(long l)
 	{
-		return false;
+		return this.members.getValue().containsKey(l);
 	}
 
 	@Nullable
@@ -134,7 +170,7 @@ public class GroupX extends ContactX implements Group
 	public MessageReceipt sendMessage(@NotNull Message message, @NotNull Continuation continuation)
 	{
 		GroupMessagePreSendEvent preSend = new GroupMessagePreSendEvent(this, message);
-		OrangeManager.GLOBAL.broadcast(preSend, true);
+		OrangeEvent.GLOBAL.broadcast(preSend, true);
 		if (preSend.isCancelled())
 			throw new EventCancelledException();
 		if (this.getBotAsMember().isMuted())
@@ -152,13 +188,13 @@ public class GroupX extends ContactX implements Group
 		}
 		catch (Throwable e)
 		{
-			OrangeManager.GLOBAL.broadcast(new GroupMessagePostSendEvent(this, (MessageChain) message, e, null), false);
+			OrangeEvent.GLOBAL.broadcast(new GroupMessagePostSendEvent(this, (MessageChain) message, e, null), false);
 			throw e;
 		}
 		int id = response.data.number(OrangeAPI.KEY_MESSAGE_ID).intValue();
 		OnlineMessageSource.Outgoing outgoing = new SourceToGroup(this.context, this, id, time, (MessageChain) message);
 		MessageReceipt<Group> receipt = new MessageReceipt<>(outgoing, this);
-		OrangeManager.GLOBAL.broadcast(new GroupMessagePostSendEvent(this, (MessageChain) message, null, receipt), false);
+		OrangeEvent.GLOBAL.broadcast(new GroupMessagePostSendEvent(this, (MessageChain) message, null, receipt), false);
 		return receipt;
 	}
 

@@ -17,6 +17,7 @@ import net.mamoe.mirai.contact.friendgroup.FriendGroups;
 import net.mamoe.mirai.event.EventChannel;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.BotEvent;
+import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
@@ -41,7 +42,7 @@ import org.mve.orange.data.WrappedStrangerInfo;
 import org.mve.orange.event.HeartbeatEvent;
 import org.mve.orange.event.PostingEvent;
 import org.mve.orange.event.PostingMessageEvent;
-import org.mve.orange.event.OrangeManager;
+import org.mve.orange.event.OrangeEvent;
 import org.mve.orange.message.OrangeMessage;
 import org.mve.orange.ws.OrangeWS;
 import org.mve.uni.CompletionWaiting;
@@ -74,11 +75,11 @@ public class Orange implements Bot
 	private int echo = 0;
 	private final Lazy<String> nickname = LazyKt.lazy(() -> OrangeAPI.getLoginInfo(this).data.string(OrangeAPI.KEY_NICKNAME));
 	private final Lazy<CopyOnWriteArraySet<Friend>> friends;
+	private final Lazy<ConcurrentHashMap<Long, Group>> groups;
 	private final Lazy<EventChannel<BotEvent>> channel = LazyKt.lazy(() -> GlobalEventChannel.INSTANCE.filterIsInstance(BotEvent.class).filter(e -> e.getBot() == this));
 	private APIResponse failure = null;
 	private final Lazy<Friend> friend = new LazyJVM<>(() -> Mirai.getInstance().newFriend(this, new WrappedFriendInfo(this.getId(), 0, this.nickname.getValue(), null)));
 	private final MessageArray message = new MessageArray();
-	private final Map<Long, Group> group = new ConcurrentHashMap<>();
 
 	public Orange(String url, String token, BotConfiguration configuration, Logger wsLogger)
 	{
@@ -98,6 +99,20 @@ public class Orange implements Bot
 				list.add(Mirai.getInstance().newFriend(this, info));
 			}
 			return list;
+		});
+		this.groups = new LazyJVM<>(() ->
+		{
+			APIResponse response = OrangeAPI.getGroupList(this);
+			response.checkValidation();
+			Json data = response.data;
+			ConcurrentHashMap<Long, Group> map = new ConcurrentHashMap<>();
+			for (int i = 0; i < data.length(); i++)
+			{
+				Json info = data.get(i);
+				long id = info.number(OrangeAPI.KEY_GROUP_ID).longValue();
+				map.put(id, new GroupX(this, id));
+			}
+			return map;
 		});
 		try
 		{
@@ -123,14 +138,13 @@ public class Orange implements Bot
 				return;
 			}
 			OrangeAPI.BOT.put(this.ID, this);
-			OrangeManager.GLOBAL.broadcast(new BotOnlineEvent(this), false);
+			OrangeEvent.GLOBAL.broadcast(new BotOnlineEvent(this), false);
 			Json version = OrangeAPI.getVersionInfo(this).data;
 			this.version = version.stringify();
 			this.getLogger().info(version.string(OrangeAPI.KEY_APP_NAME) + ": " + version.string(OrangeAPI.KEY_APP_VERSION));
 		}
 		catch (Throwable e)
 		{
-			this.error = e;
 			this.close(e);
 		}
 		this.getEventChannel().subscribeAlways(MessageEvent.class, this.message);
@@ -218,16 +232,16 @@ public class Orange implements Bot
 	@Override
 	public ContactList<Group> getGroups()
 	{
-		return null;
+		return new ContactList<>(this.groups.getValue().values());
 	}
 
 	@NotNull
 	@Override
 	public Group getGroup(long id)
 	{
-		Group grp = this.group.get(id);
+		Group grp = this.groups.getValue().get(id);
 		if (grp == null)
-			this.group.putIfAbsent(id, grp = new GroupX(this, id));
+			grp = new GroupX(this, id);
 		return grp;
 	}
 
@@ -310,18 +324,20 @@ public class Orange implements Bot
 			if (OrangeAPI.META_EVENT_HEARTBEAT.equals(metaEventType))
 			{
 				HeartbeatEvent event = new HeartbeatEvent(this, json);
-				OrangeManager.GLOBAL.broadcast(event, false);
+				OrangeEvent.GLOBAL.broadcast(event, false);
 			}
 		}
 		if (postType != null)
-			OrangeManager.GLOBAL.broadcast(new PostingEvent(this, json.stringify()), false);
+			OrangeEvent.GLOBAL.broadcast(new PostingEvent(this, json.stringify()), false);
 	}
 
-	public void error(Throwable ex)
+	public Throwable error(Throwable ex)
 	{
+		Throwable old = this.error;
 		if (ex != null)
 			this.getLogger().error("未知错误", ex);
 		this.error = ex;
+		return old;
 	}
 
 	public void close(int code, String reason, boolean remote)
@@ -334,14 +350,16 @@ public class Orange implements Bot
 			reason = "未知原因";
 		this.getLogger().info("[" + code + "] 服务器连接因 " + reason + " 已关闭");
 		this.active = false;
-		this.action.forEach((echo, waiting) -> {
-			waiting.complete(new APIResponse(new Json()
-				.set(OrangeAPI.KEY_STATUS, OrangeAPI.STATUS_FAILED)
-				.set(OrangeAPI.KEY_RETCODE, 1200)
-				.set(OrangeAPI.KEY_ECHO, echo.intValue())
-				.set(OrangeAPI.KEY_MESSAGE, "连接已断开")
-			));
-		});
+		this.action.forEach((echo, waiting) -> waiting.complete(new APIResponse(new Json()
+			.set(OrangeAPI.KEY_STATUS, OrangeAPI.STATUS_FAILED)
+			.set(OrangeAPI.KEY_RETCODE, 1200)
+			.set(OrangeAPI.KEY_ECHO, echo.intValue())
+			.set(OrangeAPI.KEY_MESSAGE, "连接已断开")
+		)));
+		if (remote)
+			OrangeEvent.GLOBAL.broadcast(new BotOfflineEvent.Dropped(this, null), false);
+		else
+			OrangeEvent.GLOBAL.broadcast(new BotOfflineEvent.Active(this, null), false);
 	}
 
 	public APIResponse communicate(Json json, boolean async)
@@ -407,23 +425,22 @@ public class Orange implements Bot
 		//Mirroring.set(Dispatchers.class, "IO", new CoroutineDispatcherX());
 		//Dispatchers.getIO()
 
-		OrangeManager.GLOBAL.subscribeAlways(PostingEvent.class, (e) ->
+		OrangeEvent.GLOBAL.subscribeAlways(PostingEvent.class, (e) ->
 		{
 			String postType = e.type;
 			if (OrangeAPI.POST_TYPE_MESSAGE.equals(postType))
 			{
-				OrangeManager.GLOBAL.broadcast(new PostingMessageEvent(e.context, e.text), false);
-				return;
+				OrangeEvent.GLOBAL.broadcast(new PostingMessageEvent(e.context, e.text), false);
 			}
 		});
-		OrangeManager.GLOBAL.subscribeAlways(PostingMessageEvent.class, e -> {
+		OrangeEvent.GLOBAL.subscribeAlways(PostingMessageEvent.class, e -> {
 			if (OrangeAPI.MESSAGE_TYPE_PRIVATE.equals(e.type))
 			{
 				long fid = e.origin.get(OrangeAPI.KEY_SENDER).number(OrangeAPI.KEY_USER_ID).longValue();
 				Friend friend = e.getBot().getFriend(fid);
 				if (friend == null)
 					friend = Mirai.getInstance().newFriend(e.getBot(), new WrappedFriendInfo(fid, 0, null, null));
-				OrangeManager.GLOBAL.broadcast(new FriendMessageEvent(
+				OrangeEvent.GLOBAL.broadcast(new FriendMessageEvent(
 					friend,
 					new SourceFromFriend(e.context, e.text).plus(new OrangeMessage(e.context, e.text).message())/**/,
 					(int) e.time
@@ -447,7 +464,7 @@ public class Orange implements Bot
 				MessageSource source = new SourceFromGroup(e.context, e.text, gid, fid);
 				MessageChain chain = source.plus(new OrangeMessage(e.context, e.text).message());
 				MemberX member = new MemberX(e.context, fid, gid, perm);
-				OrangeManager.GLOBAL.broadcast(new GroupMessageEvent(card, perm, member, chain, (int) e.time), false);
+				OrangeEvent.GLOBAL.broadcast(new GroupMessageEvent(card, perm, member, chain, (int) e.time), false);
 			}
 		});
 	}

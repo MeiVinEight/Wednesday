@@ -14,6 +14,7 @@ public class WebConfigGet implements WebService
 			.set(WebAPI.KEY_DATA, new Json()
 				.set(WebAPI.KEY_HOST, Configuration.address())
 				.set(WebAPI.KEY_PORT, Configuration.port())
+				.set(WebAPI.KEY_LOGLEVEL, Configuration.level().toString())
 			);
 	}
 }

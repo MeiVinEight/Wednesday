@@ -25,31 +25,41 @@ public class Configuration
 
 	public static final String DATA_DIR = "data";
 	public static final Json JSON;
+	private static SimpleLogger.LogPriority loglevel;
 
 	public static SimpleLogger.LogPriority level()
 	{
-		return SimpleLogger.LogPriority.valueOf(Configuration.JSON.string(Configuration.KEY_LOGLEVEL));
+		if (Configuration.JSON == null)
+			return SimpleLogger.LogPriority.INFO;
+		if (loglevel == null)
+			loglevel = SimpleLogger.LogPriority.valueOf(Configuration.JSON.string(Configuration.KEY_LOGLEVEL));
+		return loglevel;
 	}
 
 	public static void level(SimpleLogger.LogPriority level)
 	{
+		loglevel = level;
 		Configuration.JSON.set(Configuration.KEY_LOGLEVEL, level.toString());
 		Configuration.saving();
 	}
 
 	public static String address()
 	{
+		if (Configuration.JSON == null)
+			return "127.0.0.1";
 		return Configuration.JSON.string(Configuration.KEY_ADDR);
 	}
 
 	public static void address(String address)
-	{
+	{;
 		Configuration.JSON.set(Configuration.KEY_ADDR, address);
 		Configuration.saving();
 	}
 
 	public static int port()
 	{
+		if (Configuration.JSON == null)
+			return 8000;
 		return Configuration.JSON.number(Configuration.KEY_PORT).intValue();
 	}
 
@@ -79,9 +89,9 @@ public class Configuration
 
 		// default configs
 		Json json = new Json()
-			.set(KEY_LOGLEVEL, SimpleLogger.LogPriority.INFO.toString())
-			.set(KEY_ADDR, "127.0.0.1")
-			.set(KEY_PORT, 8000);
+			.set(KEY_LOGLEVEL, Configuration.level().toString())
+			.set(KEY_ADDR, Configuration.address())
+			.set(KEY_PORT, Configuration.port());
 
 		if (!newFile)
 		{
@@ -95,15 +105,6 @@ public class Configuration
 			}
 		}
 		JSON = json;
-
-		try
-		{
-			Configuration.level();
-		}
-		catch (IllegalArgumentException e)
-		{
-			LOGGER.error("Wrong log level {}, alternative:{DEBUG, VERBOSE, INFO, WARNING, ERROR}", Configuration.JSON.string(Configuration.KEY_LOGLEVEL), e);
-		}
 
 		if (newFile)
 		{

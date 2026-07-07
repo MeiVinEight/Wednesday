@@ -56,8 +56,8 @@ public class ConnectionWednesday
 		try
 		{
 			BotConfiguration configuration = new BotConfiguration();
-			configuration.setBotLoggerSupplier(b -> LoggerManager.create(String.valueOf(b.getId()), Configuration.level()));
-			Logger logger = LoggerManager.create("WS", Configuration.level());
+			configuration.setBotLoggerSupplier(b -> LoggerManager.create(String.valueOf(b.getId())));
+			Logger logger = LoggerManager.create("WS");
 			if (this.connection == null)
 			{
 				this.connection = new Orange(this.URL, this.TOKEN, configuration, logger);

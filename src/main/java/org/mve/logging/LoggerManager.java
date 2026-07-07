@@ -9,7 +9,6 @@ import net.mamoe.mirai.utils.MiraiLoggerFactoryImplementationBridge;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mve.Configuration;
 import org.mve.uni.Mirroring;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
@@ -29,7 +28,7 @@ public class LoggerManager implements ILoggerFactory, MiraiLogger.Factory
 
 	public static WednesdayLogger create()
 	{
-		WednesdayLogger logger = new WednesdayLogger(null, SimpleLogger.LogPriority.DEBUG);
+		WednesdayLogger logger = new WednesdayLogger(null);
 		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
 			logger.consumation(function);
 		return logger;
@@ -37,15 +36,7 @@ public class LoggerManager implements ILoggerFactory, MiraiLogger.Factory
 
 	public static WednesdayLogger create(String name)
 	{
-		WednesdayLogger logger = new WednesdayLogger(name, SimpleLogger.LogPriority.DEBUG);
-		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
-			logger.consumation(function);
-		return logger;
-	}
-
-	public static WednesdayLogger create(String name, SimpleLogger.LogPriority priority)
-	{
-		WednesdayLogger logger = new WednesdayLogger(name, priority);
+		WednesdayLogger logger = new WednesdayLogger(name);
 		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
 			logger.consumation(function);
 		return logger;
@@ -54,7 +45,7 @@ public class LoggerManager implements ILoggerFactory, MiraiLogger.Factory
 	@Override
 	public Logger getLogger(String name)
 	{
-		return create(name, Configuration.level());
+		return create(name);
 	}
 
 	@NotNull

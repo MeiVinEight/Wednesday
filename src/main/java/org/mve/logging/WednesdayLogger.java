@@ -8,6 +8,7 @@ import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.Nullable;
+import org.mve.Configuration;
 import org.mve.uni.Mirroring;
 import org.slf4j.Marker;
 import org.slf4j.event.Level;
@@ -24,14 +25,17 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 {
 	private static final Map<SimpleLogger.LogPriority, Consumer<Ansi>> PRIORITY_COLOR;
 	public static final Map<SimpleLogger.LogPriority, String> PRIORITY_ALIGNED_NAME;
-	public final SimpleLogger.LogPriority priority;
 	private final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> consumation = new LinkedList<>();
 	private boolean function = true;
 
 	public WednesdayLogger(String name, SimpleLogger.LogPriority priority)
 	{
+		this(name);
+	}
+
+	public WednesdayLogger(String name)
+	{
 		this.name = name;
-		this.priority = priority;
 	}
 
 	public void consumation(Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function)
@@ -215,7 +219,7 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	{
 		if (priority == null)
 			return false;
-		return this.priority.compareTo(priority) <= 0;
+		return Configuration.level().compareTo(priority) <= 0;
 	}
 
 	public static String timestamp()

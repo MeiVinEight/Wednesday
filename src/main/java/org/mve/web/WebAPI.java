@@ -40,6 +40,7 @@ public class WebAPI
 	public static final String API_TOKEN = "/api/v1/token";
 	public static final String API_STOP = "/api/v1/stop";
 	public static final String API_CONN = "/api/v1/conn";
+	public static final String API_CONFIG = "/api/v1/config";
 
 	public static final String COOKIE_JSESSIONID = "JSESSIONID";
 

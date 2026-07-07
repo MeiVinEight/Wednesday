@@ -16,7 +16,15 @@ import org.mve.uni.Hexadecimal;
 import org.mve.uni.Json;
 import org.mve.uni.MD5;
 import org.mve.uni.Mirroring;
-import org.mve.web.service.*;
+import org.mve.web.service.Auth2FAStatus;
+import org.mve.web.service.AuthCheck;
+import org.mve.web.service.ChangeToken;
+import org.mve.web.service.ConnConn;
+import org.mve.web.service.ConnDisconn;
+import org.mve.web.service.ConnGet;
+import org.mve.web.service.ConnPost;
+import org.mve.web.service.StopWeb;
+import org.mve.web.service.WebConfigGet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -69,6 +77,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 		WednesdayWeb.registerAPI(HTTP.METHOD_CONN, WebAPI.API_CONN, new ConnConn(this.connection));
 		WednesdayWeb.registerAPI(HTTP.METHOD_DISCONN, WebAPI.API_CONN, new ConnDisconn(this.connection));
 		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_CONFIG, new WebConfigGet());
+		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_AUTH_2FA_STATUS, new Auth2FAStatus());
 	}
 
 	@Override

@@ -13,6 +13,8 @@ public class WebAPI
 	public static final String KEY_STACKTRACE = "stacktrace";
 	public static final String KEY_NAME = "name";
 	public static final String KEY_URL = "url";
+	public static final String KEY_ENABLE_2FA = "enable2FA";
+	public static final String KEY_HAS_SECRET = "hasSecret";
 
 	public static final int CODE_OK             = 0;
 	public static final int CODE_NOT_FOUND      = 1;
@@ -41,6 +43,7 @@ public class WebAPI
 	public static final String API_STOP = "/api/v1/stop";
 	public static final String API_CONN = "/api/v1/conn";
 	public static final String API_CONFIG = "/api/v1/config";
+	public static final String API_AUTH_2FA_STATUS = "/api/v1/auth/2fa/status";
 
 	public static final String COOKIE_JSESSIONID = "JSESSIONID";
 

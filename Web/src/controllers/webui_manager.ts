@@ -272,7 +272,7 @@ export default class WebUIManager {
   // 获取WebUI基础配置
   public static async getWebUIConfig () {
     const { data } = await serverRequest.get<ServerResponse<WebUIConfig>>(
-      '/WebUIConfig/GetConfig'
+      '/api/v1/config'
     );
     return data.data;
   }

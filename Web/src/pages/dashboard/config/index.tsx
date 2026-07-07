@@ -9,7 +9,7 @@ import key from '@/const/key';
 //把修改密码移动到WebUI栏目中
 //import ChangePasswordCard from './change_password';
 import LoginConfigCard from './login';
-import OneBotConfigCard from './onebot';
+//import OneBotConfigCard from './onebot';
 import ServerConfigCard from './server';
 import SSLConfigCard from './ssl';
 import ThemeConfigCard from './theme';
@@ -53,9 +53,9 @@ const ConfigPageItem: React.FC<ConfigPageProps> = ({
 export default function ConfigPage () {
   const navigate = useNavigate();
   const search = useSearchParams({
-    tab: 'onebot',
+    tab: 'server',
   })[0];
-  const tab = search.get('tab') ?? 'onebot';
+  const tab = search.get('tab') ?? 'server';
 
   return (
     <section className='w-full max-w-[1200px] mx-auto py-4 md:py-8 px-2 md:px-6 relative'>
@@ -77,11 +77,6 @@ export default function ConfigPage () {
           panel: 'w-full relative p-0',
         }}
       >
-        <Tab title='OneBot配置' key='onebot'>
-          <ConfigPageItem>
-            <OneBotConfigCard />
-          </ConfigPageItem>
-        </Tab>
         <Tab title='服务器配置' key='server'>
           <ConfigPageItem>
             <ServerConfigCard />

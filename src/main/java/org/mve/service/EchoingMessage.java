@@ -22,7 +22,7 @@ public class EchoingMessage implements Consumer<MessageEvent>
 	public void accept(MessageEvent event)
 	{
 		// Whether sender is owner
-		if (event.getSender().getId() != Configuration.PORT)
+		if (event.getSender().getId() != Configuration.port())
 			return;
 		MessageChain msg = event.getMessage();
 		if (msg.size() <= 1)

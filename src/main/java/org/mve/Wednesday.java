@@ -8,7 +8,7 @@ public class Wednesday
 	public static final String SID = "Wednesday";
 	public static final SynchronizeNET SYNCHRONIZE = new SynchronizeNET();
 	public static final SubscribeMessage SUBSCRIBE = new SubscribeMessage();
-	public static final WednesdayLogger LOGGER = LoggerManager.create(SID, Configuration.LOG_LEVEL);
+	public static final WednesdayLogger LOGGER = LoggerManager.create(SID, Configuration.level());
 
 	public Wednesday(String url, String token)
 	{

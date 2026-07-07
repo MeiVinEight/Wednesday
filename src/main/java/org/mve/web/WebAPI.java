@@ -15,6 +15,8 @@ public class WebAPI
 	public static final String KEY_URL = "url";
 	public static final String KEY_ENABLE_2FA = "enable2FA";
 	public static final String KEY_HAS_SECRET = "hasSecret";
+	public static final String KEY_HOST = "host";
+	public static final String KEY_PORT = "port";
 
 	public static final int CODE_OK             = 0;
 	public static final int CODE_NOT_FOUND      = 1;

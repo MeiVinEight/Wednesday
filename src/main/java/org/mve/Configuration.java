@@ -2,15 +2,15 @@ package org.mve;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.LoggerManager;
 import org.mve.logging.WednesdayLogger;
+import org.mve.uni.Json;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -24,9 +24,53 @@ public class Configuration
 	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
 
 	public static final String DATA_DIR = "data";
-	public static final SimpleLogger.LogPriority LOG_LEVEL;
-	public static final String ADDRESS;
-	public static final int PORT;
+	public static final Json JSON;
+
+	public static SimpleLogger.LogPriority level()
+	{
+		return SimpleLogger.LogPriority.valueOf(Configuration.JSON.string(Configuration.KEY_LOGLEVEL));
+	}
+
+	public static void level(SimpleLogger.LogPriority level)
+	{
+		Configuration.JSON.set(Configuration.KEY_LOGLEVEL, level.toString());
+		Configuration.saving();
+	}
+
+	public static String address()
+	{
+		return Configuration.JSON.string(Configuration.KEY_ADDR);
+	}
+
+	public static void address(String address)
+	{
+		Configuration.JSON.set(Configuration.KEY_ADDR, address);
+		Configuration.saving();
+	}
+
+	public static int port()
+	{
+		return Configuration.JSON.number(Configuration.KEY_PORT).intValue();
+	}
+
+	public static void port(int port)
+	{
+		Configuration.JSON.set(Configuration.KEY_PORT, port);
+		Configuration.saving();
+	}
+
+	public static void saving()
+	{
+		try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE))
+		{
+			fos.write(GSON.toJson(JsonParser.parseString(JSON.toString())).getBytes(StandardCharsets.UTF_8));
+			fos.flush();
+		}
+		catch (IOException e)
+		{
+			LOGGER.error("Configuration saving fail", e);
+		}
+	}
 
 	static
 	{
@@ -34,58 +78,37 @@ public class Configuration
 		boolean newFile = !configFile.exists();
 
 		// default configs
-		String logLevel = "INFO";
-		String addr = "127.0.0.1";
-		int port = 8000;
+		Json json = new Json()
+			.set(KEY_LOGLEVEL, SimpleLogger.LogPriority.INFO.toString())
+			.set(KEY_ADDR, "127.0.0.1")
+			.set(KEY_PORT, 8000);
 
 		if (!newFile)
 		{
-			try (FileReader reader = new FileReader(configFile))
+			try (FileInputStream in = new FileInputStream(configFile))
 			{
-				JsonObject config = JsonParser.parseReader(reader).getAsJsonObject();
-				if (config.has(KEY_LOGLEVEL))
-					logLevel = config.get(KEY_LOGLEVEL).getAsString();
-				if (config.has(KEY_ADDR))
-					addr = config.get(KEY_ADDR).getAsString();
-				if (config.has(KEY_PORT))
-					port = config.get(KEY_PORT).getAsInt();
+				json = Json.resolve(in);
 			}
 			catch (IOException e)
 			{
 				LOGGER.error("Configuration loading fail", e);
 			}
 		}
+		JSON = json;
 
-		SimpleLogger.LogPriority logPriority;
 		try
 		{
-			logPriority = SimpleLogger.LogPriority.valueOf(logLevel);
+			Configuration.level();
 		}
 		catch (IllegalArgumentException e)
 		{
-			LOGGER.error("Wrong log level {}, alternative:{DEBUG, VERBOSE, INFO, WARNING, ERROR}", logLevel, e);
-			logPriority = SimpleLogger.LogPriority.INFO;
+			LOGGER.error("Wrong log level {}, alternative:{DEBUG, VERBOSE, INFO, WARNING, ERROR}", Configuration.JSON.string(Configuration.KEY_LOGLEVEL), e);
 		}
-		LOG_LEVEL = logPriority;
-		ADDRESS = addr;
-		PORT = port;
 
 		if (newFile)
 		{
 			LOGGER.info("Configuration creating default");
-			try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE))
-			{
-				JsonObject config = new JsonObject();
-				config.addProperty(KEY_LOGLEVEL, LOG_LEVEL.toString());
-				config.addProperty(KEY_ADDR, ADDRESS);
-				config.addProperty(KEY_PORT, PORT);
-				fos.write(GSON.toJson(config).getBytes(StandardCharsets.UTF_8));
-				fos.flush();
-			}
-			catch (IOException e)
-			{
-				LOGGER.error("Configuration saving fail", e);
-			}
+			Configuration.saving();
 		}
 	}
 }

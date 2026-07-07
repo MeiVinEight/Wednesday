@@ -54,7 +54,7 @@ public class LoggerManager implements ILoggerFactory, MiraiLogger.Factory
 	@Override
 	public Logger getLogger(String name)
 	{
-		return create(name, Configuration.LOG_LEVEL);
+		return create(name, Configuration.level());
 	}
 
 	@NotNull

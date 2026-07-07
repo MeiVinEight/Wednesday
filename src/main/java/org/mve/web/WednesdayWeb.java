@@ -16,15 +16,7 @@ import org.mve.uni.Hexadecimal;
 import org.mve.uni.Json;
 import org.mve.uni.MD5;
 import org.mve.uni.Mirroring;
-import org.mve.web.service.Auth2FAStatus;
-import org.mve.web.service.AuthCheck;
-import org.mve.web.service.ChangeToken;
-import org.mve.web.service.ConnConn;
-import org.mve.web.service.ConnDisconn;
-import org.mve.web.service.ConnGet;
-import org.mve.web.service.ConnPost;
-import org.mve.web.service.StopWeb;
-import org.mve.web.service.WebConfigGet;
+import org.mve.web.service.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -49,7 +41,7 @@ import java.util.regex.Pattern;
 
 public class WednesdayWeb implements HttpHandler, WebService
 {
-	public static final WednesdayLogger LOGGER = new WednesdayLogger("WEB", Configuration.LOG_LEVEL);
+	public static final WednesdayLogger LOGGER = new WednesdayLogger("WEB", Configuration.level());
 	public static final Map<String, Map<String, WebService>> API = new HashMap<>();
 	private static final Pattern PATTERN_TOKEN = Pattern.compile("^[0-9A-F]{32}$");
 	private static final String DATA_WEBUI = Configuration.DATA_DIR + "/WEBUI.DAT";
@@ -78,6 +70,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 		WednesdayWeb.registerAPI(HTTP.METHOD_DISCONN, WebAPI.API_CONN, new ConnDisconn(this.connection));
 		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_CONFIG, new WebConfigGet());
 		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_AUTH_2FA_STATUS, new Auth2FAStatus());
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_CONFIG, new WebConfigPost());
 	}
 
 	@Override
@@ -299,7 +292,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 		WednesdayWeb web;
 		try
 		{
-			web = new WednesdayWeb(new InetSocketAddress(Configuration.ADDRESS, Configuration.PORT));
+			web = new WednesdayWeb(new InetSocketAddress(Configuration.address(), Configuration.port()));
 		}
 		catch (IOException e)
 		{

@@ -28,7 +28,7 @@ export default class WebUIManager {
 
   public static async get2FAStatus () {
     const { data } = await serverRequest.get<ServerResponse<{ enable2FA: boolean; hasSecret: boolean; }>>(
-      '/auth/2fa/status'
+      '/api/v1/auth/2fa/status'
     );
     return data.data;
   }
@@ -56,7 +56,7 @@ export default class WebUIManager {
     return data.data;
   }
 
-  public static async changePassword (oldToken: string, newToken: string) {
+  public static async changePassword (_oldToken: string, newToken: string) {
     const { data } = await serverRequest.post<ServerResponse<boolean>>(
       '/api/v1/token',
       { token: CryptoJS.MD5(newToken).toString() }

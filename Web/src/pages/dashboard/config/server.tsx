@@ -3,11 +3,9 @@ import { useRequest } from 'ahooks';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Select, SelectItem } from '@heroui/select';
 
 import SaveButtons from '@/components/button/save_buttons';
 import PageLoading from '@/components/page_loading';
-import SwitchCard from '@/components/switch_card';
 
 import WebUIManager from '@/controllers/webui_manager';
 
@@ -211,128 +209,6 @@ const ServerConfigCard = () => {
               />
             )}
           />
-          <Controller
-            control={control}
-            name='loginRate'
-            render={({ field }) => (
-              <Input
-                {...field}
-                type='number'
-                value={field.value?.toString() || ''}
-                label='登录速率限制'
-                placeholder='请输入登录速率限制'
-                description='每小时允许的登录尝试次数'
-                isDisabled={!!configError}
-                errorMessage={configError ? '获取配置失败' : undefined}
-                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                classNames={{
-                  inputWrapper:
-                    'bg-default-100/50 dark:bg-white/5 backdrop-blur-md border border-transparent hover:bg-default-200/50 dark:hover:bg-white/10 transition-all shadow-sm data-[hover=true]:border-default-300',
-                  input: 'bg-transparent text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500',
-                }}
-              />
-            )}
-          />
-        </div>
-
-        <div className='flex flex-col gap-3'>
-          <div className='flex-shrink-0 w-full font-bold text-default-600 dark:text-default-400 px-1'>安全配置</div>
-          <Controller
-            control={control}
-            name='disableWebUI'
-            render={({ field }) => (
-              <SwitchCard
-                value={field.value}
-                onValueChange={(value: boolean) => field.onChange(value)}
-                disabled={!!configError}
-                label='禁用WebUI'
-                description='启用后将完全禁用WebUI服务，需要重启生效'
-              />
-            )}
-          />
-
-          <div className='flex flex-col gap-3 mt-2'>
-            <div className='text-sm font-medium text-default-700 dark:text-default-300 px-1'>网络访问控制</div>
-            <Controller
-              control={control}
-              name='accessControlMode'
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  label='访问控制模式'
-                  placeholder='选择访问控制模式'
-                  description='选择如何控制网络访问'
-                  selectedKeys={[field.value]}
-                  onSelectionChange={(keys) => {
-                    const value = Array.from(keys)[0] as 'none' | 'whitelist' | 'blacklist';
-                    field.onChange(value);
-                  }}
-                  isDisabled={!!configError}
-                  classNames={{
-                    trigger:
-                      'bg-default-100/50 dark:bg-white/5 backdrop-blur-md border border-transparent hover:bg-default-200/50 dark:hover:bg-white/10 transition-all shadow-sm data-[hover=true]:border-default-300',
-                  }}
-                >
-                  <SelectItem key='none' value='none'>
-                    不限制
-                  </SelectItem>
-                  <SelectItem key='whitelist' value='whitelist'>
-                    白名单模式
-                  </SelectItem>
-                  <SelectItem key='blacklist' value='blacklist'>
-                    黑名单模式
-                  </SelectItem>
-                </Select>
-              )}
-            />
-
-            {accessControlMode !== 'none' && (
-              <div className='flex flex-col gap-2'>
-                <div className='flex flex-col gap-1'>
-                  <label className='text-sm font-medium text-default-700 dark:text-default-300'>
-                    {accessControlMode === 'whitelist' ? 'IP白名单' : 'IP黑名单'}
-                  </label>
-                  <textarea
-                    value={ipListText}
-                    onChange={(e) => setIpListText(e.target.value)}
-                    placeholder={'每行一个IP地址或规则\n支持格式：\nIPv4:\n- 精确IP: 192.168.1.100\n- 通配符: 192.168.1.*\n- CIDR: 192.168.1.0/24\nIPv6:\n- 精确IP: 2001:db8::1\n- CIDR: 2001:db8::/32'}
-                    disabled={!!configError}
-                    rows={10}
-                    className='w-full px-3 py-2 bg-default-100/50 dark:bg-white/5 backdrop-blur-md border border-transparent hover:bg-default-200/50 dark:hover:bg-white/10 transition-all shadow-sm hover:border-default-300 rounded-lg text-default-700 dark:text-default-300 placeholder:text-default-400 font-mono text-sm resize-y focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
-                  />
-                  <p className='text-xs text-default-500'>
-                    {accessControlMode === 'whitelist'
-                      ? '只有列表中的IP可以访问'
-                      : '列表中的IP将被拒绝访问'}
-                  </p>
-                </div>
-                <div className='text-xs text-default-500 px-1'>
-                  <div className='font-medium mb-1'>示例规则：</div>
-                  <div className='space-y-0.5 font-mono'>
-                    <div>• 127.0.0.1 (IPv4 本地回环)</div>
-                    <div>• 192.168.1.* (IPv4 通配符)</div>
-                    <div>• 10.0.0.0/8 (IPv4 CIDR)</div>
-                    <div>• ::1 (IPv6 本地回环)</div>
-                    <div>• 2001:db8::/32 (IPv6 CIDR)</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <Controller
-              control={control}
-              name='enableXForwardedFor'
-              render={({ field }) => (
-                <SwitchCard
-                  value={field.value}
-                  onValueChange={(value: boolean) => field.onChange(value)}
-                  disabled={!!configError}
-                  label='启用 X-Forwarded-For'
-                  description='启用后将从 X-Forwarded-For 头部获取真实IP地址（适用于反向代理场景）'
-                />
-              )}
-            />
-          </div>
         </div>
       </div>
 

@@ -11,9 +11,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import key from '@/const/key';
 
 import SaveButtons from '@/components/button/save_buttons';
-import ImageInput from '@/components/input/image_input';
+// import ImageInput from '@/components/input/image_input';
 
-import { siteConfig } from '@/config/site';
+// import { siteConfig } from '@/config/site';
 import WebUIManager from '@/controllers/webui_manager';
 
 // Base64URL to Uint8Array converter
@@ -35,7 +35,7 @@ function uint8ArrayToBase64Url (uint8Array: Uint8Array): string {
 
 const WebUIConfigCard = () => {
   const {
-    control,
+    //control,
     handleSubmit: handleWebuiSubmit,
     formState: { isSubmitting },
     setValue: setWebuiValue,
@@ -286,34 +286,6 @@ const WebUIConfigCard = () => {
         </div>
       </div>
 
-      <div className='flex flex-col gap-2'>
-        <div className='flex-shrink-0 w-full font-bold text-default-600 dark:text-default-400 px-1'>背景图</div>
-        <Controller
-          control={control}
-          name='background'
-          render={({ field }) => (
-            <ImageInput
-              {...field}
-            />
-          )}
-        />
-      </div>
-      <div className='flex flex-col gap-2'>
-        <div className='flex-shrink-0 w-full font-bold text-default-600 dark:text-default-400 px-1'>自定义图标</div>
-        {siteConfig.navItems.map((item) => (
-          <Controller
-            key={item.label}
-            control={control}
-            name={`customIcons.${item.label}`}
-            render={({ field }) => (
-              <ImageInput
-                {...field}
-                label={item.label}
-              />
-            )}
-          />
-        ))}
-      </div>
       <div className='flex flex-col gap-2'>
         <div className='flex-shrink-0 w-full font-bold text-default-600 dark:text-default-400 px-1'>Passkey认证</div>
 

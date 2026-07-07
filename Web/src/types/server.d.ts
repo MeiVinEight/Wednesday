@@ -186,6 +186,7 @@ interface ThemeConfig {
 }
 
 interface WebUIConfig {
+  loglevel: string;
   host: string;
   port: number;
   loginRate: number;

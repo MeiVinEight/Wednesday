@@ -28,6 +28,7 @@ const ServerConfigCard = () => {
     setValue: setConfigValue,
     watch,
   } = useForm<{
+    loglevel: string;
     host: string;
     port: number;
     loginRate: number;
@@ -38,8 +39,9 @@ const ServerConfigCard = () => {
     enableXForwardedFor: boolean;
   }>({
     defaultValues: {
-      host: '0.0.0.0',
-      port: 6099,
+      loglevel: 'INFO',
+      host: '127.0.0.1',
+      port: 8000,
       loginRate: 10,
       disableWebUI: false,
       accessControlMode: 'none',
@@ -61,6 +63,7 @@ const ServerConfigCard = () => {
       setConfigValue('ipWhitelist', configData.ipWhitelist || []);
       setConfigValue('ipBlacklist', configData.ipBlacklist || []);
       setConfigValue('enableXForwardedFor', configData.enableXForwardedFor || false);
+      setConfigValue('loglevel', configData.loglevel || '')
 
       // 更新IP列表文本
       if (configData.accessControlMode === 'whitelist') {
@@ -148,6 +151,25 @@ const ServerConfigCard = () => {
       <div className='flex flex-col gap-4'>
         <div className='flex flex-col gap-3'>
           <div className='flex-shrink-0 w-full font-bold text-default-600 dark:text-default-400 px-1'>服务器配置</div>
+            <Controller
+                control={control}
+                name='loglevel'
+                render={({ field }) => (
+                    <Input
+                        {...field}
+                        label='日志等级'
+                        placeholder='请输入日志等级'
+                        description='服务器日志等级，从低到高分别为 DEBUG < VERBOSE < INFO < WARNING < ERROR'
+                        isDisabled={!!configError}
+                        errorMessage={configError ? '获取配置失败' : undefined}
+                        classNames={{
+                            inputWrapper:
+                                'bg-default-100/50 dark:bg-white/5 backdrop-blur-md border border-transparent hover:bg-default-200/50 dark:hover:bg-white/10 transition-all shadow-sm data-[hover=true]:border-default-300',
+                            input: 'bg-transparent text-default-700 placeholder:text-default-400',
+                        }}
+                    />
+                )}
+            />
           <Controller
             control={control}
             name='host'

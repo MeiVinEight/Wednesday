@@ -205,6 +205,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 			String text = bodyObject.toString();
 			try (exchange)
 			{
+				exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
 				exchange.getResponseHeaders().set("Content-Type", contentType);
 				byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
 				exchange.sendResponseHeaders(code, bytes.length);

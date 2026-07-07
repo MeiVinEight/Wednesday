@@ -36,6 +36,7 @@ public class WebAPI
 	public static final String[] CODE_MSG;
 
 	public static final String API_LOGIN = "/api/v1/login";
+	public static final String API_AUTHCHK = "/api/v1/auth/check";
 	public static final String API_TOKEN = "/api/v1/token";
 	public static final String API_STOP = "/api/v1/stop";
 	public static final String API_CONN = "/api/v1/conn";

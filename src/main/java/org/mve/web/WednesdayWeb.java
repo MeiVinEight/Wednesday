@@ -62,9 +62,9 @@ public class WednesdayWeb implements HttpHandler, WebService
 		server.start();
 		WednesdayWeb.LOGGER.info("Web API start at http://{}:{}", address.getHostString(), address.getPort());
 		this.connection = new ConnectionManager(WednesdayWeb.DATA_CONN);
-		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_LOGIN, this);
-		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_STOP, new StopWeb(this));
-		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_CONN, new ConnGet(this.connection));
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_LOGIN, this);
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_STOP, new StopWeb(this));
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_CONN, new ConnGet(this.connection));
 		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_CONN, new ConnPost(this.connection));
 		WednesdayWeb.registerAPI(HTTP.METHOD_CONN, WebAPI.API_CONN, new ConnConn(this.connection));
 		WednesdayWeb.registerAPI(HTTP.METHOD_DISCONN, WebAPI.API_CONN, new ConnDisconn(this.connection));
@@ -148,6 +148,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 			if (service == null)
 			{
 				bodyObject = WebAPI.code(new Json(), WebAPI.CODE_NOT_FOUND);
+				code = HttpURLConnection.HTTP_NOT_FOUND;
 				break WEB_SERVICE;
 			}
 			if (service.auth() && !this.authenticate(exchange))
@@ -337,6 +338,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 			throw new RuntimeException(e);
 		}
 
-		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_TOKEN, new ChangeToken());
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_TOKEN, new ChangeToken());
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_AUTHCHK, new AuthCheck());
 	}
 }

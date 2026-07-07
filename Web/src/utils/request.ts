@@ -42,9 +42,8 @@ serverRequest.interceptors.request.use((config) => {
     config.headers['Authorization'] = `Bearer ${JSON.parse(token)}`;
   }
 
-  return config;
-});
-*/
+    return config;
+}
 
 serverRequest.interceptors.response.use((response) => {
   // 如果是流式传输的文件
@@ -64,3 +63,4 @@ serverRequest.interceptors.response.use((response) => {
 
   return response;
 });
+*/

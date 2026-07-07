@@ -15,13 +15,13 @@ import PageLoading from '@/components/page_loading';
 import SideBar from '@/components/sidebar';
 
 import useAuth from '@/hooks/auth';
-import useDialog from '@/hooks/use-dialog';
+//import useDialog from '@/hooks/use-dialog';
 
 import type { MenuItem } from '@/config/site';
 import { siteConfig } from '@/config/site';
-import QQManager from '@/controllers/qq_manager';
-import ProcessManager from '@/controllers/process_manager';
-import { waitForBackendReady } from '@/utils/process_utils';
+//import QQManager from '@/controllers/qq_manager';
+//import ProcessManager from '@/controllers/process_manager';
+//import { waitForBackendReady } from '@/utils/process_utils';
 
 const menus: MenuItem[] = siteConfig.navItems;
 
@@ -51,14 +51,15 @@ const Layout: React.FC<{ children: React.ReactNode; }> = ({ children }) => {
   const [openSideBar, setOpenSideBar] = useLocalStorage(key.sideBarOpen, true);
   const [b64img] = useLocalStorage(key.backgroundImage, '');
   const navigate = useNavigate();
-  const { isAuth, revokeAuth } = useAuth();
-  const dialog = useDialog();
-  const isOnlineRef = useRef(true);
-  const [isRestarting, setIsRestarting] = useState(false);
+  const { isAuth, /*revokeAuth*/ } = useAuth();
+  //const dialog = useDialog();
+  //const isOnlineRef = useRef(true);
+  const [isRestarting, /*setIsRestarting*/] = useState(false);
 
   // 定期检查 QQ 在线状态，掉线时弹窗提示
   useEffect(() => {
     if (!isAuth) return;
+    /*
     const checkOnlineStatus = async () => {
       const currentPath = location.pathname;
       if (currentPath === '/qq_login' || currentPath === '/web_login') return;
@@ -110,10 +111,12 @@ const Layout: React.FC<{ children: React.ReactNode; }> = ({ children }) => {
     const timer = setInterval(checkOnlineStatus, 5000);
     checkOnlineStatus();
     return () => clearInterval(timer);
+    */
   }, [isAuth, location.pathname]);
 
   const checkIsQQLogin = async () => {
     try {
+      /*
       const result = await QQManager.checkQQLoginStatus();
       // 掉线状态由 checkOnlineStatus 定期检测并弹窗处理，这里只处理未登录
       if (result.isOffline) {
@@ -127,6 +130,7 @@ const Layout: React.FC<{ children: React.ReactNode; }> = ({ children }) => {
           navigate('/web_login', { replace: true });
         }
       }
+      */
     } catch (_error) {
       navigate('/web_login', { replace: true });
     }

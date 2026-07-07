@@ -58,8 +58,8 @@ export default class WebUIManager {
 
   public static async changePassword (oldToken: string, newToken: string) {
     const { data } = await serverRequest.post<ServerResponse<boolean>>(
-      '/auth/update_token',
-      { oldToken, newToken }
+      '/api/v1/token',
+      { token: CryptoJS.MD5(newToken).toString() }
     );
     return data.data;
   }

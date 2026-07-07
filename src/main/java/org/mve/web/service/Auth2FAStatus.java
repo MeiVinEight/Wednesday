@@ -10,7 +10,9 @@ public class Auth2FAStatus implements WebService
 	public Object service(Json body)
 	{
 		return WebAPI.code(new Json(), WebAPI.CODE_OK)
-			.set(WebAPI.KEY_ENABLE_2FA, false)
-			.set(WebAPI.KEY_HAS_SECRET, false);
+			.set(WebAPI.KEY_DATA, new Json()
+				.set(WebAPI.KEY_ENABLE_2FA, false)
+				.set(WebAPI.KEY_HAS_SECRET, false)
+			);
 	}
 }

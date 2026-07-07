@@ -35,14 +35,14 @@ export default class WebUIManager {
 
   public static async generate2FASecret () {
     const { data } = await serverRequest.post<ServerResponse<{ secret: string; qrCodeUrl: string; }>>(
-      '/auth/2fa/generate-secret'
+      '/api/v1/auth/2fa/generate-secret'
     );
     return data.data;
   }
 
   public static async enable2FA (secret: string, totpCode: string) {
     const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/auth/2fa/enable',
+      '/api/v1/auth/2fa/enable',
       { secret, totpCode }
     );
     return data.data;
@@ -50,7 +50,7 @@ export default class WebUIManager {
 
   public static async disable2FA (totpCode: string) {
     const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/auth/2fa/disable',
+      '/api/v1/auth/2fa/disable',
       { totpCode }
     );
     return data.data;
@@ -66,7 +66,7 @@ export default class WebUIManager {
 
   public static async proxy<T> (url = '') {
     const data = await serverRequest.get<ServerResponse<string>>(
-      '/base/proxy?url=' + encodeURIComponent(url)
+      '/api/v1/base/proxy?url=' + encodeURIComponent(url)
     );
     data.data.data = JSON.parse(data.data.data);
     return data.data as ServerResponse<T>;
@@ -74,13 +74,13 @@ export default class WebUIManager {
 
   public static async GetNapCatVersion () {
     const { data } =
-      await serverRequest.get<ServerResponse<PackageInfo>>('/base/GetNapCatVersion');
+      await serverRequest.get<ServerResponse<PackageInfo>>('/api/v1/base/GetNapCatVersion');
     return data.data;
   }
 
   public static async getLatestTag () {
     const { data } =
-      await serverRequest.get<ServerResponse<string>>('/base/getLatestTag');
+      await serverRequest.get<ServerResponse<string>>('/api/v1/base/getLatestTag');
     return data.data;
   }
 
@@ -124,7 +124,7 @@ export default class WebUIManager {
         totalPages: number;
       };
       mirror?: string;
-    }>>('/base/getAllReleases', {
+    }>>('/api/v1/base/getAllReleases', {
       params: { page, pageSize, type, search, mirror },
     });
     return data.data;
@@ -132,13 +132,13 @@ export default class WebUIManager {
 
   public static async getMirrors () {
     const { data } =
-      await serverRequest.get<ServerResponse<{ mirrors: string[]; }>>('/base/getMirrors');
+      await serverRequest.get<ServerResponse<{ mirrors: string[]; }>>('/api/v1/base/getMirrors');
     return data.data;
   }
 
   public static async UpdateNapCat (mirror?: string) {
     const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/UpdateNapCat/update',
+      '/api/v1/UpdateNapCat/update',
       { mirror },
       { timeout: 120000 } // 2分钟超时
     );
@@ -153,7 +153,7 @@ export default class WebUIManager {
    */
   public static async UpdateNapCatToVersion (targetVersion: string, force: boolean = false, mirror?: string) {
     const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/UpdateNapCat/update',
+      '/api/v1/UpdateNapCat/update',
       { targetVersion, force, mirror },
       { timeout: 120000 } // 2分钟超时
     );
@@ -162,43 +162,43 @@ export default class WebUIManager {
 
   public static async getQQVersion () {
     const { data } =
-      await serverRequest.get<ServerResponse<string>>('/base/QQVersion');
+      await serverRequest.get<ServerResponse<string>>('/api/v1/base/QQVersion');
     return data.data;
   }
 
   public static async getThemeConfig () {
     const { data } =
-      await serverRequest.get<ServerResponse<ThemeConfig>>('/base/Theme');
+      await serverRequest.get<ServerResponse<ThemeConfig>>('/api/v1/base/Theme');
     return data.data;
   }
 
   public static async setThemeConfig (theme: ThemeConfig) {
     const { data } = await serverRequest.post<ServerResponse<boolean>>(
-      '/base/SetTheme',
+      '/api/v1/base/SetTheme',
       { theme }
     );
     return data.data;
   }
 
   public static async restart () {
-    const { data } = await serverRequest.post<ServerResponse<any>>('/Process/Restart');
+    const { data } = await serverRequest.post<ServerResponse<any>>('/api/v1/Process/Restart');
     return data.data;
   }
 
   public static async getAllUsers (): Promise<any> {
-    const { data } = await serverRequest.get<ServerResponse<any>>('/QQLogin/GetAllUsers');
+    const { data } = await serverRequest.get<ServerResponse<any>>('/api/v1/QQLogin/GetAllUsers');
     return data.data;
   }
 
   public static async getLogList () {
     const { data } =
-      await serverRequest.get<ServerResponse<string[]>>('/Log/GetLogList');
+      await serverRequest.get<ServerResponse<string[]>>('/api/v1/Log/GetLogList');
     return data.data;
   }
 
   public static async getLogContent (logName: string) {
     const { data } = await serverRequest.get<ServerResponse<string>>(
-      `/Log/GetLog?id=${logName}`
+      `/api/v1/Log/GetLog?id=${logName}`
     );
     return data.data;
   }
@@ -287,7 +287,7 @@ export default class WebUIManager {
   // 获取是否禁用WebUI
   public static async getDisableWebUI () {
     const { data } = await serverRequest.get<ServerResponse<boolean>>(
-      '/WebUIConfig/GetDisableWebUI'
+      '/api/v1/WebUIConfig/GetDisableWebUI'
     );
     return data.data;
   }
@@ -295,7 +295,7 @@ export default class WebUIManager {
   // 更新是否禁用WebUI
   public static async updateDisableWebUI (disable: boolean) {
     const { data } = await serverRequest.post<ServerResponse<boolean>>(
-      '/WebUIConfig/UpdateDisableWebUI',
+      '/api/v1/WebUIConfig/UpdateDisableWebUI',
       { disable }
     );
     return data.data;
@@ -304,7 +304,7 @@ export default class WebUIManager {
   // 获取当前客户端IP
   public static async getClientIP () {
     const { data } = await serverRequest.get<ServerResponse<{ ip: string; }>>(
-      '/WebUIConfig/GetClientIP'
+      '/api/v1/WebUIConfig/GetClientIP'
     );
     return data.data;
   }
@@ -317,14 +317,14 @@ export default class WebUIManager {
       keyExists: boolean;
       certContent: string;
       keyContent: string;
-    }>>('/WebUIConfig/GetSSLStatus');
+    }>>('/api/v1/WebUIConfig/GetSSLStatus');
     return data.data;
   }
 
   // 保存SSL证书
   public static async saveSSLCert (cert: string, key: string) {
     const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/WebUIConfig/UploadSSLCert',
+      '/api/v1/WebUIConfig/UploadSSLCert',
       { cert, key }
     );
     return data.data;
@@ -333,7 +333,7 @@ export default class WebUIManager {
   // 删除SSL证书
   public static async deleteSSLCert () {
     const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/WebUIConfig/DeleteSSLCert'
+      '/api/v1/WebUIConfig/DeleteSSLCert'
     );
     return data.data;
   }
@@ -341,14 +341,14 @@ export default class WebUIManager {
   // Passkey相关方法
   public static async generatePasskeyRegistrationOptions () {
     const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/auth/passkey/generate-registration-options'
+      '/api/v1/auth/passkey/generate-registration-options'
     );
     return data.data;
   }
 
   public static async verifyPasskeyRegistration (response: any) {
     const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/auth/passkey/verify-registration',
+      '/api/v1/auth/passkey/verify-registration',
       { response }
     );
     return data.data;
@@ -356,14 +356,14 @@ export default class WebUIManager {
 
   public static async generatePasskeyAuthenticationOptions () {
     const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/auth/passkey/generate-authentication-options'
+      '/api/v1/auth/passkey/generate-authentication-options'
     );
     return data.data;
   }
 
   public static async verifyPasskeyAuthentication (response: any) {
     const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/auth/passkey/verify-authentication',
+      '/api/v1/auth/passkey/verify-authentication',
       { response }
     );
     return data.data;
@@ -371,7 +371,7 @@ export default class WebUIManager {
 
   public static async GetNapCatFileHash () {
     const { data } = await serverRequest.get<ServerResponse<{ hash: string; file: string; algorithm: string; }>>(
-      '/base/GetNapCatFileHash'
+      '/api/v1/base/GetNapCatFileHash'
     );
     return data.data;
   }

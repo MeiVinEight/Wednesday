@@ -8,31 +8,20 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   const backendDebugUrl = env.VITE_DEBUG_BACKEND_URL;
-  console.log('backendDebugUrl', backendDebugUrl);
+  //console.log('mode=', mode);
+
   return {
     plugins: [
       react(),
       tsconfigPaths(),
       ViteImageOptimizer({}),
     ],
-    base: '/webui/',
+    base: '/',
     server: {
       proxy: {
-        '/api/ws/terminal': {
-          target: backendDebugUrl,
-          ws: true,
-          changeOrigin: true,
-        },
-        '/api/Debug/ws': {
-          target: backendDebugUrl,
-          ws: true,
-          changeOrigin: true,
-        },
         '/api': backendDebugUrl,
-        '/files': backendDebugUrl,
-        '/plugin': backendDebugUrl,
         '/webui/fonts/CustomFont.woff': backendDebugUrl,
-        '/webui/sw.js': backendDebugUrl,
+        '/webui/sw.js': backendDebugUrl
       },
     },
     build: {

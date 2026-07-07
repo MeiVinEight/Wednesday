@@ -31,9 +31,3 @@ tasks.register('sourceJar', Jar) {
 	archiveClassifier = 'sources'
 	from sourceSets.main.allSource
 }
-
-tasks.jar.configure {
-	destinationDirectory = rootProject.projectDir
-	finalizedBy(sourceJar)
-	into("")
-}

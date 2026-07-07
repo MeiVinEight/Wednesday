@@ -298,6 +298,18 @@ public class MixinEngine extends URLClassLoader
 		return max;
 	}
 
+	public static boolean validNamechar(byte ch)
+	{
+		switch (ch)
+		{
+			case '<':
+			case '>':
+			case '-':
+				return false;
+			default: return true;
+		}
+	}
+
 	static
 	{
 		try

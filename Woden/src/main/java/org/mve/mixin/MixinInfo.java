@@ -9,6 +9,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class MixinInfo
@@ -46,8 +47,16 @@ public class MixinInfo
 				MethodNode mn = it.next();
 				if ("<init>".equals(mn.name))
 				{
-					it.remove();
-					continue;
+					boolean inject = MixinEngine.annotation(mn.visibleAnnotations, "Lorg/mve/mixin/Inject;") != null;
+					boolean shadow = MixinEngine.annotation(mn.visibleAnnotations, "Lorg/mve/mixin/Shadow;") != null;
+					boolean flag = true;
+					flag &= !inject;
+					flag &= !shadow;
+					if (flag)
+					{
+						it.remove();
+						continue;
+					}
 				}
 				if (MixinEngine.annotation(mn.visibleAnnotations, "Lorg/mve/mixin/Shadow;") != null)
 				{
@@ -56,7 +65,20 @@ public class MixinInfo
 				}
 				String name = mn.name;
 				if (MixinEngine.annotation(mn.visibleAnnotations, "Lorg/mve/mixin/Overwrite;") == null)
-					name = "mixin$" + name + "$" + UUID.randomUUID().toString().toUpperCase().replace("-", "");
+				{
+					if ("<init>".equals(name))
+						name = "init";
+					name = "mixin$" + name + "$" + UUID.randomUUID().toString().toUpperCase();
+					byte[] bytes0 = name.getBytes(StandardCharsets.UTF_8);
+					byte[] bytes1 = new byte[bytes0.length];
+					int idx = 0;
+					for (byte b : bytes0)
+					{
+						if (MixinEngine.validNamechar(b))
+							bytes1[idx++] = b;
+					}
+					name = new String(bytes1, 0, idx, StandardCharsets.UTF_8);
+				}
 				MethodRef key = new MethodRef(node.name, mn.name, mn.desc);
 				MethodRef val = new MethodRef(this.target, name, mn.desc);
 				this.mapping.put(key, val);

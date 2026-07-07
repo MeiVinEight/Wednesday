@@ -9,7 +9,8 @@ fontPreviewStyle.id = 'font-preview-style';
 document.head.appendChild(fontPreviewStyle);
 
 export function loadTheme () {
-  request('/files/theme.css?_t=' + Date.now())
+
+  request('/theme.css')
     .then((res) => res.data)
     .then((css) => {
       style.innerHTML = css;

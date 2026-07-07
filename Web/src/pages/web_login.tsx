@@ -127,10 +127,11 @@ export default function WebLoginPage () {
         }
 
         // 不需要2FA，直接登录
-        if (data.Credential) {
-          setLocalToken(data.Credential);
+        if (data.session) {
+          setLocalToken(data.session);
+          document.cookie = "JSESSIONID=" + data.session;
         }
-        navigate('/qq_login', { replace: true });
+        navigate('/', { replace: true });
       }
     } catch (error) {
       toast.error((error as Error).message);
@@ -149,8 +150,8 @@ export default function WebLoginPage () {
     try {
       const data = await WebUIManager.loginWithToken(pendingToken, totpCode);
 
-      if (data && data.Credential) {
-        setLocalToken(data.Credential);
+      if (data && data.session) {
+        setLocalToken(data.session);
         navigate('/qq_login', { replace: true });
       }
     } catch (error) {

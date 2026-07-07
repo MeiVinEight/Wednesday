@@ -13,15 +13,15 @@ export interface Log {
 export default class WebUIManager {
   public static async checkWebUiLogined () {
     const { data } =
-      await serverRequest.post<ServerResponse<boolean>>('/auth/check');
+      await serverRequest.post<ServerResponse<boolean>>('/api/v1/auth/check');
     return data.data;
   }
 
   public static async loginWithToken (token: string, totpCode?: string) {
-    const sha256 = CryptoJS.SHA256(token + '.napcat').toString();
+    const md5 = CryptoJS.MD5(token).toString();
     const { data } = await serverRequest.post<ServerResponse<AuthResponse>>(
-      '/auth/login',
-      { hash: sha256, totpCode }
+      '/api/v1/login',
+      { token: md5, totpCode }
     );
     return data.data;
   }

@@ -5,7 +5,7 @@ interface ServerResponse<T> {
 }
 
 interface AuthResponse {
-  Credential?: string;
+  session?: string;
   require2FA?: boolean;
   message?: string;
 }

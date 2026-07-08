@@ -95,25 +95,31 @@ const useConfig = () => {
     return newConfig;
   };
 
-  const enableNetworkConfig = async <T extends keyof OneBotConfig['network']>(
-    key: T,
-    name: string
-  ) => {
-    const newConfig = deepClone(config);
-    const index = newConfig.network[key].findIndex((item) => item.name === name);
+	const enableNetworkConfig = async <T extends keyof OneBotConfig['network']>(
+		key: T,
+		name: string
+	) =>
+	{
+		const newConfig = deepClone(config);
+		const index = newConfig.network[key].findIndex((item) => item.name === name);
 
-    if (index === -1) {
-      throw new Error('找不到对应的配置项');
-    }
+		if (index === -1)
+		{
+			throw new Error('找不到对应的配置项');
+		}
 
     newConfig.network[key][index].enable = !newConfig.network[key][index].enable;
 
     await QQManager.setOB11Config(newConfig);
 
     dispatch(storeUpdateConfig(newConfig));
+		await QQManager.enableConn(name, !newConfig.network[key][index].enable);
 
-    return newConfig;
-  };
+		newConfig.network[key][index].enable = !newConfig.network[key][index].enable;
+		dispatch(storeUpdateConfig(newConfig));
+
+		return newConfig;
+	};
 
   const enableDebugNetworkConfig = async <
     T extends keyof OneBotConfig['network']

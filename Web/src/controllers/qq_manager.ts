@@ -31,6 +31,14 @@ export default class QQManager
 		});
 	}
 
+	public static async enableConn(name: string, enable: boolean)
+	{
+		await serverRequest.post<ServerResponse<null>>("/api/v1/conn/enable", {
+			name: name,
+			enable: enable
+		});
+	}
+
 	public static async checkQQLoginStatus()
 	{
 		const data = await serverRequest.post<

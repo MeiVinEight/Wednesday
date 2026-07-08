@@ -60,9 +60,9 @@ export const siteConfig = {
 			href: '/file_manager',
 		},
 		{
-			label: '插件商店',
+			label: '连接管理',
 			icon: <LuStore className='w-5 h-5'/>,
-			href: '/plugin_store',
+			href: '/conn',
 		},
 		{
 			label: '插件管理',

@@ -1,4 +1,4 @@
-import {request} from './request';
+import WebUIManager from "@/controllers/webui_manager.ts";
 
 const style = document.createElement('style');
 document.head.appendChild(style);
@@ -8,22 +8,74 @@ const fontPreviewStyle = document.createElement('style');
 fontPreviewStyle.id = 'font-preview-style';
 document.head.appendChild(fontPreviewStyle);
 
+function convertColor(data: any)
+{
+	var ccs = '';
+	for (var i = 0; i < colorKeys.length; i++)
+	{
+		const key: string = colorKeys[i];
+		ccs += '\t';
+		ccs += key;
+		ccs += ": ";
+		ccs += data[key];
+		ccs += ";\n";
+	}
+	return ccs;
+}
+
+function setThemeFromConfig(config: ThemeConfig)
+{
+	var css = '';
+	var fontFamliy: string = '\t--font-family-base: var(--font-family-fallbacks) !important;\n' +
+		'\t--font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;';
+	if (config.fontMode == 'aacute')
+	{
+		css += "@font-face\n" +
+			"{\n" +
+			"\tfont-family: 'Aa偷吃可爱长大的';\n" +
+			"\tsrc: url('/fonts/AaCute.woff') format('woff');\n" +
+			"\tfont-display: swap;\n" +
+			"}\n"
+		fontFamliy = '\t--font-family-base: \'Aa偷吃可爱长大的\', var(--font-family-fallbacks) !important;\n' +
+			'\t--font-family-mono: \'Aa偷吃可爱长大的\', var(--font-family-fallbacks) !important;';
+	}
+	css += ":root, .light, [data-theme=\"light\"]\n" +
+		"{\n";
+	css += convertColor(config.light);
+	css += fontFamliy;
+	css += "\n}\n";
+	css += ".dark, [data-theme=\"dark\"]\n" +
+		"{\n";
+	css += convertColor(config.dark);
+	css += fontFamliy;
+	css += "\n}";
+	style.innerHTML = css;
+	// 清除预览样式，使用 theme.css 中的正式配置
+	fontPreviewStyle.innerHTML = '';
+	document.documentElement.style.removeProperty('--font-family-base');
+}
+
 export function loadTheme()
 {
-
+	/*
 	request('/theme.css')
 		.then((res) => res.data)
-		.then((css) =>
+		.then(async (css) =>
 		{
+
 			style.innerHTML = css;
 			// 清除预览样式，使用 theme.css 中的正式配置
 			fontPreviewStyle.innerHTML = '';
 			document.documentElement.style.removeProperty('--font-family-base');
+			const config: ThemeConfig = await WebUIManager.getThemeConfig();
+			//console.log(config);
 		})
 		.catch(() =>
 		{
 			console.error('Failed to load theme.css');
 		});
+	*/
+	WebUIManager.getThemeConfig().then(setThemeFromConfig)
 }
 
 // 动态加载字体 CSS（用于预览）
@@ -67,6 +119,11 @@ export const colorKeys = [
 	'--heroui-foreground-800',
 	'--heroui-foreground-900',
 	'--heroui-foreground',
+
+	'--heroui-focus',
+	'--heroui-overlay',
+	'--heroui-divider',
+	'--heroui-divider-opacity',
 
 	'--heroui-content1',
 	'--heroui-content1-foreground',
@@ -155,12 +212,29 @@ export const colorKeys = [
 	'--heroui-warning-foreground',
 	'--heroui-warning',
 
-	'--heroui-focus',
-	'--heroui-overlay',
-	'--heroui-divider',
 	'--heroui-code-background',
 	'--heroui-strong',
 	'--heroui-code-mdx',
+	'--heroui-divider-weight',
+	'--heroui-disabled-opacity',
+	'--heroui-font-size-tiny',
+	'--heroui-font-size-small',
+	'--heroui-font-size-medium',
+	'--heroui-font-size-large',
+	'--heroui-line-height-tiny',
+	'--heroui-line-height-small',
+	'--heroui-line-height-medium',
+	'--heroui-line-height-large',
+	'--heroui-radius-small',
+	'--heroui-radius-medium',
+	'--heroui-radius-large',
+	'--heroui-border-width-small',
+	'--heroui-border-width-medium',
+	'--heroui-border-width-large',
+	'--heroui-box-shadow-small',
+	'--heroui-box-shadow-medium',
+	'--heroui-box-shadow-large',
+	'--heroui-hover-opacity'
 ] as const;
 
 export const generateTheme = (theme: ThemeConfig, validField?: string) =>

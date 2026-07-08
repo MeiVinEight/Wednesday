@@ -71,6 +71,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_CONFIG, new WebConfigGet());
 		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_AUTH_2FA_STATUS, new Auth2FAStatus());
 		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_CONFIG, new WebConfigPost());
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_CONN_ENABLE, new ConnEnable(this.connection));
 	}
 
 	@Override
@@ -189,8 +190,9 @@ public class WednesdayWeb implements HttpHandler, WebService
 
 		if (bodyObject instanceof Throwable e)
 		{
+			WednesdayWeb.LOGGER.error(e);
 			Json stacktrace = new Json(Json.TYPE_ARRAY);
-			bodyObject = WebAPI.code(new Json(), WebAPI.CODE_ERROR)
+			bodyObject = WebAPI.code(new Json(), WebAPI.CODE_ERROR, e.getMessage())
 				.set(WebAPI.KEY_DATA, new Json()
 					.set(WebAPI.KEY_TYPE, e.getClass().getName())
 					.set(WebAPI.KEY_MESSAGE, e.getMessage())

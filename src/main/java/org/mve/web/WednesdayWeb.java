@@ -287,6 +287,11 @@ public class WednesdayWeb implements HttpHandler, WebService
 		}
 	}
 
+	public static String version()
+	{
+		return "1.0.0-Lambda";
+	}
+
 	public static void main(String[] args)
 	{
 		WednesdayWeb web;
@@ -344,5 +349,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 
 		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_TOKEN, new ChangeToken());
 		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_AUTHCHK, new AuthCheck());
+		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_VERSION, new Version());
+		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_SYSTEM_INFO, new WebSystemInfo());
 	}
 }

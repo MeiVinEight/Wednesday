@@ -351,5 +351,6 @@ public class WednesdayWeb implements HttpHandler, WebService
 		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_AUTHCHK, new AuthCheck());
 		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_VERSION, new Version());
 		WednesdayWeb.registerAPI(HTTP.METHOD_GET, WebAPI.API_SYSTEM_INFO, new WebSystemInfo());
+		WednesdayWeb.registerAPI(HTTP.METHOD_POST, WebAPI.API_PERSISTENCE, new WebPersistence());
 	}
 }

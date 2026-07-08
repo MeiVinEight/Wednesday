@@ -26,6 +26,7 @@ public class WebAPI
 	public static final String KEY_DELETE = "delete";
 	public static final String KEY_VERSION = "version";
 	public static final String KEY_SYSTEM = "system";
+	public static final String KEY_ACTION = "action";
 
 	public static final int CODE_OK             = 0;
 	public static final int CODE_NOT_FOUND      = 1;
@@ -57,6 +58,7 @@ public class WebAPI
 	public static final String API_AUTH_2FA_STATUS = "/api/v1/auth/2fa/status";
 	public static final String API_VERSION = "/api/v1/version";
 	public static final String API_SYSTEM_INFO = "/api/v1/system/info";
+	public static final String API_PERSISTENCE = "/api/v1/persistence";
 
 	public static final String COOKIE_JSESSIONID = "JSESSIONID";
 

@@ -23,11 +23,21 @@ const useConfig = () => {
       throw new Error('已经存在相同的配置项名');
     }
 
-    const newConfig = deepClone(config)
+    const newConfig = deepClone(config);
+    (newConfig.network[key] as (typeof value)[]).push(value);
 
-    ;(newConfig.network[key] as (typeof value)[]).push(value);
+    var netConfig: NetworkConfig = {
+        httpServers: [],
+        httpClients: [],
+        websocketServers: [],
+        websocketClients: [],
+        httpSseServers: []
+    };
 
-    await QQManager.setOB11Config(newConfig);
+    netConfig[key][0] = value;
+
+
+    await QQManager.updateNetworkConfig(netConfig);
 
     dispatch(storeUpdateConfig(newConfig));
 
@@ -78,7 +88,7 @@ const useConfig = () => {
 
     newConfig.network[key].splice(index, 1);
 
-    await QQManager.setOB11Config(newConfig);
+    await QQManager.deleteNetworkConfig({'delete': [name]});
 
     dispatch(storeUpdateConfig(newConfig));
 

@@ -17,6 +17,11 @@ export default class QQManager {
       await serverRequest.post<ServerResponse<null>>('/api/v1/conn', config);
   }
 
+  public static async deleteNetworkConfig(config: any)
+  {
+      await serverRequest.post<ServerResponse<null>>('/api/v1/conn', config)
+  }
+
   public static async setOB11Config (config: OneBotConfig) {
     await serverRequest.post<ServerResponse<null>>('/api/v1/OB11Config/SetConfig', {
       config: JSON.stringify(config),

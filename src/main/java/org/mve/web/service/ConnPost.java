@@ -19,10 +19,13 @@ public class ConnPost implements WebService
 	public Object service(Json body)
 	{
 		Json arr = body.get(WebAPI.KEY_WEBSOCKET_CLIENTS);
-		if (arr == null)
-			return null;
-		for (int i = 0; i < arr.length(); i++)
-			this.connection.set(ConnectionWednesday.resolve(arr.get(i)));
+		if (arr != null)
+			for (int i = 0; i < arr.length(); i++)
+				this.connection.set(ConnectionWednesday.resolve(arr.get(i)));
+		arr = body.get(WebAPI.KEY_DELETE);
+		if (arr != null)
+			for (int i = 0; i < arr.length(); i++)
+				this.connection.remove(arr.string(i));
 		return null;
 	}
 }

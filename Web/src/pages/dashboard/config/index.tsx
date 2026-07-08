@@ -11,12 +11,8 @@ import key from '@/const/key';
 import LoginConfigCard from './login';
 //import OneBotConfigCard from './onebot';
 import ServerConfigCard from './server';
-import SSLConfigCard from './ssl';
 import ThemeConfigCard from './theme';
 import WebUIConfigCard from './webui';
-import BackupConfigCard from './backup';
-import BypassConfigCard from './bypass';
-import CoreConfigCard from './core';
 
 export interface ConfigPageProps {
   children?: React.ReactNode;
@@ -82,11 +78,6 @@ export default function ConfigPage () {
             <ServerConfigCard />
           </ConfigPageItem>
         </Tab>
-        <Tab title='SSL配置' key='ssl'>
-          <ConfigPageItem size='sm'>
-            <SSLConfigCard />
-          </ConfigPageItem>
-        </Tab>
         <Tab title='WebUI配置' key='webui'>
           <ConfigPageItem>
             <WebUIConfigCard />
@@ -111,21 +102,6 @@ export default function ConfigPage () {
         <Tab title='主题配置' key='theme'>
           <ConfigPageItem size='lg'>
             <ThemeConfigCard />
-          </ConfigPageItem>
-        </Tab>
-        <Tab title='备份与恢复' key='backup'>
-          <ConfigPageItem>
-            <BackupConfigCard />
-          </ConfigPageItem>
-        </Tab>
-        <Tab title='核心配置' key='core'>
-          <ConfigPageItem>
-            <CoreConfigCard />
-          </ConfigPageItem>
-        </Tab>
-        <Tab title='反检测' key='bypass'>
-          <ConfigPageItem>
-            <BypassConfigCard />
           </ConfigPageItem>
         </Tab>
       </Tabs>

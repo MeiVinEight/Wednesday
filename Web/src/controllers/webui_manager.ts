@@ -16,9 +16,8 @@ export default class WebUIManager
 {
 	public static async checkWebUiLogined()
 	{
-		const {data} =
-			await serverRequest.post<ServerResponse<boolean>>('/api/v1/auth/check');
-		return data.data;
+		await serverRequest.get<ServerResponse<boolean>>('/api/v1/auth/check');
+		return true;
 	}
 
 	public static async loginWithToken(token: string, totpCode?: string)

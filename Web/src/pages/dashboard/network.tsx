@@ -17,21 +17,6 @@ import PageLoading from '@/components/page_loading';
 
 import useConfig from '@/hooks/use-config';
 import useDialog from '@/hooks/use-dialog';
-
-export interface SectionProps {
-  title: string;
-  color?:
-  | 'violet'
-  | 'yellow'
-  | 'blue'
-  | 'cyan'
-  | 'green'
-  | 'pink'
-  | 'foreground';
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}
-
 export interface EmptySectionProps {
   isEmpty: boolean;
 }
@@ -63,7 +48,7 @@ export default function NetworkPage () {
     network: {
       httpServers,
       httpClients,
-      httpSseServers,
+      //httpSseServers,
       websocketServers,
       websocketClients,
     },
@@ -72,11 +57,15 @@ export default function NetworkPage () {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const dialog = useDialog();
   const activeData = useMemo(() => {
+    /*
     const findData = config.network[activeField].find(
       (item) => item.name === activeName
     );
+    */
 
-    return findData;
+    return config.network[activeField].find(
+        (item) => item.name === activeName
+    );
   }, [activeField, activeName, config]);
 
   const refresh = async () => {
@@ -283,7 +272,7 @@ export default function NetworkPage () {
         ...httpClients,
         ...websocketServers,
         ...websocketClients,
-        ...httpSseServers,
+        //...httpSseServers,
       ]
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((item) => {
@@ -294,6 +283,7 @@ export default function NetworkPage () {
               true
             );
           }
+          /*
           if (httpSseServers.find((i) => i.name === item.name)) {
             return renderCard(
               'httpSseServers',
@@ -301,6 +291,7 @@ export default function NetworkPage () {
               true
             );
           }
+          */
           if (httpClients.find((i) => i.name === item.name)) {
             return renderCard(
               'httpClients',
@@ -335,11 +326,13 @@ export default function NetworkPage () {
       title: 'HTTP客户端',
       items: httpClients.map((item) => renderCard('httpClients', item)),
     },
+/*
     {
       key: 'httpSseServers',
       title: 'HTTP SSE服务器',
       items: httpSseServers.map((item) => renderCard('httpSseServers', item)),
     },
+*/
     {
       key: 'websocketServers',
       title: 'Websocket服务器',

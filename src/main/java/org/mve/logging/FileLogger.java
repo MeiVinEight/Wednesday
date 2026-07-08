@@ -4,6 +4,7 @@ import kotlin.ExceptionsKt;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function4;
 import net.mamoe.mirai.utils.SimpleLogger;
+import org.mve.Configuration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,7 +30,7 @@ public class FileLogger implements Function4<WednesdayLogger, SimpleLogger.LogPr
 	{
 		if (priority == null)
 			return null;
-		if (logger.priority.compareTo(priority) > 0)
+		if (Configuration.level().compareTo(priority) > 0)
 			return null;
 		if (this.out == null)
 			return null;

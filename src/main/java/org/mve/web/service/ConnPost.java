@@ -18,10 +18,11 @@ public class ConnPost implements WebService
 	@Override
 	public Object service(Json body)
 	{
-		String name = body.string(WebAPI.KEY_NAME);
-		String url = body.string(WebAPI.KEY_URL);
-		String token = body.string(WebAPI.KEY_TOKEN);
-		this.connection.set(new ConnectionWednesday(name, url, token));
+		Json arr = body.get(WebAPI.KEY_WEBSOCKET_CLIENTS);
+		if (arr == null)
+			return null;
+		for (int i = 0; i < arr.length(); i++)
+			this.connection.set(ConnectionWednesday.resolve(arr.get(i)));
 		return null;
 	}
 }

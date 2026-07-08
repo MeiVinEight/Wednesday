@@ -18,6 +18,11 @@ public class WebAPI
 	public static final String KEY_HOST = "host";
 	public static final String KEY_PORT = "port";
 	public static final String KEY_LOGLEVEL = "loglevel";
+	public static final String KEY_NETWORK = "network";
+	public static final String KEY_WEBSOCKET_CLIENTS = "websocketClients";
+	public static final String KEY_WEBSOCKET_SERVERS = "websocketServers";
+	public static final String KEY_HTTP_CLIENTS = "httpClients";
+	public static final String KEY_HTTP_SERVERS = "httpServers";
 
 	public static final int CODE_OK             = 0;
 	public static final int CODE_NOT_FOUND      = 1;

@@ -542,8 +542,7 @@ public class SimpleMapper<T> extends Mapper<T>
 			if (columnName == null)
 				continue;
 			FieldAccessor<?> facc = ReflectionFactory.access(field);
-			Class<?> columnType = field.getType();
-			facc.set(o, rs.getObject(columnName, columnType));
+			facc.set(o, rs.getObject(columnName));
 		}
 	}
 

@@ -5,15 +5,20 @@ import { SelfInfo } from '@/types/user';
 
 export default class QQManager {
   public static async getOB11Config () {
-    const data = await serverRequest.post<ServerResponse<OneBotConfig>>(
-      '/OB11Config/GetConfig'
+    const data = await serverRequest.get<ServerResponse<OneBotConfig>>(
+      '/api/v1/conn'
     );
 
     return data.data.data;
   }
 
+  public static async updateNetworkConfig(config: NetworkConfig)
+  {
+      await serverRequest.post<ServerResponse<null>>('/api/v1/conn', config);
+  }
+
   public static async setOB11Config (config: OneBotConfig) {
-    await serverRequest.post<ServerResponse<null>>('/OB11Config/SetConfig', {
+    await serverRequest.post<ServerResponse<null>>('/api/v1/OB11Config/SetConfig', {
       config: JSON.stringify(config),
     });
   }
@@ -25,7 +30,7 @@ export default class QQManager {
         isOffline?: boolean;
         qrcodeurl: string;
       }>
-    >('/QQLogin/CheckLoginStatus');
+    >('/api/v1/QQLogin/CheckLoginStatus');
 
     return data.data.data;
   }
@@ -33,7 +38,7 @@ export default class QQManager {
   public static async checkQQLoginStatusWithQrcode () {
     const data = await serverRequest.post<
       ServerResponse<{ qrcodeurl: string; isLogin: boolean; isOffline?: boolean; loginError?: string; }>
-    >('/QQLogin/CheckLoginStatus');
+    >('/api/v1/QQLogin/CheckLoginStatus');
 
     return data.data.data;
   }
@@ -47,14 +52,14 @@ export default class QQManager {
       ServerResponse<{
         qrcode: string;
       }>
-    >('/QQLogin/GetQQLoginQrcode');
+    >('/api/v1/QQLogin/GetQQLoginQrcode');
 
     return data.data.data.qrcode;
   }
 
   public static async getQQQuickLoginList () {
     const data = await serverRequest.post<ServerResponse<string[]>>(
-      '/QQLogin/GetQuickLoginList'
+      '/api/v1/QQLogin/GetQuickLoginList'
     );
 
     return data.data.data;
@@ -62,20 +67,20 @@ export default class QQManager {
 
   public static async getQQQuickLoginListNew () {
     const data = await serverRequest.post<ServerResponse<LoginListItem[]>>(
-      '/QQLogin/GetQuickLoginListNew'
+      '/api/v1/QQLogin/GetQuickLoginListNew'
     );
     return data.data.data;
   }
 
   public static async setQuickLogin (uin: string) {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/SetQuickLogin', {
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetQuickLogin', {
       uin,
     });
   }
 
   public static async getQQLoginInfo (config?: AxiosRequestConfig) {
     const data = await serverRequest.post<ServerResponse<SelfInfo>>(
-      '/QQLogin/GetQQLoginInfo',
+      '/api/v1/QQLogin/GetQQLoginInfo',
       {},
       config
     );
@@ -84,13 +89,13 @@ export default class QQManager {
 
   public static async getQuickLoginQQ () {
     const { data } = await serverRequest.post<ServerResponse<string>>(
-      '/QQLogin/GetQuickLoginQQ'
+      '/api/v1/QQLogin/GetQuickLoginQQ'
     );
     return data.data;
   }
 
   public static async setQuickLoginQQ (uin: string) {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/SetQuickLoginQQ', {
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetQuickLoginQQ', {
       uin,
     });
   }
@@ -102,7 +107,7 @@ export default class QQManager {
       needNewDevice?: boolean;
       jumpUrl?: string;
       newDevicePullQrCodeSig?: string;
-    } | null>>('/QQLogin/PasswordLogin', {
+    } | null>>('/api/v1/QQLogin/PasswordLogin', {
       uin,
       passwordMd5,
     });
@@ -114,7 +119,7 @@ export default class QQManager {
       needNewDevice?: boolean;
       jumpUrl?: string;
       newDevicePullQrCodeSig?: string;
-    } | null>>('/QQLogin/CaptchaLogin', {
+    } | null>>('/api/v1/QQLogin/CaptchaLogin', {
       uin,
       passwordMd5,
       ticket,
@@ -129,7 +134,7 @@ export default class QQManager {
       needNewDevice?: boolean;
       jumpUrl?: string;
       newDevicePullQrCodeSig?: string;
-    } | null>>('/QQLogin/NewDeviceLogin', {
+    } | null>>('/api/v1/QQLogin/NewDeviceLogin', {
       uin,
       passwordMd5,
       newDevicePullQrCodeSig,
@@ -145,7 +150,7 @@ export default class QQManager {
       ActionStatus?: string;
       ErrorCode?: number;
       ErrorInfo?: string;
-    }>>('/QQLogin/GetNewDeviceQRCode', {
+    }>>('/api/v1/QQLogin/GetNewDeviceQRCode', {
       uin,
       jumpUrl,
     });
@@ -178,7 +183,7 @@ export default class QQManager {
     const data = await serverRequest.post<ServerResponse<{
       uint32_guarantee_status?: number;
       str_nt_succ_token?: string;
-    }>>('/QQLogin/PollNewDeviceQR', {
+    }>>('/api/v1/QQLogin/PollNewDeviceQR', {
       uin,
       bytesToken,
     });
@@ -186,33 +191,33 @@ export default class QQManager {
   }
 
   public static async resetDeviceID () {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/ResetDeviceID');
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/ResetDeviceID');
   }
 
   public static async restartNapCat () {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/RestartNapCat');
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestartNapCat');
   }
 
   public static async getDeviceGUID () {
-    const data = await serverRequest.post<ServerResponse<{ guid: string; }>>('/QQLogin/GetDeviceGUID');
+    const data = await serverRequest.post<ServerResponse<{ guid: string; }>>('/api/v1/QQLogin/GetDeviceGUID');
     return data.data.data;
   }
 
   public static async setDeviceGUID (guid: string) {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/SetDeviceGUID', { guid });
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetDeviceGUID', { guid });
   }
 
   public static async getGUIDBackups () {
-    const data = await serverRequest.post<ServerResponse<string[]>>('/QQLogin/GetGUIDBackups');
+    const data = await serverRequest.post<ServerResponse<string[]>>('/api/v1/QQLogin/GetGUIDBackups');
     return data.data.data;
   }
 
   public static async restoreGUIDBackup (backupName: string) {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/RestoreGUIDBackup', { backupName });
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestoreGUIDBackup', { backupName });
   }
 
   public static async createGUIDBackup () {
-    const data = await serverRequest.post<ServerResponse<{ path: string; }>>('/QQLogin/CreateGUIDBackup');
+    const data = await serverRequest.post<ServerResponse<{ path: string; }>>('/api/v1/QQLogin/CreateGUIDBackup');
     return data.data.data;
   }
 
@@ -221,45 +226,45 @@ export default class QQManager {
   // ============================================================
 
   public static async getPlatformInfo () {
-    const data = await serverRequest.post<ServerResponse<{ platform: string; }>>('/QQLogin/GetPlatformInfo');
+    const data = await serverRequest.post<ServerResponse<{ platform: string; }>>('/api/v1/QQLogin/GetPlatformInfo');
     return data.data.data;
   }
 
   public static async getLinuxMAC () {
-    const data = await serverRequest.post<ServerResponse<{ mac: string; }>>('/QQLogin/GetLinuxMAC');
+    const data = await serverRequest.post<ServerResponse<{ mac: string; }>>('/api/v1/QQLogin/GetLinuxMAC');
     return data.data.data;
   }
 
   public static async setLinuxMAC (mac: string) {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/SetLinuxMAC', { mac });
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetLinuxMAC', { mac });
   }
 
   public static async getLinuxMachineId () {
-    const data = await serverRequest.post<ServerResponse<{ machineId: string; }>>('/QQLogin/GetLinuxMachineId');
+    const data = await serverRequest.post<ServerResponse<{ machineId: string; }>>('/api/v1/QQLogin/GetLinuxMachineId');
     return data.data.data;
   }
 
   public static async computeLinuxGUID (mac?: string, machineId?: string) {
-    const data = await serverRequest.post<ServerResponse<{ guid: string; machineId: string; mac: string; }>>('/QQLogin/ComputeLinuxGUID', { mac, machineId });
+    const data = await serverRequest.post<ServerResponse<{ guid: string; machineId: string; mac: string; }>>('/api/v1/QQLogin/ComputeLinuxGUID', { mac, machineId });
     return data.data.data;
   }
 
   public static async getLinuxMachineInfoBackups () {
-    const data = await serverRequest.post<ServerResponse<string[]>>('/QQLogin/GetLinuxMachineInfoBackups');
+    const data = await serverRequest.post<ServerResponse<string[]>>('/api/v1/QQLogin/GetLinuxMachineInfoBackups');
     return data.data.data;
   }
 
   public static async createLinuxMachineInfoBackup () {
-    const data = await serverRequest.post<ServerResponse<{ path: string; }>>('/QQLogin/CreateLinuxMachineInfoBackup');
+    const data = await serverRequest.post<ServerResponse<{ path: string; }>>('/api/v1/QQLogin/CreateLinuxMachineInfoBackup');
     return data.data.data;
   }
 
   public static async restoreLinuxMachineInfoBackup (backupName: string) {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/RestoreLinuxMachineInfoBackup', { backupName });
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestoreLinuxMachineInfoBackup', { backupName });
   }
 
   public static async resetLinuxDeviceID () {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/ResetLinuxDeviceID');
+    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/ResetLinuxDeviceID');
   }
 
   // ============================================================
@@ -268,14 +273,14 @@ export default class QQManager {
 
   public static async getNapCatConfig () {
     const { data } = await serverRequest.get<ServerResponse<NapCatConfig>>(
-      '/NapCatConfig/GetConfig'
+      '/api/v1/NapCatConfig/GetConfig'
     );
     return data.data;
   }
 
   public static async setNapCatConfig (config: Partial<NapCatConfig>) {
     await serverRequest.post<ServerResponse<null>>(
-      '/NapCatConfig/SetConfig',
+      '/api/v1/NapCatConfig/SetConfig',
       config
     );
   }
@@ -284,14 +289,14 @@ export default class QQManager {
 
   public static async getNapCatUinConfig () {
     const { data } = await serverRequest.get<ServerResponse<NapCatConfig>>(
-      '/NapCatConfig/GetUinConfig'
+      '/api/v1/NapCatConfig/GetUinConfig'
     );
     return data.data;
   }
 
   public static async setNapCatUinConfig (config: Partial<NapCatConfig>) {
     await serverRequest.post<ServerResponse<null>>(
-      '/NapCatConfig/SetUinConfig',
+      '/api/v1/NapCatConfig/SetUinConfig',
       config
     );
   }

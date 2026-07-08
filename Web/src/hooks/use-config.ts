@@ -48,7 +48,17 @@ const useConfig = () => {
 
     newConfig.network[key][index] = value;
 
-    await QQManager.setOB11Config(newConfig);
+    var netConfig: NetworkConfig = {
+        httpServers: [],
+        httpClients: [],
+        websocketServers: [],
+        websocketClients: [],
+        httpSseServers: []
+    };
+
+    netConfig[key][0] = value;
+
+    await QQManager.updateNetworkConfig(netConfig);
 
     dispatch(storeUpdateConfig(newConfig));
 

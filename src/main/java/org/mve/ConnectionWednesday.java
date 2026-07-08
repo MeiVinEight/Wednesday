@@ -6,6 +6,7 @@ import net.mamoe.mirai.utils.BotConfiguration;
 import org.mve.logging.LoggerManager;
 import org.mve.orange.core.Orange;
 import org.mve.uni.Json;
+import org.mve.web.WebAPI;
 import org.slf4j.Logger;
 
 import javax.persistence.Column;
@@ -17,9 +18,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConnectionWednesday
 {
 	public static final String TABLE_NAME = "CONNECTION";
-	public static final String KEY_NAME = "name";
-	public static final String KEY_URL = "url";
-	public static final String KEY_TOKEN = "token";
 	public Integer ID;
 	public String NAME;
 	public String URL;
@@ -60,12 +58,12 @@ public class ConnectionWednesday
 			Logger logger = LoggerManager.create("WS");
 			if (this.connection == null)
 			{
-				this.connection = new Orange(this.URL, this.TOKEN, configuration, logger);
+				this.connection = new Orange(this.url(), this.TOKEN, configuration, logger);
 			}
 			else if (reconnect)
 			{
 				this.connection.close();
-				this.connection = new Orange(this.URL, this.TOKEN, configuration, logger);
+				this.connection = new Orange(this.url(), this.TOKEN, configuration, logger);
 			}
 			this.connection.getEventChannel().subscribeAlways(BotOfflineEvent.class, e -> this.close());
 		}
@@ -96,12 +94,14 @@ public class ConnectionWednesday
 		}
 	}
 
-	public Json data()
+	public Json data(boolean infos)
 	{
 		Json json = new Json();
-		json.set(KEY_NAME, this.NAME);
-		json.set(KEY_URL, this.URL);
-		json.set(KEY_TOKEN, this.TOKEN);
+		json.set(WebAPI.KEY_NAME, this.NAME);
+		json.set(WebAPI.KEY_URL, this.URL);
+		json.set(WebAPI.KEY_TOKEN, this.TOKEN);
+		if (!infos)
+			return json;
 		Orange conn = this.connection;
 		if (conn != null)
 		{
@@ -135,11 +135,16 @@ public class ConnectionWednesday
 		return json;
 	}
 
+	public String url()
+	{
+		return this.URL;
+	}
+
 	public static ConnectionWednesday resolve(Json data)
 	{
-		String name = data.string(KEY_NAME);
-		String url = data.string(KEY_URL);
-		String token = data.string(KEY_TOKEN);
+		String name = data.string(WebAPI.KEY_NAME);
+		String url = data.string(WebAPI.KEY_URL);
+		String token = data.string(WebAPI.KEY_TOKEN);
 		return new ConnectionWednesday(null, name, url, token);
 	}
 

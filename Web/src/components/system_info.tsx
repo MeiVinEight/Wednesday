@@ -12,7 +12,7 @@ import { Button } from '@heroui/button';
 import { useLocalStorage, useDebounce } from '@uidotdev/usehooks';
 import { useRequest } from 'ahooks';
 import clsx from 'clsx';
-import { FaCircleInfo, FaQq } from 'react-icons/fa6';
+import { FaCircleInfo/*, FaQq*/ } from 'react-icons/fa6';
 import { IoLogoChrome, IoLogoOctocat, IoSearch } from 'react-icons/io5';
 import { IoMdFlash, IoMdCheckmark, IoMdSettings } from 'react-icons/io';
 import { RiMacFill } from 'react-icons/ri';
@@ -25,6 +25,8 @@ import useDialog from '@/hooks/use-dialog';
 import Modal from '@/components/modal';
 import MirrorSelectorModal from '@/components/mirror_selector_modal';
 import { hasNewVersion, compareVersion } from '@/utils/version';
+import {BsAmd, BsMicrosoft} from "react-icons/bs";
+import toast from "@/utils/toast.ts";
 
 export interface SystemInfoItemProps {
   title: string;
@@ -825,7 +827,7 @@ const NapCatVersion: React.FC<NapCatVersionProps> = ({ hasBackground = false }) 
   return (
     <>
       <SystemInfoItem
-        title='NapCat 版本'
+        title='后端版本'
         icon={<IoLogoOctocat className='text-xl' />}
         hasBackground={hasBackground}
         value={
@@ -872,7 +874,21 @@ export interface SystemInfoProps {
   archInfo?: string;
 }
 const SystemInfo: React.FC<SystemInfoProps> = (props) => {
+  const {data, error, loading} = useRequest(WebUIManager.getSystemInfo);
+  let sysType = "--";
+  let sysVers = "--";
+  if (data)
+  {
+	sysType = data.system.type;
+	sysVers = data.system.version
+  }
   const { archInfo } = props;
+  if (error)
+	toast.error("获取系统信息失败: " + error.message);
+  if (loading)
+	sysType = sysVers = "...";
+  console
+  /*
   const {
     data: qqVersionData,
     loading: qqVersionLoading,
@@ -882,6 +898,7 @@ const SystemInfo: React.FC<SystemInfoProps> = (props) => {
     staleTime: 60 * 60 * 1000,
     cacheTime: 24 * 60 * 60 * 1000,
   });
+  */
   const [backgroundImage] = useLocalStorage<string>(key.backgroundImage, '');
   const hasBackground = !!backgroundImage;
 
@@ -903,32 +920,26 @@ const SystemInfo: React.FC<SystemInfoProps> = (props) => {
         <div className='flex flex-col gap-2 justify-between h-full'>
           <NapCatVersion hasBackground={hasBackground} />
           <SystemInfoItem
-            title='QQ 版本'
-            icon={<FaQq className='text-lg' />}
+            title='前端版本'
+            icon={<IoLogoChrome className='text-xl' />}
+            value='1.0.0'
             hasBackground={hasBackground}
-            value={
-              qqVersionError
-                ? (
-                  `错误：${qqVersionError.message}`
-                )
-                : qqVersionLoading
-                  ? (
-                    <Spinner size='sm' />
-                  )
-                  : (
-                    qqVersionData
-                  )
-            }
           />
           <SystemInfoItem
-            title='WebUI 版本'
-            icon={<IoLogoChrome className='text-xl' />}
-            value='Next'
+            title='系统类型'
+            icon={<BsMicrosoft className='text-xl' />}
+            value={sysType}
             hasBackground={hasBackground}
           />
           <SystemInfoItem
             title='系统版本'
             icon={<RiMacFill className='text-xl' />}
+            value={sysVers}
+            hasBackground={hasBackground}
+          />
+          <SystemInfoItem
+            title='系统架构'
+            icon={<BsAmd className='text-xl'/>}
             value={archInfo}
             hasBackground={hasBackground}
           />

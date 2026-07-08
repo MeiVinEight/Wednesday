@@ -83,13 +83,23 @@ export default class QQManager {
     });
   }
 
-  public static async getQQLoginInfo (config?: AxiosRequestConfig) {
+  public static async getQQLoginInfo (_config?: AxiosRequestConfig) {
     const data = await serverRequest.post<ServerResponse<SelfInfo>>(
       '/api/v1/QQLogin/GetQQLoginInfo',
       {},
-      config
+      _config
     );
     return data.data.data;
+      /*
+      const info: SelfInfo = {
+          nick: "Wednesday",
+          uid: "0",
+          uin: "0",
+          avatarUrl: "/logo.svg",
+          online: true
+      };
+      return info;
+      */
   }
 
   public static async getQuickLoginQQ () {

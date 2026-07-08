@@ -74,7 +74,7 @@ export default class WebUIManager {
 
   public static async GetNapCatVersion () {
     const { data } =
-      await serverRequest.get<ServerResponse<PackageInfo>>('/api/v1/base/GetNapCatVersion');
+      await serverRequest.get<ServerResponse<PackageInfo>>('/api/v1/version');
     return data.data;
   }
 
@@ -374,5 +374,11 @@ export default class WebUIManager {
       '/api/v1/base/GetNapCatFileHash'
     );
     return data.data;
+  }
+
+  public static async getSystemInfo()
+  {
+      const {data} = await serverRequest.get<ServerResponse<SystemStatus>>("/api/v1/system/info");
+      return data.data;
   }
 }

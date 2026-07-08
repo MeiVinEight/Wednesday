@@ -49,6 +49,10 @@ interface SystemStatus {
     };
   };
   arch: string;
+  system: {
+	type: string;
+	version: string;
+  }
 }
 
 interface ThemeConfigItem {

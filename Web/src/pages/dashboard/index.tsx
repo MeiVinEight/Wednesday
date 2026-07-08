@@ -57,7 +57,18 @@ const Networks: React.FC = () => {
 };
 
 const QQInfo: React.FC = () => {
-  const { data, loading, error } = useRequest(QQManager.getQQLoginInfo);
+  let { data, loading, error } = useRequest(QQManager.getQQLoginInfo);
+  if (data == undefined)
+  {
+      data = {
+          nick: "Wednesday",
+          uid: "0",
+          uin: "0",
+          avatarUrl: "/logo.svg",
+          online: true
+      }
+      error = undefined;
+  }
   return <QQInfoCard data={data} error={error} loading={loading} />;
 };
 

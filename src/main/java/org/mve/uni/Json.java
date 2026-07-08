@@ -93,9 +93,12 @@ public class Json
 		return this.get(str).number();
 	}
 
-	public boolean bool(String str)
+	public Boolean bool(String str)
 	{
-		return this.get(str).bool();
+		Json json = this.get(str);
+		if (json == null)
+			return null;
+		return json.bool();
 	}
 
 	@SuppressWarnings("all")
@@ -250,7 +253,7 @@ public class Json
 		return this;
 	}
 
-	public boolean bool()
+	public Boolean bool()
 	{
 		if (this.type != Json.TYPE_BOOLEAN)
 			throw new IllegalArgumentException("Json not boolean");

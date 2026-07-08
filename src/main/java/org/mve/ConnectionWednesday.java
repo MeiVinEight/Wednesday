@@ -26,6 +26,8 @@ public class ConnectionWednesday
 	public Orange connection;
 	@Column(exclude = true)
 	private final ReentrantLock lock = new ReentrantLock();
+	@Column(exclude = true)
+	private Throwable error;
 
 	public ConnectionWednesday()
 	{
@@ -72,6 +74,7 @@ public class ConnectionWednesday
 			if (this.connection != null)
 				this.connection.close();
 			this.connection = null;
+			this.error = t;
 			Wednesday.LOGGER.error("连接失败: ", t);
 		}
 		this.lock.unlock();
@@ -100,6 +103,7 @@ public class ConnectionWednesday
 		json.set(WebAPI.KEY_NAME, this.NAME);
 		json.set(WebAPI.KEY_URL, this.URL);
 		json.set(WebAPI.KEY_TOKEN, this.TOKEN);
+		json.set(WebAPI.KEY_ENABLE, this.connection != null);
 		if (!infos)
 			return json;
 		Orange conn = this.connection;
@@ -138,6 +142,13 @@ public class ConnectionWednesday
 	public String url()
 	{
 		return this.URL;
+	}
+
+	public Throwable error()
+	{
+		Throwable e = this.error;
+		this.error = null;
+		return e;
 	}
 
 	public static ConnectionWednesday resolve(Json data)

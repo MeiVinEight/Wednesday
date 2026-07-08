@@ -43,7 +43,7 @@ serverRequest.interceptors.request.use((config) => {
   }
 
     return config;
-}
+})
 
 serverRequest.interceptors.response.use((response) => {
   // 如果是流式传输的文件

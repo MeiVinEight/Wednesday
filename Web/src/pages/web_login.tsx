@@ -129,7 +129,7 @@ export default function WebLoginPage () {
         // 不需要2FA，直接登录
         if (data.session) {
           setLocalToken(data.session);
-          document.cookie = "JSESSIONID=" + data.session;
+          document.cookie = "JSESSIONID=" + data.session + ";Path=/";
         }
         navigate('/', { replace: true });
       }

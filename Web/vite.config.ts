@@ -20,7 +20,6 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': backendDebugUrl,
-        '/webui/fonts/CustomFont.woff': backendDebugUrl,
         '/webui/sw.js': backendDebugUrl
       },
     },

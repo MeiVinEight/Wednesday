@@ -4,6 +4,7 @@ import {EventSourcePolyfill} from 'event-source-polyfill';
 import {LogLevel} from '@/const/enum';
 
 import {serverRequest} from '@/utils/request';
+import nc_pink from "@/const/themes/nc_pink.ts";
 
 export interface Log
 {
@@ -185,18 +186,19 @@ export default class WebUIManager
 
 	public static async getThemeConfig()
 	{
-		const {data} =
-			await serverRequest.get<ServerResponse<ThemeConfig>>('/api/v1/base/Theme');
-		return data.data;
+		let data: ThemeConfig = await WebUIManager.getPersistence("webui_theme");
+		if (data === undefined)
+			data = {
+				dark: nc_pink.theme.dark,
+				light: nc_pink.theme.light,
+				fontMode: 'system'
+			};
+		return data;
 	}
 
 	public static async setThemeConfig(theme: ThemeConfig)
 	{
-		const {data} = await serverRequest.post<ServerResponse<boolean>>(
-			'/api/v1/base/SetTheme',
-			{theme}
-		);
-		return data.data;
+		return await WebUIManager.setPersistence("webui_theme", theme);
 	}
 
 	public static async restart()
@@ -429,6 +431,25 @@ export default class WebUIManager
 	public static async getSystemInfo()
 	{
 		const {data} = await serverRequest.get<ServerResponse<SystemStatus>>("/api/v1/system/info");
+		return data.data;
+	}
+
+	public static async getPersistence(name: string)
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>("/api/v1/persistence", {
+			action: "GET",
+			name: name
+		});
+		return data.data;
+	}
+
+	public static async setPersistence(name: string, val: object)
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>("/api/v1/persistence", {
+			action: "POST",
+			name: name,
+			data: val
+		});
 		return data.data;
 	}
 }

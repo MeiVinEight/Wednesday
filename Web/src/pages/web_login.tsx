@@ -320,7 +320,7 @@ export default function WebLoginPage () {
                     <input
                       type='text'
                       name='username'
-                      value='napcat-webui'
+                      value=''
                       autoComplete='username'
                       className='absolute -left-[9999px] opacity-0 pointer-events-none'
                       readOnly

@@ -11,8 +11,7 @@ public class HTTP
 {
 	public static final String METHOD_GET = "GET";
 	public static final String METHOD_POST = "POST";
-	public static final String METHOD_CONN = "CONN";
-	public static final String METHOD_DISCONN = "DISCONN";
+
 	public static final String HEADER_AUTHORIZATION = "Authorization";
 	public static final String HEADER_SET_COOKIE = "Set-Cookie";
 

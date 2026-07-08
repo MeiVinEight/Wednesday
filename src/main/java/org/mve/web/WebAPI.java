@@ -36,8 +36,6 @@ public class WebAPI
 	public static final int CODE_INVALID_TOKEN  = 4;
 	public static final int CODE_UNAUTHORIZED   = 5;
 	public static final int CODE_INVALID_PARAM  = 6;
-	public static final int CODE_RES_NOT_FOUND  = 7;
-	public static final int CODE_CONNECT_FAILED = 8;
 
 	public static final String MSG_OK = "OK";
 	public static final String MSG_NOT_FOUND = "API Not Found";
@@ -46,8 +44,6 @@ public class WebAPI
 	public static final String MSG_INVALID_TOKEN = "Invalid Token";
 	public static final String MSG_UNAUTHORIZED = "Unauthorized";
 	public static final String MSG_INVALID_PARAM = "Invalid parameter: %s";
-	public static final String MSG_RES_NOT_FOUND = "Resource Not Found";
-	public static final String MSG_CONNECT_FAILED = "Connect failed";
 	public static final String[] CODE_MSG;
 
 	public static final String API_LOGIN = "/api/v1/login";
@@ -96,8 +92,6 @@ public class WebAPI
 			MSG_INVALID_TOKEN,
 			MSG_UNAUTHORIZED,
 			MSG_INVALID_PARAM,
-			MSG_RES_NOT_FOUND,
-			MSG_CONNECT_FAILED
 		};
 	}
 }

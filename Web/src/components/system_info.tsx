@@ -25,8 +25,9 @@ import useDialog from '@/hooks/use-dialog';
 import Modal from '@/components/modal';
 import MirrorSelectorModal from '@/components/mirror_selector_modal';
 import {hasNewVersion, compareVersion} from '@/utils/version';
-import {BsAmd, BsMicrosoft} from "react-icons/bs";
+import {BsMicrosoft} from "react-icons/bs";
 import toast from "@/utils/toast.ts";
+import {WEBUI_VER} from "@/pages";
 
 export interface SystemInfoItemProps
 {
@@ -954,7 +955,7 @@ export interface SystemInfoProps
 	archInfo?: string;
 }
 
-const SystemInfo: React.FC<SystemInfoProps> = (props) =>
+const SystemInfo: React.FC<SystemInfoProps> = (_props) =>
 {
 	const {data, error, loading} = useRequest(WebUIManager.getSystemInfo);
 	let sysType = "--";
@@ -964,12 +965,10 @@ const SystemInfo: React.FC<SystemInfoProps> = (props) =>
 		sysType = data.system.type;
 		sysVers = data.system.version
 	}
-	const {archInfo} = props;
 	if (error)
 		toast.error("获取系统信息失败: " + error.message);
 	if (loading)
 		sysType = sysVers = "...";
-	console
 	/*
 	const {
 	  data: qqVersionData,
@@ -1004,7 +1003,7 @@ const SystemInfo: React.FC<SystemInfoProps> = (props) =>
 					<SystemInfoItem
 						title='前端版本'
 						icon={<IoLogoChrome className='text-xl'/>}
-						value='1.0.0'
+						value={WEBUI_VER}
 						hasBackground={hasBackground}
 					/>
 					<SystemInfoItem
@@ -1017,12 +1016,6 @@ const SystemInfo: React.FC<SystemInfoProps> = (props) =>
 						title='系统版本'
 						icon={<RiMacFill className='text-xl'/>}
 						value={sysVers}
-						hasBackground={hasBackground}
-					/>
-					<SystemInfoItem
-						title='系统架构'
-						icon={<BsAmd className='text-xl'/>}
-						value={archInfo}
 						hasBackground={hasBackground}
 					/>
 				</div>

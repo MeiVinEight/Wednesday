@@ -31,7 +31,7 @@ const loadFontCSSForPreview = (mode: string) => {
     css = `
 @font-face {
   font-family: 'Aa偷吃可爱长大的';
-  src: url('/webui/fonts/AaCute.woff') format('woff');
+  src: url('/fonts/AaCute.woff') format('woff');
   font-display: swap;
 }`;
   } else if (mode === 'custom') {

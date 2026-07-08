@@ -34,3 +34,5 @@ export default function IndexPage () {
     </DefaultLayout>
   );
 }
+
+export const WEBUI_VER = "1.0.0";

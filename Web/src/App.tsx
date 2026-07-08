@@ -1,6 +1,6 @@
-import { Suspense, lazy, useEffect } from 'react';
-import { Provider } from 'react-redux';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import {Suspense, lazy, useEffect} from 'react';
+import {Provider} from 'react-redux';
+import {Route, Routes, useNavigate} from 'react-router-dom';
 
 import PageBackground from '@/components/page_background';
 import PageLoading from '@/components/page_loading';
@@ -28,66 +28,74 @@ const TerminalPage = lazy(() => import('@/pages/dashboard/terminal'));
 const PluginPage = lazy(() => import('@/pages/dashboard/plugin'));
 const PluginStorePage = lazy(() => import('@/pages/dashboard/plugin_store'));
 const ExtensionPage = lazy(() => import('@/pages/dashboard/extension'));
+const ConnectionPage = lazy(() => import('@/pages/dashboard/connection.tsx'));
 
-function App () {
-  return (
-    <DialogProvider>
-      <Provider store={store}>
-        <PageBackground />
-        <Toaster />
-        <Suspense fallback={<PageLoading />}>
-          <AuthChecker>
-            <AppRoutes />
-          </AuthChecker>
-        </Suspense>
-      </Provider>
-    </DialogProvider>
-  );
+function App()
+{
+	return (
+		<DialogProvider>
+			<Provider store={store}>
+				<PageBackground/>
+				<Toaster/>
+				<Suspense fallback={<PageLoading/>}>
+					<AuthChecker>
+						<AppRoutes/>
+					</AuthChecker>
+				</Suspense>
+			</Provider>
+		</DialogProvider>
+	);
 }
 
-function AuthChecker ({ children }: { children: React.ReactNode; }) {
-  const { isAuth } = useAuth();
-  const navigate = useNavigate();
+function AuthChecker({children}: { children: React.ReactNode; })
+{
+	const {isAuth} = useAuth();
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isAuth) {
-      const search = new URLSearchParams(window.location.search);
-      const token = search.get('token');
-      let url = '/web_login';
+	useEffect(() =>
+	{
+		if (!isAuth)
+		{
+			const search = new URLSearchParams(window.location.search);
+			const token = search.get('token');
+			let url = '/web_login';
 
-      if (token) {
-        url += `?token=${token}`;
-      }
-      navigate(url, { replace: true });
-    }
-  }, [isAuth, navigate]);
+			if (token)
+			{
+				url += `?token=${token}`;
+			}
+			navigate(url, {replace: true});
+		}
+	}, [isAuth, navigate]);
 
-  return <>{children}</>;
+	return <>{children}</>;
 }
 
-function AppRoutes () {
-  return (
-    <Routes>
-      <Route path='/' element={<IndexPage />}>
-        <Route index element={<DashboardIndexPage />} />
-        <Route path='network' element={<NetworkPage />} />
-        <Route path='config' element={<ConfigPage />} />
-        <Route path='logs' element={<LogsPage />} />
-        <Route path='debug' element={<DebugPage />}>
-          <Route path='ws' element={<WSDebug />} />
-          <Route path='http' element={<HttpDebug />} />
-        </Route>
-        <Route path='file_manager' element={<FileManagerPage />} />
-        <Route path='terminal' element={<TerminalPage />} />
-        <Route path='plugins' element={<PluginPage />} />
-        <Route path='plugin_store' element={<PluginStorePage />} />
-        <Route path='extension' element={<ExtensionPage />} />
-        <Route path='about' element={<AboutPage />} />
-      </Route>
-      <Route path='/qq_login' element={<QQLoginPage />} />
-      <Route path='/web_login' element={<WebLoginPage />} />
-    </Routes>
-  );
+function AppRoutes()
+{
+	return (
+		<Routes>
+			<Route path='/' element={<IndexPage/>}>
+				<Route index element={<DashboardIndexPage/>}/>
+				<Route path='network' element={<NetworkPage/>}/>
+				<Route path='config' element={<ConfigPage/>}/>
+				<Route path='logs' element={<LogsPage/>}/>
+				<Route path='debug' element={<DebugPage/>}>
+					<Route path='ws' element={<WSDebug/>}/>
+					<Route path='http' element={<HttpDebug/>}/>
+				</Route>
+				<Route path='file_manager' element={<FileManagerPage/>}/>
+				<Route path='terminal' element={<TerminalPage/>}/>
+				<Route path='plugins' element={<PluginPage/>}/>
+				<Route path='plugin_store' element={<PluginStorePage/>}/>
+				<Route path='extension' element={<ExtensionPage/>}/>
+				<Route path='about' element={<AboutPage/>}/>
+				<Route path='conn' element={<ConnectionPage/>}/>
+			</Route>
+			<Route path='/qq_login' element={<QQLoginPage/>}/>
+			<Route path='/web_login' element={<WebLoginPage/>}/>
+		</Routes>
+	);
 }
 
 export default App;

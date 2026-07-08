@@ -1,384 +1,434 @@
 import CryptoJS from 'crypto-js';
-import { EventSourcePolyfill } from 'event-source-polyfill';
+import {EventSourcePolyfill} from 'event-source-polyfill';
 
-import { LogLevel } from '@/const/enum';
+import {LogLevel} from '@/const/enum';
 
-import { serverRequest } from '@/utils/request';
+import {serverRequest} from '@/utils/request';
 
-export interface Log {
-  level: LogLevel;
-  message: string;
+export interface Log
+{
+	level: LogLevel;
+	message: string;
 }
 
-export default class WebUIManager {
-  public static async checkWebUiLogined () {
-    const { data } =
-      await serverRequest.post<ServerResponse<boolean>>('/api/v1/auth/check');
-    return data.data;
-  }
+export default class WebUIManager
+{
+	public static async checkWebUiLogined()
+	{
+		const {data} =
+			await serverRequest.post<ServerResponse<boolean>>('/api/v1/auth/check');
+		return data.data;
+	}
 
-  public static async loginWithToken (token: string, totpCode?: string) {
-    const md5 = CryptoJS.MD5(token).toString();
-    const { data } = await serverRequest.post<ServerResponse<AuthResponse>>(
-      '/api/v1/login',
-      { token: md5, totpCode }
-    );
-    return data.data;
-  }
+	public static async loginWithToken(token: string, totpCode?: string)
+	{
+		const md5 = CryptoJS.MD5(token).toString();
+		const {data} = await serverRequest.post<ServerResponse<AuthResponse>>(
+			'/api/v1/login',
+			{token: md5, totpCode}
+		);
+		return data.data;
+	}
 
-  public static async get2FAStatus () {
-    const { data } = await serverRequest.get<ServerResponse<{ enable2FA: boolean; hasSecret: boolean; }>>(
-      '/api/v1/auth/2fa/status'
-    );
-    return data.data;
-  }
+	public static async get2FAStatus()
+	{
+		const {data} = await serverRequest.get<ServerResponse<{ enable2FA: boolean; hasSecret: boolean; }>>(
+			'/api/v1/auth/2fa/status'
+		);
+		return data.data;
+	}
 
-  public static async generate2FASecret () {
-    const { data } = await serverRequest.post<ServerResponse<{ secret: string; qrCodeUrl: string; }>>(
-      '/api/v1/auth/2fa/generate-secret'
-    );
-    return data.data;
-  }
+	public static async generate2FASecret()
+	{
+		const {data} = await serverRequest.post<ServerResponse<{ secret: string; qrCodeUrl: string; }>>(
+			'/api/v1/auth/2fa/generate-secret'
+		);
+		return data.data;
+	}
 
-  public static async enable2FA (secret: string, totpCode: string) {
-    const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/api/v1/auth/2fa/enable',
-      { secret, totpCode }
-    );
-    return data.data;
-  }
+	public static async enable2FA(secret: string, totpCode: string)
+	{
+		const {data} = await serverRequest.post<ServerResponse<{ message: string; }>>(
+			'/api/v1/auth/2fa/enable',
+			{secret, totpCode}
+		);
+		return data.data;
+	}
 
-  public static async disable2FA (totpCode: string) {
-    const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/api/v1/auth/2fa/disable',
-      { totpCode }
-    );
-    return data.data;
-  }
+	public static async disable2FA(totpCode: string)
+	{
+		const {data} = await serverRequest.post<ServerResponse<{ message: string; }>>(
+			'/api/v1/auth/2fa/disable',
+			{totpCode}
+		);
+		return data.data;
+	}
 
-  public static async changePassword (_oldToken: string, newToken: string) {
-    const { data } = await serverRequest.post<ServerResponse<boolean>>(
-      '/api/v1/token',
-      { token: CryptoJS.MD5(newToken).toString() }
-    );
-    return data.data;
-  }
+	public static async changePassword(_oldToken: string, newToken: string)
+	{
+		const {data} = await serverRequest.post<ServerResponse<boolean>>(
+			'/api/v1/token',
+			{token: CryptoJS.MD5(newToken).toString()}
+		);
+		return data.data;
+	}
 
-  public static async proxy<T> (url = '') {
-    const data = await serverRequest.get<ServerResponse<string>>(
-      '/api/v1/base/proxy?url=' + encodeURIComponent(url)
-    );
-    data.data.data = JSON.parse(data.data.data);
-    return data.data as ServerResponse<T>;
-  }
+	public static async proxy<T>(url = '')
+	{
+		const data = await serverRequest.get<ServerResponse<string>>(
+			'/api/v1/base/proxy?url=' + encodeURIComponent(url)
+		);
+		data.data.data = JSON.parse(data.data.data);
+		return data.data as ServerResponse<T>;
+	}
 
-  public static async GetNapCatVersion () {
-    const { data } =
-      await serverRequest.get<ServerResponse<PackageInfo>>('/api/v1/version');
-    return data.data;
-  }
+	public static async GetNapCatVersion()
+	{
+		const {data} =
+			await serverRequest.get<ServerResponse<PackageInfo>>('/api/v1/version');
+		return data.data;
+	}
 
-  public static async getLatestTag () {
-    const { data } =
-      await serverRequest.get<ServerResponse<string>>('/api/v1/base/getLatestTag');
-    return data.data;
-  }
+	public static async getLatestTag()
+	{
+		const {data} =
+			await serverRequest.get<ServerResponse<string>>('/api/v1/base/getLatestTag');
+		return data.data;
+	}
 
-  /**
-   * 版本信息接口
-   */
-  static readonly VersionTypes = {
-    RELEASE: 'release',
-    PRERELEASE: 'prerelease',
-    ACTION: 'action',
-  } as const;
+	/**
+	 * 版本信息接口
+	 */
+	static readonly VersionTypes = {
+		RELEASE: 'release',
+		PRERELEASE: 'prerelease',
+		ACTION: 'action',
+	} as const;
 
-  /**
-   * 获取所有可用的版本列表（支持分页、过滤和搜索）
-   * 懒加载：根据 type 参数只获取对应类型的版本
-   */
-  public static async getAllReleases (options: {
-    page?: number;
-    pageSize?: number;
-    type?: 'release' | 'action' | 'all';
-    search?: string;
-    mirror?: string;
-  } = {}) {
-    const { page = 1, pageSize = 20, type = 'release', search = '', mirror } = options;
-    const { data } = await serverRequest.get<ServerResponse<{
-      versions: Array<{
-        tag: string;
-        type: 'release' | 'prerelease' | 'action';
-        artifactId?: number;
-        artifactName?: string;
-        createdAt?: string;
-        expiresAt?: string;
-        size?: number;
-        workflowRunId?: number;
-        headSha?: string;
-      }>;
-      pagination: {
-        page: number;
-        pageSize: number;
-        total: number;
-        totalPages: number;
-      };
-      mirror?: string;
-    }>>('/api/v1/base/getAllReleases', {
-      params: { page, pageSize, type, search, mirror },
-    });
-    return data.data;
-  }
+	/**
+	 * 获取所有可用的版本列表（支持分页、过滤和搜索）
+	 * 懒加载：根据 type 参数只获取对应类型的版本
+	 */
+	public static async getAllReleases(options: {
+		page?: number;
+		pageSize?: number;
+		type?: 'release' | 'action' | 'all';
+		search?: string;
+		mirror?: string;
+	} = {})
+	{
+		const {page = 1, pageSize = 20, type = 'release', search = '', mirror} = options;
+		const {data} = await serverRequest.get<ServerResponse<{
+			versions: Array<{
+				tag: string;
+				type: 'release' | 'prerelease' | 'action';
+				artifactId?: number;
+				artifactName?: string;
+				createdAt?: string;
+				expiresAt?: string;
+				size?: number;
+				workflowRunId?: number;
+				headSha?: string;
+			}>;
+			pagination: {
+				page: number;
+				pageSize: number;
+				total: number;
+				totalPages: number;
+			};
+			mirror?: string;
+		}>>('/api/v1/base/getAllReleases', {
+			params: {page, pageSize, type, search, mirror},
+		});
+		return data.data;
+	}
 
-  public static async getMirrors () {
-    const { data } =
-      await serverRequest.get<ServerResponse<{ mirrors: string[]; }>>('/api/v1/base/getMirrors');
-    return data.data;
-  }
+	public static async getMirrors()
+	{
+		const {data} =
+			await serverRequest.get<ServerResponse<{ mirrors: string[]; }>>('/api/v1/base/getMirrors');
+		return data.data;
+	}
 
-  public static async UpdateNapCat (mirror?: string) {
-    const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/api/v1/UpdateNapCat/update',
-      { mirror },
-      { timeout: 120000 } // 2分钟超时
-    );
-    return data;
-  }
+	public static async UpdateNapCat(mirror?: string)
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>(
+			'/api/v1/UpdateNapCat/update',
+			{mirror},
+			{timeout: 120000} // 2分钟超时
+		);
+		return data;
+	}
 
-  /**
-   * 更新到指定版本
-   * @param targetVersion 目标版本 tag，如 "v4.9.9" 或 "action-123456"
-   * @param force 是否强制更新（允许降级）
-   * @param mirror 指定使用的镜像
-   */
-  public static async UpdateNapCatToVersion (targetVersion: string, force: boolean = false, mirror?: string) {
-    const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/api/v1/UpdateNapCat/update',
-      { targetVersion, force, mirror },
-      { timeout: 120000 } // 2分钟超时
-    );
-    return data;
-  }
+	/**
+	 * 更新到指定版本
+	 * @param targetVersion 目标版本 tag，如 "v4.9.9" 或 "action-123456"
+	 * @param force 是否强制更新（允许降级）
+	 * @param mirror 指定使用的镜像
+	 */
+	public static async UpdateNapCatToVersion(targetVersion: string, force: boolean = false, mirror?: string)
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>(
+			'/api/v1/UpdateNapCat/update',
+			{targetVersion, force, mirror},
+			{timeout: 120000} // 2分钟超时
+		);
+		return data;
+	}
 
-  public static async getQQVersion () {
-    const { data } =
-      await serverRequest.get<ServerResponse<string>>('/api/v1/base/QQVersion');
-    return data.data;
-  }
+	public static async getQQVersion()
+	{
+		const {data} =
+			await serverRequest.get<ServerResponse<string>>('/api/v1/base/QQVersion');
+		return data.data;
+	}
 
-  public static async getThemeConfig () {
-    const { data } =
-      await serverRequest.get<ServerResponse<ThemeConfig>>('/api/v1/base/Theme');
-    return data.data;
-  }
+	public static async getThemeConfig()
+	{
+		const {data} =
+			await serverRequest.get<ServerResponse<ThemeConfig>>('/api/v1/base/Theme');
+		return data.data;
+	}
 
-  public static async setThemeConfig (theme: ThemeConfig) {
-    const { data } = await serverRequest.post<ServerResponse<boolean>>(
-      '/api/v1/base/SetTheme',
-      { theme }
-    );
-    return data.data;
-  }
+	public static async setThemeConfig(theme: ThemeConfig)
+	{
+		const {data} = await serverRequest.post<ServerResponse<boolean>>(
+			'/api/v1/base/SetTheme',
+			{theme}
+		);
+		return data.data;
+	}
 
-  public static async restart () {
-    const { data } = await serverRequest.post<ServerResponse<any>>('/api/v1/Process/Restart');
-    return data.data;
-  }
+	public static async restart()
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>('/api/v1/Process/Restart');
+		return data.data;
+	}
 
-  public static async getAllUsers (): Promise<any> {
-    const { data } = await serverRequest.get<ServerResponse<any>>('/api/v1/QQLogin/GetAllUsers');
-    return data.data;
-  }
+	public static async getAllUsers(): Promise<any>
+	{
+		const {data} = await serverRequest.get<ServerResponse<any>>('/api/v1/QQLogin/GetAllUsers');
+		return data.data;
+	}
 
-  public static async getLogList () {
-    const { data } =
-      await serverRequest.get<ServerResponse<string[]>>('/api/v1/Log/GetLogList');
-    return data.data;
-  }
+	public static async getLogList()
+	{
+		const {data} =
+			await serverRequest.get<ServerResponse<string[]>>('/api/v1/Log/GetLogList');
+		return data.data;
+	}
 
-  public static async getLogContent (logName: string) {
-    const { data } = await serverRequest.get<ServerResponse<string>>(
-      `/api/v1/Log/GetLog?id=${logName}`
-    );
-    return data.data;
-  }
+	public static async getLogContent(logName: string)
+	{
+		const {data} = await serverRequest.get<ServerResponse<string>>(
+			`/api/v1/Log/GetLog?id=${logName}`
+		);
+		return data.data;
+	}
 
-  public static getRealTimeLogs (writer: (data: Log[]) => void) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('未登录');
-    }
-    const _token = JSON.parse(token);
-    const eventSource = new EventSourcePolyfill('/api/Log/GetLogRealTime', {
-      headers: {
-        Authorization: `Bearer ${_token}`,
-        Accept: 'text/event-stream',
-      },
-      withCredentials: true,
-    });
+	public static getRealTimeLogs(writer: (data: Log[]) => void)
+	{
+		const token = localStorage.getItem('token');
+		if (!token)
+		{
+			throw new Error('未登录');
+		}
+		const _token = JSON.parse(token);
+		const eventSource = new EventSourcePolyfill('/api/Log/GetLogRealTime', {
+			headers: {
+				Authorization: `Bearer ${_token}`,
+				Accept: 'text/event-stream',
+			},
+			withCredentials: true,
+		});
 
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        data.message = data.message.replace(/\n/g, '\r\n');
-        writer([data]);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+		eventSource.onmessage = (event) =>
+		{
+			try
+			{
+				const data = JSON.parse(event.data);
+				data.message = data.message.replace(/\n/g, '\r\n');
+				writer([data]);
+			}
+			catch (error)
+			{
+				console.error(error);
+			}
+		};
 
-    eventSource.onerror = (error) => {
-      console.error('SSE连接出错:', error);
-      eventSource.close();
-    };
+		eventSource.onerror = (error) =>
+		{
+			console.error('SSE连接出错:', error);
+			eventSource.close();
+		};
 
-    return eventSource;
-  }
+		return eventSource;
+	}
 
-  public static getSystemStatus (writer: (data: SystemStatus) => void) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('未登录');
-    }
-    const _token = JSON.parse(token);
-    const eventSource = new EventSourcePolyfill(
-      '/api/base/GetSysStatusRealTime',
-      {
-        headers: {
-          Authorization: `Bearer ${_token}`,
-          Accept: 'text/event-stream',
-        },
-        withCredentials: true,
-      }
-    );
+	public static getSystemStatus(writer: (data: SystemStatus) => void)
+	{
+		const token = localStorage.getItem('token');
+		if (!token)
+		{
+			throw new Error('未登录');
+		}
+		const _token = JSON.parse(token);
+		const eventSource = new EventSourcePolyfill(
+			'/api/base/GetSysStatusRealTime',
+			{
+				headers: {
+					Authorization: `Bearer ${_token}`,
+					Accept: 'text/event-stream',
+				},
+				withCredentials: true,
+			}
+		);
 
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data) as SystemStatus;
-        writer(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+		eventSource.onmessage = (event) =>
+		{
+			try
+			{
+				const data = JSON.parse(event.data) as SystemStatus;
+				writer(data);
+			}
+			catch (error)
+			{
+				console.error(error);
+			}
+		};
 
-    eventSource.onerror = (error) => {
-      console.error('SSE连接出错:', error);
-      eventSource.close();
-    };
+		eventSource.onerror = (error) =>
+		{
+			console.error('SSE连接出错:', error);
+			eventSource.close();
+		};
 
-    return eventSource;
-  }
+		return eventSource;
+	}
 
-  // 获取WebUI基础配置
-  public static async getWebUIConfig () {
-    const { data } = await serverRequest.get<ServerResponse<WebUIConfig>>('/api/v1/config');
-    return data.data;
-  }
+	// 获取WebUI基础配置
+	public static async getWebUIConfig()
+	{
+		const {data} = await serverRequest.get<ServerResponse<WebUIConfig>>('/api/v1/config');
+		return data.data;
+	}
 
-  // 更新WebUI基础配置
-  public static async updateWebUIConfig (config: Partial<WebUIConfig>) {
-    const { data } = await serverRequest.post<ServerResponse<boolean>>(
-      '/api/v1/config',
-      config
-    );
-    return data.data;
-  }
+	// 更新WebUI基础配置
+	public static async updateWebUIConfig(config: Partial<WebUIConfig>)
+	{
+		const {data} = await serverRequest.post<ServerResponse<boolean>>(
+			'/api/v1/config',
+			config
+		);
+		return data.data;
+	}
 
-  // 获取是否禁用WebUI
-  public static async getDisableWebUI () {
-    const { data } = await serverRequest.get<ServerResponse<boolean>>(
-      '/api/v1/WebUIConfig/GetDisableWebUI'
-    );
-    return data.data;
-  }
+	// 获取是否禁用WebUI
+	public static async getDisableWebUI()
+	{
+		const {data} = await serverRequest.get<ServerResponse<boolean>>(
+			'/api/v1/WebUIConfig/GetDisableWebUI'
+		);
+		return data.data;
+	}
 
-  // 更新是否禁用WebUI
-  public static async updateDisableWebUI (disable: boolean) {
-    const { data } = await serverRequest.post<ServerResponse<boolean>>(
-      '/api/v1/WebUIConfig/UpdateDisableWebUI',
-      { disable }
-    );
-    return data.data;
-  }
+	// 更新是否禁用WebUI
+	public static async updateDisableWebUI(disable: boolean)
+	{
+		const {data} = await serverRequest.post<ServerResponse<boolean>>(
+			'/api/v1/WebUIConfig/UpdateDisableWebUI',
+			{disable}
+		);
+		return data.data;
+	}
 
-  // 获取当前客户端IP
-  public static async getClientIP () {
-    const { data } = await serverRequest.get<ServerResponse<{ ip: string; }>>(
-      '/api/v1/WebUIConfig/GetClientIP'
-    );
-    return data.data;
-  }
+	// 获取当前客户端IP
+	public static async getClientIP()
+	{
+		const {data} = await serverRequest.get<ServerResponse<{ ip: string; }>>(
+			'/api/v1/WebUIConfig/GetClientIP'
+		);
+		return data.data;
+	}
 
-  // 获取SSL证书状态
-  public static async getSSLStatus () {
-    const { data } = await serverRequest.get<ServerResponse<{
-      enabled: boolean;
-      certExists: boolean;
-      keyExists: boolean;
-      certContent: string;
-      keyContent: string;
-    }>>('/api/v1/WebUIConfig/GetSSLStatus');
-    return data.data;
-  }
+	// 获取SSL证书状态
+	public static async getSSLStatus()
+	{
+		const {data} = await serverRequest.get<ServerResponse<{
+			enabled: boolean;
+			certExists: boolean;
+			keyExists: boolean;
+			certContent: string;
+			keyContent: string;
+		}>>('/api/v1/WebUIConfig/GetSSLStatus');
+		return data.data;
+	}
 
-  // 保存SSL证书
-  public static async saveSSLCert (cert: string, key: string) {
-    const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/api/v1/WebUIConfig/UploadSSLCert',
-      { cert, key }
-    );
-    return data.data;
-  }
+	// 保存SSL证书
+	public static async saveSSLCert(cert: string, key: string)
+	{
+		const {data} = await serverRequest.post<ServerResponse<{ message: string; }>>(
+			'/api/v1/WebUIConfig/UploadSSLCert',
+			{cert, key}
+		);
+		return data.data;
+	}
 
-  // 删除SSL证书
-  public static async deleteSSLCert () {
-    const { data } = await serverRequest.post<ServerResponse<{ message: string; }>>(
-      '/api/v1/WebUIConfig/DeleteSSLCert'
-    );
-    return data.data;
-  }
+	// 删除SSL证书
+	public static async deleteSSLCert()
+	{
+		const {data} = await serverRequest.post<ServerResponse<{ message: string; }>>(
+			'/api/v1/WebUIConfig/DeleteSSLCert'
+		);
+		return data.data;
+	}
 
-  // Passkey相关方法
-  public static async generatePasskeyRegistrationOptions () {
-    const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/api/v1/auth/passkey/generate-registration-options'
-    );
-    return data.data;
-  }
+	// Passkey相关方法
+	public static async generatePasskeyRegistrationOptions()
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>(
+			'/api/v1/auth/passkey/generate-registration-options'
+		);
+		return data.data;
+	}
 
-  public static async verifyPasskeyRegistration (response: any) {
-    const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/api/v1/auth/passkey/verify-registration',
-      { response }
-    );
-    return data.data;
-  }
+	public static async verifyPasskeyRegistration(response: any)
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>(
+			'/api/v1/auth/passkey/verify-registration',
+			{response}
+		);
+		return data.data;
+	}
 
-  public static async generatePasskeyAuthenticationOptions () {
-    const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/api/v1/auth/passkey/generate-authentication-options'
-    );
-    return data.data;
-  }
+	public static async generatePasskeyAuthenticationOptions()
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>(
+			'/api/v1/auth/passkey/generate-authentication-options'
+		);
+		return data.data;
+	}
 
-  public static async verifyPasskeyAuthentication (response: any) {
-    const { data } = await serverRequest.post<ServerResponse<any>>(
-      '/api/v1/auth/passkey/verify-authentication',
-      { response }
-    );
-    return data.data;
-  }
+	public static async verifyPasskeyAuthentication(response: any)
+	{
+		const {data} = await serverRequest.post<ServerResponse<any>>(
+			'/api/v1/auth/passkey/verify-authentication',
+			{response}
+		);
+		return data.data;
+	}
 
-  public static async GetNapCatFileHash () {
-    const { data } = await serverRequest.get<ServerResponse<{ hash: string; file: string; algorithm: string; }>>(
-      '/api/v1/base/GetNapCatFileHash'
-    );
-    return data.data;
-  }
+	public static async GetNapCatFileHash()
+	{
+		const {data} = await serverRequest.get<ServerResponse<{ hash: string; file: string; algorithm: string; }>>(
+			'/api/v1/base/GetNapCatFileHash'
+		);
+		return data.data;
+	}
 
-  public static async getSystemInfo()
-  {
-      const {data} = await serverRequest.get<ServerResponse<SystemStatus>>("/api/v1/system/info");
-      return data.data;
-  }
+	public static async getSystemInfo()
+	{
+		const {data} = await serverRequest.get<ServerResponse<SystemStatus>>("/api/v1/system/info");
+		return data.data;
+	}
 }

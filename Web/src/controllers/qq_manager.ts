@@ -1,318 +1,369 @@
-import { AxiosRequestConfig } from 'axios';
-import { serverRequest } from '@/utils/request';
+import {AxiosRequestConfig} from 'axios';
+import {serverRequest} from '@/utils/request';
 
-import { SelfInfo } from '@/types/user';
+import {SelfInfo} from '@/types/user';
 
-export default class QQManager {
-  public static async getOB11Config () {
-    const data = await serverRequest.get<ServerResponse<OneBotConfig>>(
-      '/api/v1/conn'
-    );
+export default class QQManager
+{
+	public static async getOB11Config()
+	{
+		const data = await serverRequest.get<ServerResponse<OneBotConfig>>(
+			'/api/v1/conn'
+		);
 
-    return data.data.data;
-  }
+		return data.data.data;
+	}
 
-  public static async updateNetworkConfig(config: NetworkConfig)
-  {
-      await serverRequest.post<ServerResponse<null>>('/api/v1/conn', config);
-  }
+	public static async updateNetworkConfig(config: NetworkConfig)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/conn', config);
+	}
 
-  public static async deleteNetworkConfig(config: any)
-  {
-      await serverRequest.post<ServerResponse<null>>('/api/v1/conn', config)
-  }
+	public static async deleteNetworkConfig(config: any)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/conn', config)
+	}
 
-  public static async setOB11Config (config: OneBotConfig) {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/OB11Config/SetConfig', {
-      config: JSON.stringify(config),
-    });
-  }
+	public static async setOB11Config(config: OneBotConfig)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/OB11Config/SetConfig', {
+			config: JSON.stringify(config),
+		});
+	}
 
-  public static async checkQQLoginStatus () {
-    const data = await serverRequest.post<
-      ServerResponse<{
-        isLogin: boolean;
-        isOffline?: boolean;
-        qrcodeurl: string;
-      }>
-    >('/api/v1/QQLogin/CheckLoginStatus');
+	public static async checkQQLoginStatus()
+	{
+		const data = await serverRequest.post<
+			ServerResponse<{
+				isLogin: boolean;
+				isOffline?: boolean;
+				qrcodeurl: string;
+			}>
+		>('/api/v1/QQLogin/CheckLoginStatus');
 
-    return data.data.data;
-  }
+		return data.data.data;
+	}
 
-  public static async checkQQLoginStatusWithQrcode () {
-    const data = await serverRequest.post<
-      ServerResponse<{ qrcodeurl: string; isLogin: boolean; isOffline?: boolean; loginError?: string; }>
-    >('/api/v1/QQLogin/CheckLoginStatus');
+	public static async checkQQLoginStatusWithQrcode()
+	{
+		const data = await serverRequest.post<
+			ServerResponse<{ qrcodeurl: string; isLogin: boolean; isOffline?: boolean; loginError?: string; }>
+		>('/api/v1/QQLogin/CheckLoginStatus');
 
-    return data.data.data;
-  }
+		return data.data.data;
+	}
 
-  public static async refreshQRCode () {
-    await serverRequest.post<ServerResponse<null>>('/QQLogin/RefreshQRcode');
-  }
+	public static async refreshQRCode()
+	{
+		await serverRequest.post<ServerResponse<null>>('/QQLogin/RefreshQRcode');
+	}
 
-  public static async getQQLoginQrcode () {
-    const data = await serverRequest.post<
-      ServerResponse<{
-        qrcode: string;
-      }>
-    >('/api/v1/QQLogin/GetQQLoginQrcode');
+	public static async getQQLoginQrcode()
+	{
+		const data = await serverRequest.post<
+			ServerResponse<{
+				qrcode: string;
+			}>
+		>('/api/v1/QQLogin/GetQQLoginQrcode');
 
-    return data.data.data.qrcode;
-  }
+		return data.data.data.qrcode;
+	}
 
-  public static async getQQQuickLoginList () {
-    const data = await serverRequest.post<ServerResponse<string[]>>(
-      '/api/v1/QQLogin/GetQuickLoginList'
-    );
+	public static async getQQQuickLoginList()
+	{
+		const data = await serverRequest.post<ServerResponse<string[]>>(
+			'/api/v1/QQLogin/GetQuickLoginList'
+		);
 
-    return data.data.data;
-  }
+		return data.data.data;
+	}
 
-  public static async getQQQuickLoginListNew () {
-    const data = await serverRequest.post<ServerResponse<LoginListItem[]>>(
-      '/api/v1/QQLogin/GetQuickLoginListNew'
-    );
-    return data.data.data;
-  }
+	public static async getQQQuickLoginListNew()
+	{
+		const data = await serverRequest.post<ServerResponse<LoginListItem[]>>(
+			'/api/v1/QQLogin/GetQuickLoginListNew'
+		);
+		return data.data.data;
+	}
 
-  public static async setQuickLogin (uin: string) {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetQuickLogin', {
-      uin,
-    });
-  }
+	public static async setQuickLogin(uin: string)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetQuickLogin', {
+			uin,
+		});
+	}
 
-  public static async getQQLoginInfo (_config?: AxiosRequestConfig) {
-    const data = await serverRequest.post<ServerResponse<SelfInfo>>(
-      '/api/v1/QQLogin/GetQQLoginInfo',
-      {},
-      _config
-    );
-    return data.data.data;
-      /*
-      const info: SelfInfo = {
-          nick: "Wednesday",
-          uid: "0",
-          uin: "0",
-          avatarUrl: "/logo.svg",
-          online: true
-      };
-      return info;
-      */
-  }
+	public static async getQQLoginInfo(_config?: AxiosRequestConfig)
+	{
+		const data = await serverRequest.post<ServerResponse<SelfInfo>>(
+			'/api/v1/QQLogin/GetQQLoginInfo',
+			{},
+			_config
+		);
+		return data.data.data;
+		/*
+		const info: SelfInfo = {
+			nick: "Wednesday",
+			uid: "0",
+			uin: "0",
+			avatarUrl: "/logo.svg",
+			online: true
+		};
+		return info;
+		*/
+	}
 
-  public static async getQuickLoginQQ () {
-    const { data } = await serverRequest.post<ServerResponse<string>>(
-      '/api/v1/QQLogin/GetQuickLoginQQ'
-    );
-    return data.data;
-  }
+	public static async getQuickLoginQQ()
+	{
+		const {data} = await serverRequest.post<ServerResponse<string>>(
+			'/api/v1/QQLogin/GetQuickLoginQQ'
+		);
+		return data.data;
+	}
 
-  public static async setQuickLoginQQ (uin: string) {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetQuickLoginQQ', {
-      uin,
-    });
-  }
+	public static async setQuickLoginQQ(uin: string)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetQuickLoginQQ', {
+			uin,
+		});
+	}
 
-  public static async passwordLogin (uin: string, passwordMd5: string) {
-    const data = await serverRequest.post<ServerResponse<{
-      needCaptcha?: boolean;
-      proofWaterUrl?: string;
-      needNewDevice?: boolean;
-      jumpUrl?: string;
-      newDevicePullQrCodeSig?: string;
-    } | null>>('/api/v1/QQLogin/PasswordLogin', {
-      uin,
-      passwordMd5,
-    });
-    return data.data.data;
-  }
+	public static async passwordLogin(uin: string, passwordMd5: string)
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			needCaptcha?: boolean;
+			proofWaterUrl?: string;
+			needNewDevice?: boolean;
+			jumpUrl?: string;
+			newDevicePullQrCodeSig?: string;
+		} | null>>('/api/v1/QQLogin/PasswordLogin', {
+			uin,
+			passwordMd5,
+		});
+		return data.data.data;
+	}
 
-  public static async captchaLogin (uin: string, passwordMd5: string, ticket: string, randstr: string, sid: string) {
-    const data = await serverRequest.post<ServerResponse<{
-      needNewDevice?: boolean;
-      jumpUrl?: string;
-      newDevicePullQrCodeSig?: string;
-    } | null>>('/api/v1/QQLogin/CaptchaLogin', {
-      uin,
-      passwordMd5,
-      ticket,
-      randstr,
-      sid,
-    });
-    return data.data.data;
-  }
+	public static async captchaLogin(uin: string, passwordMd5: string, ticket: string, randstr: string, sid: string)
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			needNewDevice?: boolean;
+			jumpUrl?: string;
+			newDevicePullQrCodeSig?: string;
+		} | null>>('/api/v1/QQLogin/CaptchaLogin', {
+			uin,
+			passwordMd5,
+			ticket,
+			randstr,
+			sid,
+		});
+		return data.data.data;
+	}
 
-  public static async newDeviceLogin (uin: string, passwordMd5: string, newDevicePullQrCodeSig: string) {
-    const data = await serverRequest.post<ServerResponse<{
-      needNewDevice?: boolean;
-      jumpUrl?: string;
-      newDevicePullQrCodeSig?: string;
-    } | null>>('/api/v1/QQLogin/NewDeviceLogin', {
-      uin,
-      passwordMd5,
-      newDevicePullQrCodeSig,
-    });
-    return data.data.data;
-  }
+	public static async newDeviceLogin(uin: string, passwordMd5: string, newDevicePullQrCodeSig: string)
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			needNewDevice?: boolean;
+			jumpUrl?: string;
+			newDevicePullQrCodeSig?: string;
+		} | null>>('/api/v1/QQLogin/NewDeviceLogin', {
+			uin,
+			passwordMd5,
+			newDevicePullQrCodeSig,
+		});
+		return data.data.data;
+	}
 
-  public static async getNewDeviceQRCode (uin: string, jumpUrl: string) {
-    const data = await serverRequest.post<ServerResponse<{
-      str_url?: string;
-      bytes_token?: string;
-      uint32_guarantee_status?: number;
-      ActionStatus?: string;
-      ErrorCode?: number;
-      ErrorInfo?: string;
-    }>>('/api/v1/QQLogin/GetNewDeviceQRCode', {
-      uin,
-      jumpUrl,
-    });
-    const result = data.data.data;
-    if (result?.str_url) {
-      let bytesToken = result.bytes_token || '';
-      if (!bytesToken && result.str_url) {
-        // 只对 str_url 参数值做 base64 编码
-        try {
-          const urlObj = new URL(result.str_url);
-          const strUrlParam = urlObj.searchParams.get('str_url') || '';
-          bytesToken = strUrlParam ? btoa(strUrlParam) : '';
-        } catch {
-          bytesToken = '';
-        }
-      }
-      return {
-        str_url: result.str_url,
-        bytes_token: bytesToken,
-        uint32_guarantee_status: result.uint32_guarantee_status,
-        ActionStatus: result.ActionStatus,
-        ErrorCode: result.ErrorCode,
-        ErrorInfo: result.ErrorInfo,
-      };
-    }
-    return result;
-  }
+	public static async getNewDeviceQRCode(uin: string, jumpUrl: string)
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			str_url?: string;
+			bytes_token?: string;
+			uint32_guarantee_status?: number;
+			ActionStatus?: string;
+			ErrorCode?: number;
+			ErrorInfo?: string;
+		}>>('/api/v1/QQLogin/GetNewDeviceQRCode', {
+			uin,
+			jumpUrl,
+		});
+		const result = data.data.data;
+		if (result?.str_url)
+		{
+			let bytesToken = result.bytes_token || '';
+			if (!bytesToken && result.str_url)
+			{
+				// 只对 str_url 参数值做 base64 编码
+				try
+				{
+					const urlObj = new URL(result.str_url);
+					const strUrlParam = urlObj.searchParams.get('str_url') || '';
+					bytesToken = strUrlParam ? btoa(strUrlParam) : '';
+				}
+				catch
+				{
+					bytesToken = '';
+				}
+			}
+			return {
+				str_url: result.str_url,
+				bytes_token: bytesToken,
+				uint32_guarantee_status: result.uint32_guarantee_status,
+				ActionStatus: result.ActionStatus,
+				ErrorCode: result.ErrorCode,
+				ErrorInfo: result.ErrorInfo,
+			};
+		}
+		return result;
+	}
 
-  public static async pollNewDeviceQR (uin: string, bytesToken: string) {
-    const data = await serverRequest.post<ServerResponse<{
-      uint32_guarantee_status?: number;
-      str_nt_succ_token?: string;
-    }>>('/api/v1/QQLogin/PollNewDeviceQR', {
-      uin,
-      bytesToken,
-    });
-    return data.data.data;
-  }
+	public static async pollNewDeviceQR(uin: string, bytesToken: string)
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			uint32_guarantee_status?: number;
+			str_nt_succ_token?: string;
+		}>>('/api/v1/QQLogin/PollNewDeviceQR', {
+			uin,
+			bytesToken,
+		});
+		return data.data.data;
+	}
 
-  public static async resetDeviceID () {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/ResetDeviceID');
-  }
+	public static async resetDeviceID()
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/ResetDeviceID');
+	}
 
-  public static async restartNapCat () {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestartNapCat');
-  }
+	public static async restartNapCat()
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestartNapCat');
+	}
 
-  public static async getDeviceGUID () {
-    const data = await serverRequest.post<ServerResponse<{ guid: string; }>>('/api/v1/QQLogin/GetDeviceGUID');
-    return data.data.data;
-  }
+	public static async getDeviceGUID()
+	{
+		const data = await serverRequest.post<ServerResponse<{ guid: string; }>>('/api/v1/QQLogin/GetDeviceGUID');
+		return data.data.data;
+	}
 
-  public static async setDeviceGUID (guid: string) {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetDeviceGUID', { guid });
-  }
+	public static async setDeviceGUID(guid: string)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetDeviceGUID', {guid});
+	}
 
-  public static async getGUIDBackups () {
-    const data = await serverRequest.post<ServerResponse<string[]>>('/api/v1/QQLogin/GetGUIDBackups');
-    return data.data.data;
-  }
+	public static async getGUIDBackups()
+	{
+		const data = await serverRequest.post<ServerResponse<string[]>>('/api/v1/QQLogin/GetGUIDBackups');
+		return data.data.data;
+	}
 
-  public static async restoreGUIDBackup (backupName: string) {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestoreGUIDBackup', { backupName });
-  }
+	public static async restoreGUIDBackup(backupName: string)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestoreGUIDBackup', {backupName});
+	}
 
-  public static async createGUIDBackup () {
-    const data = await serverRequest.post<ServerResponse<{ path: string; }>>('/api/v1/QQLogin/CreateGUIDBackup');
-    return data.data.data;
-  }
+	public static async createGUIDBackup()
+	{
+		const data = await serverRequest.post<ServerResponse<{ path: string; }>>('/api/v1/QQLogin/CreateGUIDBackup');
+		return data.data.data;
+	}
 
-  // ============================================================
-  // 平台信息 & Linux GUID 管理
-  // ============================================================
+	// ============================================================
+	// 平台信息 & Linux GUID 管理
+	// ============================================================
 
-  public static async getPlatformInfo () {
-    const data = await serverRequest.post<ServerResponse<{ platform: string; }>>('/api/v1/QQLogin/GetPlatformInfo');
-    return data.data.data;
-  }
+	public static async getPlatformInfo()
+	{
+		const data = await serverRequest.post<ServerResponse<{ platform: string; }>>('/api/v1/QQLogin/GetPlatformInfo');
+		return data.data.data;
+	}
 
-  public static async getLinuxMAC () {
-    const data = await serverRequest.post<ServerResponse<{ mac: string; }>>('/api/v1/QQLogin/GetLinuxMAC');
-    return data.data.data;
-  }
+	public static async getLinuxMAC()
+	{
+		const data = await serverRequest.post<ServerResponse<{ mac: string; }>>('/api/v1/QQLogin/GetLinuxMAC');
+		return data.data.data;
+	}
 
-  public static async setLinuxMAC (mac: string) {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetLinuxMAC', { mac });
-  }
+	public static async setLinuxMAC(mac: string)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/SetLinuxMAC', {mac});
+	}
 
-  public static async getLinuxMachineId () {
-    const data = await serverRequest.post<ServerResponse<{ machineId: string; }>>('/api/v1/QQLogin/GetLinuxMachineId');
-    return data.data.data;
-  }
+	public static async getLinuxMachineId()
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			machineId: string;
+		}>>('/api/v1/QQLogin/GetLinuxMachineId');
+		return data.data.data;
+	}
 
-  public static async computeLinuxGUID (mac?: string, machineId?: string) {
-    const data = await serverRequest.post<ServerResponse<{ guid: string; machineId: string; mac: string; }>>('/api/v1/QQLogin/ComputeLinuxGUID', { mac, machineId });
-    return data.data.data;
-  }
+	public static async computeLinuxGUID(mac?: string, machineId?: string)
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			guid: string;
+			machineId: string;
+			mac: string;
+		}>>('/api/v1/QQLogin/ComputeLinuxGUID', {mac, machineId});
+		return data.data.data;
+	}
 
-  public static async getLinuxMachineInfoBackups () {
-    const data = await serverRequest.post<ServerResponse<string[]>>('/api/v1/QQLogin/GetLinuxMachineInfoBackups');
-    return data.data.data;
-  }
+	public static async getLinuxMachineInfoBackups()
+	{
+		const data = await serverRequest.post<ServerResponse<string[]>>('/api/v1/QQLogin/GetLinuxMachineInfoBackups');
+		return data.data.data;
+	}
 
-  public static async createLinuxMachineInfoBackup () {
-    const data = await serverRequest.post<ServerResponse<{ path: string; }>>('/api/v1/QQLogin/CreateLinuxMachineInfoBackup');
-    return data.data.data;
-  }
+	public static async createLinuxMachineInfoBackup()
+	{
+		const data = await serverRequest.post<ServerResponse<{
+			path: string;
+		}>>('/api/v1/QQLogin/CreateLinuxMachineInfoBackup');
+		return data.data.data;
+	}
 
-  public static async restoreLinuxMachineInfoBackup (backupName: string) {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestoreLinuxMachineInfoBackup', { backupName });
-  }
+	public static async restoreLinuxMachineInfoBackup(backupName: string)
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/RestoreLinuxMachineInfoBackup', {backupName});
+	}
 
-  public static async resetLinuxDeviceID () {
-    await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/ResetLinuxDeviceID');
-  }
+	public static async resetLinuxDeviceID()
+	{
+		await serverRequest.post<ServerResponse<null>>('/api/v1/QQLogin/ResetLinuxDeviceID');
+	}
 
-  // ============================================================
-  // NapCat 配置管理
-  // ============================================================
+	// ============================================================
+	// NapCat 配置管理
+	// ============================================================
 
-  public static async getNapCatConfig () {
-    const { data } = await serverRequest.get<ServerResponse<NapCatConfig>>(
-      '/api/v1/NapCatConfig/GetConfig'
-    );
-    return data.data;
-  }
+	public static async getNapCatConfig()
+	{
+		const {data} = await serverRequest.get<ServerResponse<NapCatConfig>>(
+			'/api/v1/NapCatConfig/GetConfig'
+		);
+		return data.data;
+	}
 
-  public static async setNapCatConfig (config: Partial<NapCatConfig>) {
-    await serverRequest.post<ServerResponse<null>>(
-      '/api/v1/NapCatConfig/SetConfig',
-      config
-    );
-  }
+	public static async setNapCatConfig(config: Partial<NapCatConfig>)
+	{
+		await serverRequest.post<ServerResponse<null>>(
+			'/api/v1/NapCatConfig/SetConfig',
+			config
+		);
+	}
 
-  // per-uin 配置（napcat_{uin}.json）
+	// per-uin 配置（napcat_{uin}.json）
 
-  public static async getNapCatUinConfig () {
-    const { data } = await serverRequest.get<ServerResponse<NapCatConfig>>(
-      '/api/v1/NapCatConfig/GetUinConfig'
-    );
-    return data.data;
-  }
+	public static async getNapCatUinConfig()
+	{
+		const {data} = await serverRequest.get<ServerResponse<NapCatConfig>>(
+			'/api/v1/NapCatConfig/GetUinConfig'
+		);
+		return data.data;
+	}
 
-  public static async setNapCatUinConfig (config: Partial<NapCatConfig>) {
-    await serverRequest.post<ServerResponse<null>>(
-      '/api/v1/NapCatConfig/SetUinConfig',
-      config
-    );
-  }
+	public static async setNapCatUinConfig(config: Partial<NapCatConfig>)
+	{
+		await serverRequest.post<ServerResponse<null>>(
+			'/api/v1/NapCatConfig/SetUinConfig',
+			config
+		);
+	}
 }

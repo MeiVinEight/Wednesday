@@ -25,9 +25,7 @@ export const requestServerWithFetch = async (
 
   const baseURL = '/api';
 
-  const response = await fetch(baseURL + url, options);
-
-  return response;
+  return await fetch(baseURL + url, options);
 };
 
 /*

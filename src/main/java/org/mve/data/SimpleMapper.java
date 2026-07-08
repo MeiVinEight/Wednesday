@@ -220,7 +220,7 @@ public class SimpleMapper<T> extends Mapper<T>
 		}
 		catch (SQLException e)
 		{
-			Wednesday.LOGGER.error(e);
+			Mirroring.thrown(e);
 		}
 		return retVal;
 	}

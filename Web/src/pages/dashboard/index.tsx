@@ -64,7 +64,7 @@ const QQInfo: React.FC = () =>
 	if (data == undefined)
 	{
 		data = {
-			nick: "Wednesday",
+			nick: "Orange",
 			uid: "0",
 			uin: "0",
 			avatarUrl: "/logo.svg",

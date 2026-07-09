@@ -147,6 +147,7 @@ export default function ExtensionPage()
 		scrollRef.current.style.userSelect = '';
 	}, []);
 
+	/*
 	return (
 		<>
 			<title>扩展页面 - NapCat WebUI</title>
@@ -204,8 +205,8 @@ export default function ExtensionPage()
 														openInNewWindow(tab.pluginId, tab.path);
 													}}
 												>
-                          {tab.title}
-                        </span>
+												 	{tab.title}
+												</span>
 												<span
 													className='text-xs text-default-400 hidden md:inline'>({tab.pluginName})</span>
 											</div>
@@ -243,6 +244,36 @@ export default function ExtensionPage()
 							/>
 						</div>
 					)}
+			</div>
+		</>
+	);
+	*/
+
+	return (
+		<>
+			<title>扩展页面 - NapCat WebUI</title>
+			<div className='p-2 md:p-4 relative h-[calc(100vh-6rem)] md:h-[calc(100vh-4rem)] flex flex-col'>
+				<PageLoading loading={loading}/>
+
+				<div className='flex mb-4 items-center gap-4 flex-nowrap min-w-0'>
+					<div className='flex items-center gap-4 shrink-0'>
+						<div className='flex items-center gap-2 text-default-600'>
+							<MdExtension size={24}/>
+							<span className='text-lg font-medium'>插件扩展页面</span>
+						</div>
+						<Button
+							isIconOnly
+							className='bg-default-100/50 hover:bg-default-200/50 text-default-700 backdrop-blur-md'
+							radius='full'
+							onPress={refresh}
+						>
+							<IoMdRefresh size={24}/>
+						</Button>
+					</div>
+				</div>
+
+				<div className="flex-1">
+				</div>
 			</div>
 		</>
 	);

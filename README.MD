@@ -10,7 +10,7 @@
 
 > **注意: 本项目 <font color="#FF5555">不是</font> 一个开箱即用的工具，你需要至少部署一个可用的[OneBot11](https://onebot.dev/ecosystem)实现 (如 [LLOnebot](https://github.com/LLOneBot/LLOneBot)、[NapCat](https://github.com/NapNeko/NapCatQQ)、[Gensokyo](https://github.com/Hoshinonyaruko/Gensokyo) 等)**
 > 
-> **并正确开启一个 WebSocket 服务器，Wednesday 主动发起连接后才可正常使用**
+> **并正确开启一个 WebSocket 服务器，Orange 主动发起连接后才可正常使用**
 > 
 > 🚧该项功能目前积极开发中🚧
 > 
@@ -23,7 +23,7 @@
 1. 克隆项目到本地
 
    ```shell
-   git clone https://github.com/MeiVinEight/Wednesday
+   git clone https://github.com/MeiVinEight/Orange
    ```
 
 2. 构建项目
@@ -41,7 +41,7 @@
 4. 使用Java运行
 
    ```shell
-   java -cp "libs/Woden-1.0.0.jar" org.mve.woden.Main
+   java -cp "libs/core-1.0.0.jar" org.mve.core.Main
    ```
 
 ---
@@ -75,8 +75,7 @@
 ## 丨注意
 
 + 首次启动会自动创建上述配置文件，也可以在启动之前手动创建。
-+ 首次启动会创建初始WebUI登陆密码并输出在日志中，请记录输出的密码，
-使用控制台给出的链接登录WebUI并尽快修改登陆密码，初始密码仅在首次启动时显示。
++ 首次启动会创建初始WebAPI登陆密码并输出在日志中，请记录输出的密码。
 + 若忘记密码可删除`data/WEBUI.DAT`文件，下次启动会重新生成登录密码。
 
 ## 丨其他

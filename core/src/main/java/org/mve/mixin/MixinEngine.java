@@ -1,6 +1,6 @@
 package org.mve.mixin;
 
-import org.mve.woden.ResourceEnumeration;
+import org.mve.core.ResourceEnumeration;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;

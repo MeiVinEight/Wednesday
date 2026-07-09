@@ -62,7 +62,7 @@ dependencies {
 	implementation group: 'org.ow2.asm', name: 'asm', version: '9.9'
 	// https://mvnrepository.com/artifact/org.ow2.asm/asm-tree
 	implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.9'
-	implementation project(":Woden")
+	implementation project(":core")
 }
 
 tasks.register('sourceJar', Jar) {
@@ -79,8 +79,8 @@ tasks.register("run", JavaExec) {
 	dependsOn depends
 	dependsOn build
 	group = "build"
-	classpath = project.files("Woden-1.0.0.jar")
-	mainClass = "org.mve.woden.Main"
+	classpath = project.files("libs/core-1.0.0.jar")
+	mainClass = "org.mve.core.Main"
 }
 
 tasks.depends.doLast {

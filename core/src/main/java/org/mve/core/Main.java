@@ -1,4 +1,4 @@
-package org.mve.woden;
+package org.mve.core;
 
 import org.mve.mixin.MixinEngine;
 import org.mve.mixin.MixinMirroring;

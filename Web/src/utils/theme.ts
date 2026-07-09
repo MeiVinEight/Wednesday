@@ -1,4 +1,5 @@
 import WebUIManager from "@/controllers/webui_manager.ts";
+import {request} from "@/utils/request.ts";
 
 const style = document.createElement('style');
 document.head.appendChild(style);
@@ -23,7 +24,7 @@ function convertColor(data: any)
 	return ccs;
 }
 
-function setThemeFromConfig(config: ThemeConfig)
+function setThemeFromConfig(config: ThemeConfig): string
 {
 	var css = '';
 	var fontFamliy: string = '\t--font-family-base: var(--font-family-fallbacks) !important;\n' +
@@ -49,33 +50,24 @@ function setThemeFromConfig(config: ThemeConfig)
 	css += convertColor(config.dark);
 	css += fontFamliy;
 	css += "\n}";
+	return css;
+}
+
+export async function loadTheme()
+{
+	let css: string = '';
+	try
+	{
+		css = setThemeFromConfig(await WebUIManager.getThemeConfig());
+	}
+	catch (err)
+	{
+		css = (await request("/theme.css")).data;
+	}
 	style.innerHTML = css;
 	// 清除预览样式，使用 theme.css 中的正式配置
 	fontPreviewStyle.innerHTML = '';
 	document.documentElement.style.removeProperty('--font-family-base');
-}
-
-export function loadTheme()
-{
-	/*
-	request('/theme.css')
-		.then((res) => res.data)
-		.then(async (css) =>
-		{
-
-			style.innerHTML = css;
-			// 清除预览样式，使用 theme.css 中的正式配置
-			fontPreviewStyle.innerHTML = '';
-			document.documentElement.style.removeProperty('--font-family-base');
-			const config: ThemeConfig = await WebUIManager.getThemeConfig();
-			//console.log(config);
-		})
-		.catch(() =>
-		{
-			console.error('Failed to load theme.css');
-		});
-	*/
-	WebUIManager.getThemeConfig().then(setThemeFromConfig)
 }
 
 // 动态加载字体 CSS（用于预览）

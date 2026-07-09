@@ -23,6 +23,7 @@ import FileManager from '@/controllers/file_manager';
 import {applyFont, colorKeys, generateTheme, loadTheme, updateFontCache} from '@/utils/theme';
 
 import WebUIManager from '@/controllers/webui_manager';
+import nc_pink from "@/const/themes/nc_pink.ts";
 
 export type PreviewThemeCardProps = {
 	theme: ThemeInfo;
@@ -146,10 +147,27 @@ const fontModeNames: Record<string, string> = {
 	custom: '自定义字体',
 };
 
+async function getThemeOrDefault()
+{
+	let data: ThemeConfig = {
+		dark: nc_pink.theme.dark,
+		light: nc_pink.theme.light,
+		fontMode: 'system'
+	};
+	try
+	{
+		data = await WebUIManager.getThemeConfig();
+	}
+	catch (err)
+	{
+	}
+	return data;
+}
+
 const ThemeConfigCard = () =>
 {
 	const {data, loading, error, refreshAsync} = useRequest(
-		WebUIManager.getThemeConfig
+		getThemeOrDefault
 	);
 	const {
 		control,
@@ -163,7 +181,7 @@ const ThemeConfigCard = () =>
 			theme: {
 				dark: {},
 				light: {},
-				fontMode: 'aacute',
+				fontMode: 'system',
 			},
 		},
 	});

@@ -4,7 +4,6 @@ import {EventSourcePolyfill} from 'event-source-polyfill';
 import {LogLevel} from '@/const/enum';
 
 import {serverRequest} from '@/utils/request';
-import nc_pink from "@/const/themes/nc_pink.ts";
 
 export interface Log
 {
@@ -185,19 +184,12 @@ export default class WebUIManager
 
 	public static async getThemeConfig()
 	{
-		let data: ThemeConfig = await WebUIManager.getPersistence("webui_theme");
-		if (data === undefined)
-			data = {
-				dark: nc_pink.theme.dark,
-				light: nc_pink.theme.light,
-				fontMode: 'system'
-			};
-		return data;
+		return await WebUIManager.getPersistence("webui_theme");
 	}
 
 	public static async setThemeConfig(theme: ThemeConfig)
 	{
-		return await WebUIManager.setPersistence("webui_theme", theme);
+		return await WebUIManager.setPersistence("webui_theme", theme, false);
 	}
 
 	public static async restart()
@@ -442,12 +434,13 @@ export default class WebUIManager
 		return data.data;
 	}
 
-	public static async setPersistence(name: string, val: object)
+	public static async setPersistence(name: string, val: object, auth: boolean = true)
 	{
 		const {data} = await serverRequest.post<ServerResponse<any>>("/api/v1/persistence", {
 			action: "POST",
 			name: name,
-			data: val
+			data: val,
+			auth: auth
 		});
 		return data.data;
 	}

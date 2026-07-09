@@ -153,12 +153,12 @@ public class WednesdayWeb implements HttpHandler, WebService
 				code = HttpURLConnection.HTTP_NOT_FOUND;
 				break WEB_SERVICE;
 			}
-			if (service.auth() && !this.authenticate(exchange))
+			if (service.auth() && !WednesdayWeb.authenticate(exchange))
 			{
 				bodyObject = WebAPI.code(new Json(), WebAPI.CODE_UNAUTHORIZED);
 				break WEB_SERVICE;
 			}
-			bodyObject = service.service(request);
+			bodyObject = service.service(exchange, request);
 			if (bodyObject == null)
 				bodyObject = WebAPI.code(new Json(), WebAPI.CODE_OK);
 		}
@@ -225,7 +225,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 		LOGGER.warning("Unknown response object type: " + bodyObject.getClass().getName());
 	}
 
-	public boolean authenticate(HttpExchange exchange)
+	public static boolean authenticate(HttpExchange exchange)
 	{
 		String cookieValue = exchange.getRequestHeaders().getFirst("Cookie");
 		if (cookieValue == null)
@@ -234,7 +234,7 @@ public class WednesdayWeb implements HttpHandler, WebService
 		String session = cookie.get(WebAPI.COOKIE_JSESSIONID);
 		if (session == null || session.isEmpty())
 			return false;
-		return new String(JSESSIONID).equals(session);
+		return new String(WednesdayWeb.JSESSIONID).equals(session);
 	}
 
 	public void close()

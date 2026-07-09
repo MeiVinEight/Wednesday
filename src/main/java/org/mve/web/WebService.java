@@ -1,12 +1,21 @@
 package org.mve.web;
 
+import com.sun.net.httpserver.HttpExchange;
 import org.mve.uni.Json;
 
 import java.util.function.Function;
 
 public interface WebService extends Function<Json, Object>
 {
-	Object service(Json body);
+	default Object service(Json body)
+	{
+		return null;
+	}
+
+	default Object service(HttpExchange exchange, Json body)
+	{
+		return this.service(body);
+	}
 
 	default boolean auth()
 	{

@@ -28,6 +28,7 @@ public class WebAPI
 	public static final String KEY_SYSTEM = "system";
 	public static final String KEY_ACTION = "action";
 	public static final String KEY_ENABLE = "enable";
+	public static final String KEY_AUTH = "auth";
 
 	public static final int CODE_OK             = 0;
 	public static final int CODE_NOT_FOUND      = 1;

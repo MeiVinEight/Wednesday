@@ -1,45 +1,27 @@
 package org.mve.logging;
 
-import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function4;
 import kotlin.properties.ReadWriteProperty;
 import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.MiraiLoggerFactoryImplementationBridge;
-import net.mamoe.mirai.utils.SimpleLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mve.uni.Mirroring;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LoggerManager implements ILoggerFactory, MiraiLogger.Factory
 {
 	public static final LoggerManager FACTORY;
-	public static final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> FUNCTION = new ArrayList<>();
 
-	public static void register(Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function)
+	public static Coffee create()
 	{
-		LoggerManager.FUNCTION.add(function);
+		return new Coffee(null);
 	}
 
-	public static WednesdayLogger create()
+	public static Coffee create(String name)
 	{
-		WednesdayLogger logger = new WednesdayLogger(null);
-		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
-			logger.consumation(function);
-		return logger;
-	}
-
-	public static WednesdayLogger create(String name)
-	{
-		WednesdayLogger logger = new WednesdayLogger(name);
-		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : LoggerManager.FUNCTION)
-			logger.consumation(function);
-		return logger;
+		return new Coffee(name);
 	}
 
 	@Override

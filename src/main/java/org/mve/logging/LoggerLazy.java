@@ -8,7 +8,7 @@ public class LoggerLazy implements Lazy<MiraiLogger>
 	@Override
 	public MiraiLogger getValue()
 	{
-		return new WednesdayLogger(null);
+		return new Coffee(null);
 	}
 
 	@Override

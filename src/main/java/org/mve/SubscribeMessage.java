@@ -10,7 +10,7 @@ import net.mamoe.mirai.message.data.SingleMessage;
 import org.mve.invoke.MagicAccessor;
 import org.mve.invoke.MethodAccessor;
 import org.mve.invoke.ReflectionFactory;
-import org.mve.logging.WednesdayLogger;
+import org.mve.logging.Coffee;
 import org.mve.uni.Mirroring;
 
 import java.lang.reflect.Method;
@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 public class SubscribeMessage extends Synchronize implements Function<Event, ListeningStatus>
 {
-	private static final WednesdayLogger LOGGER = new WednesdayLogger(null);
+	private static final Coffee LOGGER = new Coffee(null);
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 	private final Map<Class<? extends Event>, Consumer<Event>> consumation = new HashMap<>();
 	private final Map<String, Consumer<MessageEvent>> message = new HashMap<>();

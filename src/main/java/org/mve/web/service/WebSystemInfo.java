@@ -3,7 +3,6 @@ package org.mve.web.service;
 import org.mve.uni.Json;
 import org.mve.web.WebAPI;
 import org.mve.web.WebService;
-import org.mve.web.WednesdayWeb;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +45,7 @@ public class WebSystemInfo implements WebService
 		}
 		catch (IOException e)
 		{
-			WednesdayWeb.LOGGER.error("获取系统版本信息失败", e);
+			WebAPI.LOGGER.error("获取系统版本信息失败", e);
 		}
 		return WebAPI.code(new Json(), WebAPI.CODE_OK)
 			.set(WebAPI.KEY_DATA, new Json()

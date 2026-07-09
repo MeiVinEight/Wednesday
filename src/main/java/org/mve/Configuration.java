@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.mve.logging.LoggerManager;
-import org.mve.logging.WednesdayLogger;
+import org.mve.logging.Coffee;
 import org.mve.uni.Json;
 
 import java.io.File;
@@ -21,7 +21,7 @@ public class Configuration
 	private static final String KEY_ADDR = "address";
 	private static final String KEY_PORT = "port";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-	private static final WednesdayLogger LOGGER = LoggerManager.create("Configuration");
+	private static final Coffee LOGGER = LoggerManager.create("Configuration");
 
 	public static final String DATA_DIR = "data";
 	public static final Json JSON;
@@ -51,7 +51,7 @@ public class Configuration
 	}
 
 	public static void address(String address)
-	{;
+	{
 		Configuration.JSON.set(Configuration.KEY_ADDR, address);
 		Configuration.saving();
 	}

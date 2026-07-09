@@ -52,6 +52,6 @@ public class Persistence
 			.notnull()
 			.query(Persistence.MAPPER);
 		if (created)
-			WednesdayWeb.LOGGER.info("创建表 {}", TABLE_NAME);
+			WebAPI.LOGGER.info("创建表 {}", TABLE_NAME);
 	}
 }

@@ -3,7 +3,6 @@ package org.mve.logging;
 import kotlin.ExceptionsKt;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function3;
-import kotlin.jvm.functions.Function4;
 import net.mamoe.mirai.utils.MiraiLogger;
 import net.mamoe.mirai.utils.SimpleLogger;
 import org.fusesource.jansi.Ansi;
@@ -16,26 +15,17 @@ import org.slf4j.helpers.LegacyAbstractLogger;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class WednesdayLogger extends LegacyAbstractLogger implements Function3<SimpleLogger.LogPriority, String, Throwable, Unit>, MiraiLogger
+public class Coffee extends LegacyAbstractLogger implements Function3<SimpleLogger.LogPriority, String, Throwable, Unit>, MiraiLogger
 {
 	private static final Map<SimpleLogger.LogPriority, Consumer<Ansi>> PRIORITY_COLOR;
 	public static final Map<SimpleLogger.LogPriority, String> PRIORITY_ALIGNED_NAME;
-	private final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> consumation = new LinkedList<>();
-	private boolean function = true;
 
-	public WednesdayLogger(String name)
+	public Coffee(String name)
 	{
 		this.name = name;
-	}
-
-	public void consumation(Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function)
-	{
-		this.consumation.add(function);
 	}
 
 	@Override
@@ -69,21 +59,6 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 			ansi.a(ExceptionsKt.stackTraceToString(throwable));
 
 		System.out.print(ansi);
-		if (!function)
-			return null;
-		for (Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit> function : this.consumation)
-		{
-			try
-			{
-				function.invoke(this, logPriority, s, throwable);
-			}
-			catch (Throwable e)
-			{
-				this.function = false;
-				this.error(e);
-				this.function = true;
-			}
-		}
 		return null;
 	}
 

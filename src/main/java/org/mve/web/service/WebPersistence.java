@@ -7,7 +7,6 @@ import org.mve.web.APIException;
 import org.mve.web.Persistence;
 import org.mve.web.WebAPI;
 import org.mve.web.WebService;
-import org.mve.web.WednesdayWeb;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class WebPersistence implements WebService
 			if (pers.isEmpty())
 				throw new APIException(WebAPI.CODE_INVALID_PARAM, (Object) WebAPI.KEY_NAME);
 			Persistence per = pers.get(0);
-			if (per.auth() && !WednesdayWeb.authenticate(exchange))
+			if (per.auth() && !WebAPI.authenticate(exchange))
 				throw new APIException(WebAPI.CODE_UNAUTHORIZED);
 			String text = per.TEXT;
 			Json data = null;

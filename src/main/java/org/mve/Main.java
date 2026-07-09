@@ -1,23 +1,20 @@
 package org.mve;
 
 import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
-import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerLazy;
-import org.mve.logging.LoggerManager;
-import org.mve.logging.WednesdayLogger;
+import org.mve.logging.Coffee;
 import org.mve.uni.Mirroring;
-import org.mve.web.WednesdayWeb;
+import org.mve.web.WebAPI;
 
 import java.util.function.Consumer;
 
 public class Main implements Consumer<String[]>
 {
-	public static void main(String[] args) throws Throwable
+	public static void main(String[] args)
 	{
-		WednesdayLogger logger = new WednesdayLogger(null);
+		Coffee logger = new Coffee(null);
 		System.setErr(System.out);
-		LoggerManager.register(FileLogger.INSTANCE);
-		logger.info(LoggerMessage.LOG_WEDNESDAY_STARTUP);
+		logger.info("Wednesday 启动");
 
 
 		Mirroring.set(
@@ -29,7 +26,7 @@ public class Main implements Consumer<String[]>
 		try
 		{
 			Class.forName("org.sqlite.JDBC");
-			WednesdayWeb.main(args);
+			WebAPI.main(args);
 		}
 		catch (Throwable e)
 		{

@@ -28,6 +28,7 @@ const TerminalPage = lazy(() => import('@/pages/dashboard/terminal'));
 const PluginPage = lazy(() => import('@/pages/dashboard/plugin'));
 // const PluginStorePage = lazy(() => import('@/pages/dashboard/plugin_store'));
 const ExtensionPage = lazy(() => import('@/pages/dashboard/extension'));
+
 // const ConnectionPage = lazy(() => import('@/pages/dashboard/connection.tsx'));
 
 function App()

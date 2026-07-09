@@ -35,32 +35,36 @@
  * truncatePath('/home/user/projects/deep/nested/file.txt', 30)
  * // 返回: '/home/user/.../nested/file.txt'
  */
-export function truncatePath (path: string, maxLength: number = 60): string {
-  if (path.length <= maxLength) {
-    return path;
-  }
+export function truncatePath(path: string, maxLength: number = 60): string
+{
+	if (path.length <= maxLength)
+	{
+		return path;
+	}
 
-  // 自动检测路径分隔符，兼容 Windows (\) 和 Linux/Unix (/)
-  const separator = path.includes('\\') ? '\\' : '/';
-  const parts = path.split(separator);
+	// 自动检测路径分隔符，兼容 Windows (\) 和 Linux/Unix (/)
+	const separator = path.includes('\\') ? '\\' : '/';
+	const parts = path.split(separator);
 
-  if (parts.length <= 3) {
-    // 如果路径段太少（如 D:\folder\file），直接尾部截断
-    return path.substring(0, maxLength - 3) + '...';
-  }
+	if (parts.length <= 3)
+	{
+		// 如果路径段太少（如 D:\folder\file），直接尾部截断
+		return path.substring(0, maxLength - 3) + '...';
+	}
 
-  // 保留第一段（Windows 驱动器号如 D: 或 Linux 根目录）和最后两段（父目录+文件名）
-  const firstPart = parts[0];
-  const lastParts = parts.slice(-2).join(separator);
+	// 保留第一段（Windows 驱动器号如 D: 或 Linux 根目录）和最后两段（父目录+文件名）
+	const firstPart = parts[0];
+	const lastParts = parts.slice(-2).join(separator);
 
-  const truncated = `${firstPart}${separator}...${separator}${lastParts}`;
+	const truncated = `${firstPart}${separator}...${separator}${lastParts}`;
 
-  // 如果截断后仍然超长，回退到简单的尾部截断
-  if (truncated.length > maxLength) {
-    return path.substring(0, maxLength - 3) + '...';
-  }
+	// 如果截断后仍然超长，回退到简单的尾部截断
+	if (truncated.length > maxLength)
+	{
+		return path.substring(0, maxLength - 3) + '...';
+	}
 
-  return truncated;
+	return truncated;
 }
 
 /**
@@ -83,47 +87,56 @@ export function truncatePath (path: string, maxLength: number = 60): string {
  * truncateErrorMessage("Failed to read /home/user/projects/napcat/very/deep/nested/config.json")
  * // 返回: "Failed to read /home/user/.../nested/config.json"
  */
-export function truncateErrorMessage (message: string, maxLength: number = 100): string {
-  if (message.length <= maxLength) {
-    return message;
-  }
+export function truncateErrorMessage(message: string, maxLength: number = 100): string
+{
+	if (message.length <= maxLength)
+	{
+		return message;
+	}
 
-  // Windows 路径正则：匹配 盘符:\路径 格式，如 D:\folder\file.txt
-  // 排除空白字符和引号，避免匹配到路径外的内容
-  const windowsPathRegex = /[A-Za-z]:\\[^\s'"]+/g;
+	// Windows 路径正则：匹配 盘符:\路径 格式，如 D:\folder\file.txt
+	// 排除空白字符和引号，避免匹配到路径外的内容
+	const windowsPathRegex = /[A-Za-z]:\\[^\s'"]+/g;
 
-  // Linux/Unix 路径正则：匹配 /开头的多级路径，如 /home/user/file
-  // 要求至少有两级目录，避免匹配单独的 /
-  const unixPathRegex = /\/[^\s'"]+(?:\/[^\s'"]+)+/g;
+	// Linux/Unix 路径正则：匹配 /开头的多级路径，如 /home/user/file
+	// 要求至少有两级目录，避免匹配单独的 /
+	const unixPathRegex = /\/[^\s'"]+(?:\/[^\s'"]+)+/g;
 
-  let result = message;
+	let result = message;
 
-  // 处理 Windows 路径
-  const windowsPaths = message.match(windowsPathRegex);
-  if (windowsPaths) {
-    for (const path of windowsPaths) {
-      if (path.length > 40) {
-        result = result.replace(path, truncatePath(path, 40));
-      }
-    }
-  }
+	// 处理 Windows 路径
+	const windowsPaths = message.match(windowsPathRegex);
+	if (windowsPaths)
+	{
+		for (const path of windowsPaths)
+		{
+			if (path.length > 40)
+			{
+				result = result.replace(path, truncatePath(path, 40));
+			}
+		}
+	}
 
-  // 处理 Unix 路径
-  const unixPaths = message.match(unixPathRegex);
-  if (unixPaths) {
-    for (const path of unixPaths) {
-      if (path.length > 40) {
-        result = result.replace(path, truncatePath(path, 40));
-      }
-    }
-  }
+	// 处理 Unix 路径
+	const unixPaths = message.match(unixPathRegex);
+	if (unixPaths)
+	{
+		for (const path of unixPaths)
+		{
+			if (path.length > 40)
+			{
+				result = result.replace(path, truncatePath(path, 40));
+			}
+		}
+	}
 
-  // 如果处理路径后消息仍然超长，直接尾部截断
-  if (result.length > maxLength) {
-    return result.substring(0, maxLength - 3) + '...';
-  }
+	// 如果处理路径后消息仍然超长，直接尾部截断
+	if (result.length > maxLength)
+	{
+		return result.substring(0, maxLength - 3) + '...';
+	}
 
-  return result;
+	return result;
 }
 
 /**
@@ -133,9 +146,11 @@ export function truncateErrorMessage (message: string, maxLength: number = 100):
  * @param maxLength - 最大长度，默认 50 字符
  * @returns 截断后的文本，超长部分用 ... 替代
  */
-export function truncateText (text: string, maxLength: number = 50): string {
-  if (text.length <= maxLength) {
-    return text;
-  }
-  return text.substring(0, maxLength - 3) + '...';
+export function truncateText(text: string, maxLength: number = 50): string
+{
+	if (text.length <= maxLength)
+	{
+		return text;
+	}
+	return text.substring(0, maxLength - 3) + '...';
 }

@@ -1,5 +1,5 @@
-import { Request } from './api';
-import { OB11AllEvent } from './event';
+import {Request} from './api';
+import {OB11AllEvent} from './event';
 
 /**
  * @file onebot协议相关类型定义
@@ -16,14 +16,15 @@ export type AllOB11RequestKeys = keyof Request;
 export type AllOBRequestValues = Request[AllOB11RequestKeys];
 
 export interface RequestResponse<
-  T extends AllOB11RequestKeys = AllOB11RequestKeys
-> {
-  status: 'ok' | 'async' | 'failed'
-  retcode: number
-  data: Request[T]
-  message: string
-  wording: string
-  echo: string
+	T extends AllOB11RequestKeys = AllOB11RequestKeys
+>
+{
+	status: 'ok' | 'async' | 'failed'
+	retcode: number
+	data: Request[T]
+	message: string
+	wording: string
+	echo: string
 }
 
 export type AllOB11WsResponse = OB11AllEvent | RequestResponse;

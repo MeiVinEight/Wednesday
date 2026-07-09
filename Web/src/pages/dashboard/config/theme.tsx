@@ -632,7 +632,7 @@ const ThemeConfigCard = () =>
 													/>
 													<div className='flex flex-col overflow-hidden'>
                             <span
-	                            className={clsx('text-xs font-medium truncate', mode === 'dark' ? 'text-zinc-300' : 'text-zinc-700')}>
+								className={clsx('text-xs font-medium truncate', mode === 'dark' ? 'text-zinc-300' : 'text-zinc-700')}>
                               {colorKey.replace('--heroui-', '')}
                             </span>
 														<span

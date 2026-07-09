@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.mve.Configuration;
-import org.mve.ConnectionManager;
 import org.mve.logging.FileLogger;
 import org.mve.logging.WednesdayLogger;
 import org.mve.orange.event.OrangeEvent;
@@ -41,7 +40,7 @@ import java.util.regex.Pattern;
 
 public class WednesdayWeb implements HttpHandler, WebService
 {
-	public static final WednesdayLogger LOGGER = new WednesdayLogger("WEB", Configuration.level());
+	public static final WednesdayLogger LOGGER = new WednesdayLogger("WEB");
 	public static final Map<String, Map<String, WebService>> API = new HashMap<>();
 	private static final Pattern PATTERN_TOKEN = Pattern.compile("^[0-9A-F]{32}$");
 	private static final String DATA_WEBUI = Configuration.DATA_DIR + "/WEBUI.DAT";

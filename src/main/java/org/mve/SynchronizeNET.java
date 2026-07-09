@@ -1,11 +1,14 @@
 package org.mve;
 
+import org.mve.logging.WednesdayLogger;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.LockSupport;
 
 public class SynchronizeNET implements Runnable
 {
+	private static final WednesdayLogger LOGGER = new WednesdayLogger("SYNC");
 	public static final long PERIOD_MS = 50;
 	private final Queue<Synchronize> queue = new ConcurrentLinkedQueue<>();
 	private boolean running = true;
@@ -47,7 +50,7 @@ public class SynchronizeNET implements Runnable
 				}
 				catch (Throwable t)
 				{
-					Wednesday.LOGGER.error("Synchronize error", t);
+					SynchronizeNET.LOGGER.error("Synchronize error", t);
 				}
 				task.delay = task.period;
 			}

@@ -4,6 +4,7 @@ import net.mamoe.mirai.internal.utils.ExternalResourceLeakObserver;
 import org.mve.logging.FileLogger;
 import org.mve.logging.LoggerLazy;
 import org.mve.logging.LoggerManager;
+import org.mve.logging.WednesdayLogger;
 import org.mve.uni.Mirroring;
 import org.mve.web.WednesdayWeb;
 
@@ -13,9 +14,10 @@ public class Main implements Consumer<String[]>
 {
 	public static void main(String[] args) throws Throwable
 	{
+		WednesdayLogger logger = new WednesdayLogger(null);
 		System.setErr(System.out);
 		LoggerManager.register(FileLogger.INSTANCE);
-		Wednesday.LOGGER.info(LoggerMessage.LOG_WEDNESDAY_STARTUP);
+		logger.info(LoggerMessage.LOG_WEDNESDAY_STARTUP);
 
 
 		Mirroring.set(
@@ -31,8 +33,7 @@ public class Main implements Consumer<String[]>
 		}
 		catch (Throwable e)
 		{
-			Wednesday.LOGGER.error(e);
-			Wednesday.SYNCHRONIZE.close();
+			logger.error(e);
 		}
 	}
 

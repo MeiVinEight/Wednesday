@@ -10,6 +10,7 @@ import net.mamoe.mirai.message.data.SingleMessage;
 import org.mve.invoke.MagicAccessor;
 import org.mve.invoke.MethodAccessor;
 import org.mve.invoke.ReflectionFactory;
+import org.mve.logging.WednesdayLogger;
 import org.mve.uni.Mirroring;
 
 import java.lang.reflect.Method;
@@ -24,6 +25,7 @@ import java.util.function.Function;
 
 public class SubscribeMessage extends Synchronize implements Function<Event, ListeningStatus>
 {
+	private static final WednesdayLogger LOGGER = new WednesdayLogger(null);
 	private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 	private final Map<Class<? extends Event>, Consumer<Event>> consumation = new HashMap<>();
 	private final Map<String, Consumer<MessageEvent>> message = new HashMap<>();
@@ -32,7 +34,7 @@ public class SubscribeMessage extends Synchronize implements Function<Event, Lis
 	@Override
 	public ListeningStatus apply(Event event)
 	{
-		Wednesday.LOGGER.debug("Message: {}", event.toString());
+		SubscribeMessage.LOGGER.debug("Message: {}", event.toString());
 		// Add event to queue and handle event in another thread
 		this.queue.add(event);
 		return this.cancelled ? ListeningStatus.STOPPED : ListeningStatus.LISTENING;

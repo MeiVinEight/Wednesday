@@ -28,11 +28,6 @@ public class WednesdayLogger extends LegacyAbstractLogger implements Function3<S
 	private final List<Function4<WednesdayLogger, SimpleLogger.LogPriority, String, Throwable, Unit>> consumation = new LinkedList<>();
 	private boolean function = true;
 
-	public WednesdayLogger(String name, SimpleLogger.LogPriority priority)
-	{
-		this(name);
-	}
-
 	public WednesdayLogger(String name)
 	{
 		this.name = name;

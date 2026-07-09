@@ -1,7 +1,7 @@
 package org.mve.web.service;
 
-import org.mve.ConnectionManager;
-import org.mve.ConnectionWednesday;
+import org.mve.web.ConnectionManager;
+import org.mve.web.Connection;
 import org.mve.orange.core.Orange;
 import org.mve.uni.Json;
 import org.mve.uni.Mirroring;
@@ -27,7 +27,7 @@ public class ConnEnable implements WebService
 			throw new APIException(WebAPI.CODE_MISSING_PARAM, (Object) WebAPI.KEY_NAME);
 		if (enable == null)
 			throw new APIException(WebAPI.CODE_MISSING_PARAM, (Object) WebAPI.KEY_ENABLE);
-		ConnectionWednesday conn = this.connection.get(name);
+		Connection conn = this.connection.get(name);
 		if (conn == null)
 			throw new APIException(WebAPI.CODE_INVALID_PARAM, (Object) WebAPI.KEY_NAME);
 		if (enable)

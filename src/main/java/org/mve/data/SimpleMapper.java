@@ -1,12 +1,13 @@
 package org.mve.data;
 
-import org.mve.Wednesday;
 import org.mve.invoke.ConstructorAccessor;
 import org.mve.invoke.FieldAccessor;
 import org.mve.invoke.MagicAccessor;
 import org.mve.invoke.ReflectionFactory;
 import org.mve.invoke.common.JavaVM;
 import org.mve.uni.Mirroring;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sqlite.core.CoreResultSet;
 
 import javax.persistence.Column;
@@ -30,11 +31,18 @@ import java.util.Set;
 public class SimpleMapper<T> extends Mapper<T>
 {
 	public final Class<T> clazz;
+	private final Logger logger;
 
 	public SimpleMapper(Database database, Class<T> clazz)
 	{
+		this(database, clazz, LoggerFactory.getLogger("Mapper"));
+	}
+	
+	public SimpleMapper(Database database, Class<T> type, Logger logger)
+	{
 		super(database);
-		this.clazz = clazz;
+		this.clazz = type;
+		this.logger = logger;
 	}
 
 	@Override
@@ -75,7 +83,7 @@ public class SimpleMapper<T> extends Mapper<T>
 			columnBuilder.append(')');
 			valuesBuilder.append(')');
 			sql.append(columnBuilder).append(" VALUES ").append(valuesBuilder).append(';');
-			Wednesday.LOGGER.verbose(sql.toString());
+			this.logger.trace(sql.toString());
 
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
@@ -89,7 +97,7 @@ public class SimpleMapper<T> extends Mapper<T>
 		}
 		catch (SQLException t)
 		{
-			Wednesday.LOGGER.error(t);
+			Mirroring.thrown(t);
 		}
 		return false;
 	}
@@ -130,7 +138,7 @@ public class SimpleMapper<T> extends Mapper<T>
 				}
 			}
 			sql.append(';');
-			Wednesday.LOGGER.verbose(sql.toString());
+			this.logger.trace(sql.toString());
 
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
@@ -157,7 +165,7 @@ public class SimpleMapper<T> extends Mapper<T>
 		}
 		catch (Throwable exce)
 		{
-			Wednesday.LOGGER.error(exce);
+			Mirroring.thrown(exce);
 		}
 		return t;
 	}
@@ -198,7 +206,7 @@ public class SimpleMapper<T> extends Mapper<T>
 				}
 			}
 			sql.append(';');
-			Wednesday.LOGGER.verbose(sql.toString());
+			this.logger.trace(sql.toString());
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
 				for (int i = 0; i < idx; i++)
@@ -285,7 +293,7 @@ public class SimpleMapper<T> extends Mapper<T>
 			}
 
 			queryStmt.append(whereStmt).append(';');
-			Wednesday.LOGGER.verbose(queryStmt.toString());
+			this.logger.trace(queryStmt.toString());
 			try (PreparedStatement stmt = conn.prepareStatement(queryStmt.toString()))
 			{
 				for (int i = 0; i < idxs; i++)
@@ -348,7 +356,7 @@ public class SimpleMapper<T> extends Mapper<T>
 			}
 
 			sql.append(';');
-			Wednesday.LOGGER.verbose(sql.toString());
+			this.logger.trace(sql.toString());
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
 				for (idx = 0; idx < args.length; idx++)
@@ -358,7 +366,7 @@ public class SimpleMapper<T> extends Mapper<T>
 		}
 		catch (SQLException e)
 		{
-			Wednesday.LOGGER.error(e);
+			Mirroring.thrown(e);
 		}
 		return 0;
 	}
@@ -377,8 +385,7 @@ public class SimpleMapper<T> extends Mapper<T>
 		}
 		catch (SQLException e)
 		{
-			Wednesday.LOGGER.error(e);
-			return -1;
+			Mirroring.thrown(e);
 		}
 		return 0;
 	}
@@ -416,7 +423,7 @@ public class SimpleMapper<T> extends Mapper<T>
 				args[argCount++] = value;
 			}
 			sql.append(';');
-			Wednesday.LOGGER.verbose(sql.toString());
+			this.logger.trace(sql.toString());
 			try (PreparedStatement stmt = conn.prepareStatement(sql.toString()))
 			{
 				for (int i = 0; i < argCount; i++)
@@ -430,7 +437,7 @@ public class SimpleMapper<T> extends Mapper<T>
 		}
 		catch (SQLException e)
 		{
-			Wednesday.LOGGER.error(e);
+			Mirroring.thrown(e);
 		}
 		return 0;
 	}

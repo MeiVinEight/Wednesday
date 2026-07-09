@@ -1,7 +1,7 @@
 package org.mve.web.service;
 
-import org.mve.ConnectionManager;
-import org.mve.ConnectionWednesday;
+import org.mve.web.ConnectionManager;
+import org.mve.web.Connection;
 import org.mve.uni.Json;
 import org.mve.web.WebAPI;
 import org.mve.web.WebService;
@@ -28,7 +28,7 @@ public class ConnGet implements WebService
 			);
 		Json resp = WebAPI.code(new Json(), WebAPI.CODE_OK)
 			.set(WebAPI.KEY_DATA, data);
-		for (ConnectionWednesday conn : this.connection.all())
+		for (Connection conn : this.connection.all())
 			wsClients.add(conn.data(false));
 		return resp;
 	}

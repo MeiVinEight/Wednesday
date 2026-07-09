@@ -1,9 +1,11 @@
 package org.mve.web;
 
+import org.mve.logging.WednesdayLogger;
 import org.mve.uni.Json;
 
 public class WebAPI
 {
+	public static final WednesdayLogger LOGGER = new WednesdayLogger("WebAPI");
 	public static final String KEY_CODE = "code";
 	public static final String KEY_MESSAGE = "message";
 	public static final String KEY_DATA = "data";

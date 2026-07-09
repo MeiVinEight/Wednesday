@@ -55,7 +55,7 @@ function setThemeFromConfig(config: ThemeConfig): string
 
 export async function loadTheme()
 {
-	let css: string = '';
+	let css: string;
 	try
 	{
 		css = setThemeFromConfig(await WebUIManager.getThemeConfig());
